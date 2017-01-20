@@ -17,7 +17,7 @@ class GdmcPluginTest extends Specification {
     given:
     buildFolder.newFile("build.gradle") << """
 plugins {
-  id 'java'
+  id 'groovy'
   id 'com.episode6.hackit.gdmc'
 }
 
@@ -30,9 +30,13 @@ repositories {
 
 dependencies {
    compile gdmc('chop')
+   testCompile(gdmc("org.spockframework:spock-core"))  {
+    exclude module: 'groovy-all'
+  }
 }
 """
     createNonEmptyJavaFile("com.episode6.testproject")
+    createNonEmptyJavaFile("com.episode6.testproject", "SampleClassTest", "test")
     File gdmcFolder = buildFolder.newFolder("gdmc")
     new File(gdmcFolder, "gdmc.json") << """
 {
@@ -43,6 +47,11 @@ dependencies {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-core",
       "version": "0.1.7.2"
+   },
+   "org.spockframework:spock-core": {
+     "groupId": "org.spockframework",
+     "artifactId": "spock-core",
+     "version": "1.1-groovy-2.4-rc-2"
    }
 }
 """
@@ -59,9 +68,13 @@ dependencies {
 //    result.output.contains("output from testMethod(): holla back")
   }
 
-  File createNonEmptyJavaFile(String packageName, String className = "SampleClass", File rootDir = buildFolder.getRoot()) {
+  File createNonEmptyJavaFile(
+      String packageName,
+      String className = "SampleClass",
+      String mainDirContainer = "src",
+      File rootDir = buildFolder.getRoot()) {
     File dir = rootDir
-    "src.main.java.${packageName}".tokenize(".").each {
+    "${mainDirContainer}.main.java.${packageName}".tokenize(".").each {
       dir = new File(dir, it)
     }
     dir.mkdirs()
