@@ -36,6 +36,14 @@ dependencies {
 }
 """
     createNonEmptyJavaFile("com.episode6.testproject")
+    File gdmcFolder = buildFolder.newFolder("gdmc")
+    new File(gdmcFolder, "TestObject.groovy") << """
+class TestObject {
+  def testMethod() {
+    "holla back"
+  }
+}
+"""
 
     when:
     def result = GradleRunner.create()
@@ -46,6 +54,7 @@ dependencies {
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
+    result.output.contains("output from testMethod(): holla back")
   }
 
   File createNonEmptyJavaFile(String packageName, String className = "SampleClass", File rootDir = buildFolder.getRoot()) {
