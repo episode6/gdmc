@@ -29,19 +29,21 @@ repositories {
 }
 
 dependencies {
-  // The goal is to use something like this commented format,
-  // but I don't want the tests to fail yet
-  // compile gdmc('com.episode6.hackit.chop:chop-core')
-  compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   compile gdmc('chop')
 }
 """
     createNonEmptyJavaFile("com.episode6.testproject")
     File gdmcFolder = buildFolder.newFolder("gdmc")
-    new File(gdmcFolder, "TestObject.groovy") << """
-class TestObject {
-  def testMethod() {
-    "holla back"
-  }
+    new File(gdmcFolder, "gdmc.json") << """
+{
+  "chop": {
+    "alias": "com.episode6.hackit.chop:chop-core"
+  },
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.7.2"
+   }
 }
 """
 
@@ -54,7 +56,7 @@ class TestObject {
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
-    result.output.contains("output from testMethod(): holla back")
+//    result.output.contains("output from testMethod(): holla back")
   }
 
   File createNonEmptyJavaFile(String packageName, String className = "SampleClass", File rootDir = buildFolder.getRoot()) {
