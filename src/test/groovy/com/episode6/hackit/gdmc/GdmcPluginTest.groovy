@@ -103,9 +103,7 @@ dependencies {
 """
     createNonEmptyJavaFile("com.episode6.testproject")
     createNonEmptyJavaFile("com.episode6.testproject", "SampleClassTest", "test")
-    File gdmcFolder = buildFolder.newFolder("gdmc")
-    File gdmcFile = new File(gdmcFolder, "gdmc.json")
-    gdmcFile << "{}"
+    buildFolder.newFile("gdmc.json") << "{}"
 
     when:
     def result = GradleRunner.create()
