@@ -27,6 +27,7 @@ dependencies {
     exclude module: 'groovy-all'
   }
   testCompile gradleTestKit()
+  testCompile 'com.episode6.hackit.groovykit:gk-files:0.0.1'
 }
 
 test {

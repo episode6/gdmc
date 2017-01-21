@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.testutil.IntegrationTest
 import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
@@ -11,35 +12,15 @@ import spock.lang.Specification
  */
 class GdmcPluginTest extends Specification {
 
-  @Rule final TemporaryFolder buildFolder = new TemporaryFolder()
+  private static final CHOP_IMPORT = "import com.episode6.hackit.chop.Chop;"
+
+  @Rule final IntegrationTest integrationTest = new IntegrationTest()
 
   def "test resolve pre-set dependencies"() {
     given:
-    buildFolder.newFile("build.gradle") << """
-plugins {
-  id 'groovy'
-  id 'com.episode6.hackit.gdmc'
-}
-
-group = 'com.example.testproject'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-  jcenter()
-}
-
-dependencies {
-   compile gdmc('chop-all')
-   testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
-    exclude module: 'groovy-all'
-  }
-}
-"""
-    createNonEmptyJavaFile("com.episode6.testproject")
-    createNonEmptyJavaFile("com.episode6.testproject", "SampleClassTest", "test")
-    File gdmcFolder = buildFolder.newFolder("gdmc")
-    File gdmcFile = new File(gdmcFolder, "gdmc.json")
-    gdmcFile << """
+    integrationTest.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    integrationTest.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test")
+    integrationTest.gdmcJsonFile << """
 {
   "chop-android": {
     "alias": [
@@ -67,13 +48,29 @@ dependencies {
    }
 }
 """
+    integrationTest.gradleBuildFile << """
+plugins {
+  id 'groovy'
+  id 'com.episode6.hackit.gdmc'
+}
+
+group = 'com.example.testproject'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+   compile gdmc('chop-all')
+   testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
 
     when:
-    def result = GradleRunner.create()
-        .withProjectDir(buildFolder.root)
-        .withPluginClasspath()
-        .withArguments("build")
-        .build()
+    def result = integrationTest.runTask("build")
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
@@ -81,7 +78,10 @@ dependencies {
 
   def "test resolve missing dependencies"() {
     given:
-    buildFolder.newFile("build.gradle") << """
+    integrationTest.createJavaFile(packageName: "com.episode6.testproject")
+    integrationTest.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test")
+    integrationTest.gdmcJsonFile << "{}"
+    integrationTest.gradleBuildFile << """
 plugins {
   id 'groovy'
   id 'com.episode6.hackit.gdmc'
@@ -101,48 +101,11 @@ dependencies {
   }
 }
 """
-    createNonEmptyJavaFile("com.episode6.testproject")
-    createNonEmptyJavaFile("com.episode6.testproject", "SampleClassTest", "test")
-    buildFolder.newFile("gdmc.json") << "{}"
 
     when:
-    def result = GradleRunner.create()
-        .withProjectDir(buildFolder.root)
-        .withPluginClasspath()
-        .withArguments("gdmcResolve")
-        .buildAndFail()
+    def result = integrationTest.runTaskAndFail("gdmcResolve")
 
     then:
     result.output.contains("MISSING DEP:")
-  }
-
-  File createNonEmptyJavaFile(
-      String packageName,
-      String className = "SampleClass",
-      String mainDirContainer = "src",
-      File rootDir = buildFolder.getRoot()) {
-    File dir = rootDir
-    "${mainDirContainer}.main.java.${packageName}".tokenize(".").each {
-      dir = new File(dir, it)
-    }
-    dir.mkdirs()
-    File nonEmptyJavaFile = new File(dir, "${className}.java")
-    nonEmptyJavaFile << """
-package ${packageName};
-
-import com.episode6.hackit.chop.Chop;
-
-/**
- * A sample class for testing
- */
-public class ${className} {
-
-  public void sendMessage() {
-    Chop.i("hello");
-  }
-
-}
-"""
-    return nonEmptyJavaFile
   }
 }
