@@ -13,7 +13,7 @@ class GdmcPluginTest extends Specification {
 
   @Rule final TemporaryFolder buildFolder = new TemporaryFolder()
 
-  def "placeholder test"() {
+  def "test resolve pre-set dependencies"() {
     given:
     buildFolder.newFile("build.gradle") << """
 plugins {
@@ -38,7 +38,8 @@ dependencies {
     createNonEmptyJavaFile("com.episode6.testproject")
     createNonEmptyJavaFile("com.episode6.testproject", "SampleClassTest", "test")
     File gdmcFolder = buildFolder.newFolder("gdmc")
-    new File(gdmcFolder, "gdmc.json") << """
+    File gdmcFile = new File(gdmcFolder, "gdmc.json")
+    gdmcFile << """
 {
   "chop-android": {
     "alias": [
@@ -76,7 +77,45 @@ dependencies {
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
-//    result.output.contains("output from testMethod(): holla back")
+  }
+
+  def "test resolve missing dependencies"() {
+    given:
+    buildFolder.newFile("build.gradle") << """
+plugins {
+  id 'groovy'
+  id 'com.episode6.hackit.gdmc'
+}
+
+group = 'com.example.testproject'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+   compile gdmc('com.episode6.hackit.chop:chop-core')
+   testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    createNonEmptyJavaFile("com.episode6.testproject")
+    createNonEmptyJavaFile("com.episode6.testproject", "SampleClassTest", "test")
+    File gdmcFolder = buildFolder.newFolder("gdmc")
+    File gdmcFile = new File(gdmcFolder, "gdmc.json")
+    gdmcFile << "{}"
+
+    when:
+    def result = GradleRunner.create()
+        .withProjectDir(buildFolder.root)
+        .withPluginClasspath()
+        .withArguments("gdmcResolve")
+        .buildAndFail()
+
+    then:
+    result.output.contains("MISSING DEP:")
   }
 
   File createNonEmptyJavaFile(

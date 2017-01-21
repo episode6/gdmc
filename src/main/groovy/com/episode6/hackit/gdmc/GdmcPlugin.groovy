@@ -12,6 +12,12 @@ class GdmcPlugin implements Plugin<Project> {
   def dependencyMap
 
   void apply(Project project) {
+    project.task("gdmcResolve") {
+      doLast {
+        println "taskList: ${project.gradle.taskGraph.allTasks}"
+      }
+    }
+
     File gdmcDir = new File(project.rootDir, "gdmc")
     try {
       dependencyMap = new JsonSlurper().parse(new File(gdmcDir, "gdmc.json"))
@@ -22,14 +28,18 @@ class GdmcPlugin implements Plugin<Project> {
     println "depMap: ${dependencyMap}"
 
     Project.metaClass.gdmc = { key ->
-      if (key instanceof Map) {
-        return lookupDependencyFromMap(key)
+      GdmcPlugin gdmcPlugin = plugins.findPlugin(GdmcPlugin)
+      if (gdmcPlugin == null) {
+        throw new RuntimeException("gdmc plugin not applied to current project")
       }
-      return lookupDependencyFromKey(key)
+      if (key instanceof Map) {
+        return gdmcPlugin.lookupDependencyFromMap(key)
+      }
+      return gdmcPlugin.lookupDependencyFromKey(key)
     }
   }
 
-  private Object lookupDependencyFromMap(Map map) {
+  Object lookupDependencyFromMap(Map map) {
     println "looking up from Map: ${map}"
     String key = "${map.get('group')}:${map.get('name')}"
     String internalVersion = map.get("version")
@@ -39,12 +49,13 @@ class GdmcPlugin implements Plugin<Project> {
     return lookupDependencyFromKey(key)
   }
 
-  private Object lookupDependencyFromKey(String key) {
+  Object lookupDependencyFromKey(String key) {
     println "looking up key ${key}"
     def valueNode = dependencyMap.get(key)
     if (valueNode == null) {
       throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
     }
+    println "has value: ${valueNode}"
 
     def alias = valueNode.get("alias")
     if (alias == null) {
