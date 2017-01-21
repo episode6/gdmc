@@ -18,35 +18,37 @@ class GdmcDependencyContainer {
     }
   }
 
-  Object lookup(Map map) {
-    println "looking up from Map: ${map}"
-    String key = "${map.get('group')}:${map.get('name')}"
-    String internalVersion = map.get("version")
+  Object lookup(Object key) {
+    if (key instanceof Map) {
+      return lookupMap(key)
+    }
+    return lookupKey((String)key)
+  }
+
+  private Object lookupMap(Map params) {
+    String key = "${params.get('group')}:${params.get('name')}"
+    String internalVersion = params.get("version")
     if (internalVersion != null) {
       key = "${key}:${internalVersion}"
     }
-    return lookup(key)
+    return lookupKey(key)
   }
 
-  Object lookup(String key) {
-    println "looking up key ${key}"
+  private Object lookupKey(String key) {
     def valueNode = map.get(key)
     if (valueNode == null) {
       throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
     }
-    println "has value: ${valueNode}"
 
     def alias = valueNode.get("alias")
     if (alias == null) {
       return "${valueNode.groupId}:${valueNode.artifactId}:${valueNode.version}"
     }
-    println("Alias: ${alias.class.toString()} = ${alias}")
+
     if (alias instanceof List) {
       List<String> resolvedKeys = new ArrayList<>()
       alias.each { String it ->
-        println "found alias key: ${it}"
-        def resolved = lookup(it)
-        println("resolved to ${resolved.class.toString()} = ${resolved}")
+        def resolved = lookupKey(it)
         if (resolved instanceof String[]) {
           resolvedKeys.addAll(resolved)
         } else {
@@ -55,6 +57,6 @@ class GdmcDependencyContainer {
       }
       return (String[])resolvedKeys.toArray()
     }
-    return lookup((String)alias)
+    return lookupKey((String)alias)
   }
 }

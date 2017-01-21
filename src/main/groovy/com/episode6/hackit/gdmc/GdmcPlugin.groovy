@@ -1,7 +1,6 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.throwable.GdmcPluginMissingException
-import groovy.json.JsonSlurper
 import org.gradle.api.Nullable
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -35,10 +34,7 @@ class GdmcPlugin implements Plugin<Project> {
       if (gdmcPlugin == null) {
         throw new GdmcPluginMissingException()
       }
-      if (key instanceof Map) {
-        return gdmcPlugin.dependencies.lookup((Map)key)
-      }
-      return gdmcPlugin.dependencies.lookup((String)key)
+      return gdmcPlugin.dependencies.lookup(key)
     }
   }
 
