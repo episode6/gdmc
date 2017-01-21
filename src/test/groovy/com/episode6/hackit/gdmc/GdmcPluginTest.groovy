@@ -16,10 +16,13 @@ class GdmcPluginTest extends Specification {
 
   @Rule final IntegrationTest integrationTest = new IntegrationTest()
 
-  def "test resolve pre-set dependencies"() {
-    given:
+  def setup() {
     integrationTest.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     integrationTest.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test")
+  }
+
+  def "test resolve pre-set dependencies"() {
+    given:
     integrationTest.gdmcJsonFile << """
 {
   "chop-android": {
@@ -78,8 +81,6 @@ dependencies {
 
   def "test resolve missing dependencies"() {
     given:
-    integrationTest.createJavaFile(packageName: "com.episode6.testproject")
-    integrationTest.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test")
     integrationTest.gdmcJsonFile << "{}"
     integrationTest.gradleBuildFile << """
 plugins {
