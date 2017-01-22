@@ -4,6 +4,12 @@ import com.episode6.hackit.gdmc.throwable.GdmcPluginMissingException
 import org.gradle.api.Nullable
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ExternalDependency
+import org.gradle.api.artifacts.component.ComponentIdentifier
+import org.gradle.api.artifacts.component.ModuleComponentIdentifier
+import org.gradle.api.artifacts.result.DependencyResult
+import org.gradle.api.artifacts.result.ResolvedComponentResult
+import org.gradle.api.artifacts.result.ResolvedDependencyResult
 
 /**
  * Gradle Dependency Management Center Plugin
@@ -26,6 +32,29 @@ class GdmcPlugin implements Plugin<Project> {
     project.task("gdmcResolve") {
       doLast {
         println "taskList: ${project.gradle.taskGraph.allTasks}"
+        println "missing dependencies: ${dependencies.missingDependencies}"
+
+        Set<String> uniqueDependencies = project.configurations.collectMany {config ->
+          return config.dependencies.findAll {
+            it instanceof ExternalDependency
+          }.collect {
+            return "${it.group}:${it.name}:${it.version}"
+          }
+        }
+        uniqueDependencies = project.configurations.collectMany { config ->
+          config.incoming.resolutionResult.allDependencies.findAll {
+            it instanceof ResolvedDependencyResult &&
+                it.selected.id instanceof ModuleComponentIdentifier
+          }.collect { ResolvedDependencyResult dep ->
+            ModuleComponentIdentifier ident = dep.selected.id
+            "${ident.group}:${ident.module}:${ident.version}"
+          }
+        }
+//        project.configurations.all {
+//          def deps = incoming.resolutionResult.allDependencies.collect {it.selected.id.displayName}
+//          uniqueDependencies.addAll(deps)
+//        }
+        println("found unique deps: ${uniqueDependencies}")
       }
     }
 

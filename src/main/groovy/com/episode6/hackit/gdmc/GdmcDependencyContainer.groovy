@@ -8,6 +8,7 @@ import groovy.json.JsonSlurper
  */
 class GdmcDependencyContainer {
   Map map = new LinkedHashMap()
+  List<String> missingDependencies = new LinkedList<>()
 
   void applyFile(File jsonFile) {
     try {
@@ -37,7 +38,9 @@ class GdmcDependencyContainer {
   private Object lookupKey(String key) {
     def valueNode = map.get(key)
     if (valueNode == null) {
-      throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
+      missingDependencies.add(key)
+      return "${key}:+"
+//      throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
     }
 
     def alias = valueNode.get("alias")
