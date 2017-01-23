@@ -93,6 +93,9 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
   jcenter()
+  maven {
+    url "https://oss.sonatype.org/content/repositories/snapshots/"
+  }
 }
 
 dependencies {
