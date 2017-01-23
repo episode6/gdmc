@@ -23,7 +23,14 @@ class GdmcPlugin implements Plugin<Project> {
       dependencies.applyFile(gdmcFile)
     }
 
-    project.task("gdmcResolve", type: GdmcResolveTask)
+    project.task("gdmcResolve", type: GdmcResolveTask) {
+      keys = dependencies.missingDependencies
+      doLast {
+        resolvedVersions.each { key, version ->
+          println "RESOLVED VERSION ${key} -> ${version}"
+        }
+      }
+    }
 
     Project.metaClass.gdmc = { key ->
       GdmcPlugin gdmcPlugin = plugins.findPlugin(GdmcPlugin)
@@ -49,7 +56,7 @@ class GdmcPlugin implements Plugin<Project> {
 
     gdmcFile = new File(gdmcFolder, DEFAULT_FILE_NAME)
     println "final gdmc file exists: ${gdmcFile.exists()}, path: ${gdmcFile.absolutePath}"
-    return gdmcFile.exists() ? gdmcFile : null;
+    return gdmcFile.exists() ? gdmcFile : null
   }
 
 }

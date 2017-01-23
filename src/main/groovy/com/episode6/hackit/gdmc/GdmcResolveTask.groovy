@@ -3,10 +3,7 @@ package com.episode6.hackit.gdmc
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
-import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ExternalDependency
-import org.gradle.api.artifacts.component.ModuleComponentIdentifier
-import org.gradle.api.artifacts.result.ResolvedDependencyResult
+import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.TaskAction
 
@@ -15,55 +12,52 @@ import org.gradle.api.tasks.TaskAction
  */
 class GdmcResolveTask extends DefaultTask {
 
+  private static String CONFIG_NAME = "gdmcTemporaryConfig"
 
-  GdmcDependencyContainer getDependencies() {
-    return project.plugins.getPlugin(GdmcPlugin).dependencies
-  }
+  List<String> keys
+  boolean allowSnapshots = false
+
+  private Map<String, String> resolvedVersions
 
   @TaskAction
-  def resolveMissingDependencies() {
-    println "taskList: ${project.gradle.taskGraph.allTasks}"
-    println "missing dependencies: ${dependencies.missingDependencies}"
+  def resolve() {
 
-    Set<String> uniqueDependencies = project.configurations.collectMany {config ->
-      return config.dependencies.findAll {
-        it instanceof ExternalDependency
-      }.collect {
-        return "${it.group}:${it.name}:${it.version}"
-      }
-    }
-//    uniqueDependencies = project.configurations.collectMany { config ->
-//      config.incoming.resolutionResult.allDependencies.findAll {
-//        it instanceof ResolvedDependencyResult &&
-//            it.selected.id instanceof ModuleComponentIdentifier
-//      }.collect { ResolvedDependencyResult dep ->
-//        ModuleComponentIdentifier ident = dep.selected.id
-//        "${ident.group}:${ident.module}:${ident.version}"
-//      }
-//    }
-    createConfig()
-    println("found unique deps: ${uniqueDependencies}")
+    // create a temporary config to resolve the requested dependencies
+    def config = project.configurations.create(CONFIG_NAME, {
 
-  }
+      // don't bother resolving dependencies of dependencies
+      transitive = false
+    })
 
-  def createConfig() {
-    Configuration config = project.configurations.create("gdmcConfig")
-    config.resolutionStrategy { resolutionStrategy ->
-      resolutionStrategy.componentSelection { rules ->
-        rules.all { ComponentSelection selection, ComponentMetadata metadata ->
-          println "component selection for ${selection.candidate.group}:${selection.candidate.module}:${selection.candidate.version} - status: ${metadata.status}"
-          if (metadata.status == 'integration') {
-            selection.reject("Component status ${metadata.status} rejected")
+    // gradle includes snapshots by default, filter them out here
+    if (!allowSnapshots) {
+      config.resolutionStrategy { resolutionStrategy ->
+        resolutionStrategy.componentSelection { rules ->
+          rules.all { ComponentSelection selection, ComponentMetadata metadata ->
+            if (metadata.status == 'integration') {
+              selection.reject("Component status ${metadata.status} rejected")
+            }
           }
         }
       }
     }
-    dependencies.missingDependencies.each {
-      project.dependencies.add("gdmcConfig", "${it}:+")
+
+    // add query dependencies to new config
+    keys.each {
+      project.dependencies.add(config.name, "${it}:+")
     }
-    config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).each {
-      println "RESOLVED MODULE: ${it.module.id}"
+
+    // collect resolved depencies into the resolvedVersions map
+    resolvedVersions = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collectEntries {
+      ModuleVersionIdentifier mid = it.module.id
+      return ["${mid.group}:${mid.name}": mid.version]
     }
   }
 
+  Map<String, String> getResolvedVersions() {
+    if (resolvedVersions == null) {
+      throw new IllegalAccessException("Called getResolvedVersions before they have been resolved.")
+    }
+    return resolvedVersions
+  }
 }
