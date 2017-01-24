@@ -99,6 +99,7 @@ repositories {
 }
 
 dependencies {
+   compile gdmc('org.mockito:mockito-core')
    compile gdmc('com.episode6.hackit.chop:chop-core')
    testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
     exclude module: 'groovy-all'

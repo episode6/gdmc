@@ -29,10 +29,10 @@ class GdmcDependencyContainer {
   }
 
   void writeToFile(File file) {
-    map.keySet().sort()
-    file.text = new JsonBuilder(map.collectEntries { key, value ->
+    Map toFileMap = new TreeMap<>(map.collectEntries { key, value ->
       return ["${key}": value.toMap()]
-    }).toPrettyString()
+    })
+    file.text = new JsonBuilder(toFileMap).toPrettyString()
   }
 
   Object lookup(Object key) {
