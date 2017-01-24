@@ -10,55 +10,27 @@ import org.gradle.api.Project
  */
 class GdmcPlugin implements Plugin<Project> {
 
-  static final DEFAULT_FOLDER_NAME = "gdmc"
-  static final DEFAULT_FILE_NAME = "gdmc.json"
-
-  GdmcDependencyContainer dependencies
+  GdmcRootProjectPlugin rootPlugin
 
   void apply(Project project) {
-    dependencies = new GdmcDependencyContainer()
-    File gdmcFile = findGdmcFile(project.rootDir)
-    if (gdmcFile != null) {
-      println "applying file ${gdmcFile.absolutePath}"
-      dependencies.applyFile(gdmcFile)
+    rootPlugin = project.rootProject.plugins.findPlugin(GdmcRootProjectPlugin)
+    if (!rootPlugin) {
+      rootPlugin = project.rootProject.plugins.apply(GdmcRootProjectPlugin)
     }
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
       keys = dependencies.missingDependencies
       doLast {
         dependencies.applyChanges(resolvedDependencies)
-        dependencies.writeToFile(gdmcFile)
+        dependencies.writeToFile(rootPlugin.gdmcFile)
         resolvedDependencies.each { key, resolved ->
           println "RESOLVED VERSION ${key} -> ${resolved}"
         }
       }
     }
-
-    Project.metaClass.gdmc = { key ->
-      GdmcPlugin gdmcPlugin = plugins.findPlugin(GdmcPlugin)
-      if (gdmcPlugin == null) {
-        throw new GdmcPluginMissingException()
-      }
-      return gdmcPlugin.dependencies.lookup(key)
-    }
   }
 
-  private @Nullable File findGdmcFile(File rootDir) {
-    File gdmcFile = new File(rootDir, DEFAULT_FILE_NAME)
-    if (gdmcFile.exists()) {
-      println "root gdmc file exists, returning ${gdmcFile.absolutePath}"
-      return gdmcFile
-    }
-
-    File gdmcFolder = new File(rootDir, DEFAULT_FOLDER_NAME)
-    if (!gdmcFolder.exists() || !gdmcFolder.isDirectory()) {
-      println "gdmc folder does not exist, returing null ${gdmcFolder.absolutePath}"
-      return null
-    }
-
-    gdmcFile = new File(gdmcFolder, DEFAULT_FILE_NAME)
-    println "final gdmc file exists: ${gdmcFile.exists()}, path: ${gdmcFile.absolutePath}"
-    return gdmcFile.exists() ? gdmcFile : null
+  GdmcDependencyContainer getDependencies() {
+    return rootPlugin.dependencies
   }
-
 }

@@ -88,6 +88,7 @@ plugins {
 }
 
 dependencies {
+   compile gdmc('org.mockito:mockito-core')
    compile gdmc('com.episode6.hackit.chop:chop-core')
 }
 """
