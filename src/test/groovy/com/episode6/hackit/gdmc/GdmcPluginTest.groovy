@@ -1,10 +1,8 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.testutil.IntegrationTest
-import org.gradle.testkit.runner.GradleRunner
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
-import org.junit.rules.TemporaryFolder
 import spock.lang.Specification
 
 /**
@@ -14,16 +12,16 @@ class GdmcPluginTest extends Specification {
 
   private static final CHOP_IMPORT = "import com.episode6.hackit.chop.Chop;"
 
-  @Rule final IntegrationTest integrationTest = new IntegrationTest()
+  @Rule final IntegrationTest test = new IntegrationTest()
 
   def setup() {
-    integrationTest.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
-    integrationTest.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test")
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test")
   }
 
   def "test resolve pre-set dependencies"() {
     given:
-    integrationTest.gdmcJsonFile << """
+    test.gdmcJsonFile << """
 {
   "chop-android": {
     "alias": [
@@ -51,7 +49,7 @@ class GdmcPluginTest extends Specification {
    }
 }
 """
-    integrationTest.gradleBuildFile << """
+    test.gradleBuildFile << """
 plugins {
   id 'groovy'
   id 'com.episode6.hackit.gdmc'
@@ -73,45 +71,10 @@ dependencies {
 """
 
     when:
-    def result = integrationTest.runTask("build")
+    def result = test.runTask("build")
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
   }
 
-  def "test resolve missing dependencies"() {
-    given:
-    integrationTest.gdmcJsonFile << "{}"
-    integrationTest.gradleBuildFile << """
-plugins {
-  id 'groovy'
-  id 'com.episode6.hackit.gdmc'
-}
-
-group = 'com.example.testproject'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-  jcenter()
-  maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
-}
-
-dependencies {
-   compile gdmc('org.mockito:mockito-core')
-   compile gdmc('com.episode6.hackit.chop:chop-core')
-   testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
-    exclude module: 'groovy-all'
-  }
-}
-"""
-
-    when:
-    def result = integrationTest.runTask("gdmcResolve")
-
-    then:
-    integrationTest.gdmcJsonFile.text == ""
-    result.output.contains("MISSING DEP:")
-  }
 }
