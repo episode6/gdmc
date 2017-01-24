@@ -2,6 +2,8 @@ package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
 import com.episode6.hackit.gdmc.throwable.GdmcParseException
+import groovy.json.JsonBuilder
+import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 /**
@@ -20,6 +22,17 @@ class GdmcDependencyContainer {
     } catch (Throwable t) {
       throw new GdmcParseException("Failed to apply gdmc file: ${jsonFile.absolutePath}", t)
     }
+  }
+
+  void applyChanges(Map<String, GdmcDependency> newDependencies) {
+    map.putAll(newDependencies)
+  }
+
+  void writeToFile(File file) {
+    map.keySet().sort()
+    file.text = new JsonBuilder(map.collectEntries { key, value ->
+      return ["${key}": value.toMap()]
+    }).toPrettyString()
   }
 
   Object lookup(Object key) {

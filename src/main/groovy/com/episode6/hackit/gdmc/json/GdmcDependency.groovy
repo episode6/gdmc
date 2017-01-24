@@ -55,4 +55,14 @@ class GdmcDependency {
     }
     return getKey()
   }
+
+  Map toMap() {
+    if (alias) {
+      return new LinkedHashMap(alias: alias)
+    }
+    return new LinkedHashMap(
+        groupId: groupId,
+        artifactId: artifactId,
+        version: version)
+  }
 }

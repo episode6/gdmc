@@ -107,9 +107,10 @@ dependencies {
 """
 
     when:
-    def result = integrationTest.runTaskAndFail("gdmcResolve")
+    def result = integrationTest.runTask("gdmcResolve")
 
     then:
+    integrationTest.gdmcJsonFile.text == ""
     result.output.contains("MISSING DEP:")
   }
 }

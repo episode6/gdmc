@@ -26,6 +26,8 @@ class GdmcPlugin implements Plugin<Project> {
     project.task("gdmcResolve", type: GdmcResolveTask) {
       keys = dependencies.missingDependencies
       doLast {
+        dependencies.applyChanges(resolvedDependencies)
+        dependencies.writeToFile(gdmcFile)
         resolvedDependencies.each { key, resolved ->
           println "RESOLVED VERSION ${key} -> ${resolved}"
         }
