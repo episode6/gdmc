@@ -23,11 +23,11 @@ class GdmcResolveTask extends DefaultTask {
   def resolve() {
 
     // create a temporary config to resolve the requested dependencies
-    def config = project.configurations.create(CONFIG_NAME, {
+    def config = project.configurations.create(CONFIG_NAME) {
 
       // don't bother resolving dependencies of dependencies
       transitive = false
-    })
+    }
 
     // gradle includes snapshots by default, filter them out here
     if (!allowSnapshots) {
