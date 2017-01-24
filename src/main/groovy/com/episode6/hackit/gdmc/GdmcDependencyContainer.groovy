@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.json.GdmcDependency
 import com.episode6.hackit.gdmc.throwable.GdmcParseException
 import groovy.json.JsonSlurper
 
@@ -7,7 +8,7 @@ import groovy.json.JsonSlurper
  * Container for the gdmc dependency hashmap
  */
 class GdmcDependencyContainer {
-  Map map = new LinkedHashMap()
+  Map<String, GdmcDependency> map = new LinkedHashMap()
   List<String> missingDependencies = new LinkedList<>()
 
   void applyFile(File jsonFile) {
@@ -36,21 +37,20 @@ class GdmcDependencyContainer {
   }
 
   private Object lookupKey(String key) {
-    def valueNode = map.get(key)
-    if (valueNode == null) {
+    def value = map.get(key)
+    if (value == null) {
       missingDependencies.add(key)
       return "${key}:+"
 //      throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
     }
 
-    def alias = valueNode.get("alias")
-    if (alias == null) {
-      return "${valueNode.groupId}:${valueNode.artifactId}:${valueNode.version}"
+    if (value.alias == null) {
+      return "${value.groupId}:${value.artifactId}:${value.version}"
     }
 
-    if (alias instanceof List) {
+    if (value.alias instanceof List) {
       List<String> resolvedKeys = new ArrayList<>()
-      alias.each { String it ->
+      value.alias.each { String it ->
         def resolved = lookupKey(it)
         if (resolved instanceof String[]) {
           resolvedKeys.addAll(resolved)
@@ -60,6 +60,6 @@ class GdmcDependencyContainer {
       }
       return (String[])resolvedKeys.toArray()
     }
-    return lookupKey((String)alias)
+    return lookupKey((String)value.alias)
   }
 }
