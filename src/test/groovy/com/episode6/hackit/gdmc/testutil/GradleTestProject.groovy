@@ -8,17 +8,21 @@ import org.gradle.testkit.runner.GradleRunner
  */
 trait GradleTestProject {
 
+  String name
   File gradleBuildFile
   File settingsGradleFile
 
   abstract File getRoot()
+  abstract void beforeTask()
 
   void initGradleTestProject() {
+    name = root.name
     gradleBuildFile = root.newFile("build.gradle")
     settingsGradleFile = root.newFile("settings.gradle")
   }
 
   BuildResult runTask(String taskName) {
+    beforeTask()
     return GradleRunner.create()
         .withProjectDir(root)
         .withPluginClasspath()
@@ -27,6 +31,7 @@ trait GradleTestProject {
   }
 
   BuildResult runTaskAndFail(String taskName) {
+    beforeTask()
     return GradleRunner.create()
         .withProjectDir(root)
         .withPluginClasspath()
