@@ -13,8 +13,10 @@ class GdmcDependencyContainer {
 
   void applyFile(File jsonFile) {
     try {
-      def jsonMap = new JsonSlurper().parse(jsonFile)
-      map.putAll(jsonMap)
+      Map jsonMap = new JsonSlurper().parse(jsonFile)
+      jsonMap.each { key, value ->
+        map.put(key, GdmcDependency.from(value))
+      }
     } catch (Throwable t) {
       throw new GdmcParseException("Failed to apply gdmc file: ${jsonFile.absolutePath}", t)
     }
@@ -44,7 +46,7 @@ class GdmcDependencyContainer {
 //      throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
     }
 
-    if (value.alias == null) {
+    if (!value.alias) {
       return "${value.groupId}:${value.artifactId}:${value.version}"
     }
 

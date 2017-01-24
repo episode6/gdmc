@@ -1,9 +1,9 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.json.GdmcDependency
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
-import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.TaskAction
 
@@ -17,7 +17,7 @@ class GdmcResolveTask extends DefaultTask {
   List<String> keys
   boolean allowSnapshots = false
 
-  private Map<String, String> resolvedVersions
+  private Map<String, GdmcDependency> resolvedDependencies
 
   @TaskAction
   def resolve() {
@@ -47,17 +47,17 @@ class GdmcResolveTask extends DefaultTask {
       project.dependencies.add(config.name, "${it}:+")
     }
 
-    // collect resolved depencies into the resolvedVersions map
-    resolvedVersions = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collectEntries {
-      ModuleVersionIdentifier mid = it.module.id
-      return ["${mid.group}:${mid.name}": mid.version]
+    // collect resolved depencies into the resolvedDependencies map
+    resolvedDependencies = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collectEntries {
+      GdmcDependency dep = GdmcDependency.from(it.module.id)
+      return ["${dep.key}": dep]
     }
   }
 
-  Map<String, String> getResolvedVersions() {
-    if (resolvedVersions == null) {
-      throw new IllegalAccessException("Called getResolvedVersions before they have been resolved.")
+  Map<String, String> getResolvedDependencies() {
+    if (resolvedDependencies == null) {
+      throw new IllegalAccessException("Called getResolvedDependencies before they have been resolved.")
     }
-    return resolvedVersions
+    return resolvedDependencies
   }
 }
