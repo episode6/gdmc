@@ -15,8 +15,8 @@ class GdmcDependencyContainer {
 
   void applyFile(File jsonFile) {
     try {
-      Map jsonMap = new JsonSlurper().parse(jsonFile)
-      jsonMap.each { key, value ->
+      Map jsonMap = new JsonSlurper().parse(jsonFile) as Map
+      jsonMap.each { String key, value ->
         map.put(key, GdmcDependency.from(value))
       }
     } catch (Throwable t) {
@@ -43,10 +43,9 @@ class GdmcDependencyContainer {
   }
 
   private Object lookupMap(Map params) {
-    String key = "${params.get('group')}:${params.get('name')}"
-    String internalVersion = params.get("version")
-    if (internalVersion != null) {
-      key = "${key}:${internalVersion}"
+    String key = "${params.group}:${params.name}"
+    if (params.version) {
+      key = "${key}:${params.version}"
     }
     return lookupKey(key)
   }
