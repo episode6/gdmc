@@ -1,6 +1,6 @@
 package com.episode6.hackit.gdmc
 
-import org.gradle.api.Nullable
+import groovy.transform.Memoized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -12,8 +12,8 @@ class GdmcRootProjectPlugin implements Plugin<Project> {
   static final DEFAULT_FOLDER_NAME = "gdmc"
   static final DEFAULT_FILE_NAME = "gdmc.json"
 
+  Project project
   GdmcDependencyContainer dependencies
-  File gdmcFile
 
   @Override
   void apply(Project project) {
@@ -21,9 +21,9 @@ class GdmcRootProjectPlugin implements Plugin<Project> {
       throw new IllegalArgumentException("GdmcRootProjectPlugin must only be applied to the root of the project")
     }
 
+    this.project = project
     dependencies = new GdmcDependencyContainer()
-    gdmcFile = findGdmcFile(project.rootDir)
-    if (gdmcFile != null) {
+    if (gdmcFile.exists()) {
       println "applying file ${gdmcFile.absolutePath}"
       dependencies.applyFile(gdmcFile)
     }
@@ -33,21 +33,23 @@ class GdmcRootProjectPlugin implements Plugin<Project> {
     }
   }
 
-  private @Nullable File findGdmcFile(File rootDir) {
-    File gdmcFile = new File(rootDir, DEFAULT_FILE_NAME)
-    if (gdmcFile.exists()) {
-      println "root gdmc file exists, returning ${gdmcFile.absolutePath}"
-      return gdmcFile
+  @Memoized
+  File getGdmcFile() {
+    File defaultFile = new File(project.rootDir, DEFAULT_FILE_NAME)
+    if (defaultFile.exists()) {
+      return defaultFile
     }
 
-    File gdmcFolder = new File(rootDir, DEFAULT_FOLDER_NAME)
+    File gdmcFolder = new File(project.rootDir, DEFAULT_FOLDER_NAME)
     if (!gdmcFolder.exists() || !gdmcFolder.isDirectory()) {
-      println "gdmc folder does not exist, returing null ${gdmcFolder.absolutePath}"
-      return null
+      return defaultFile
     }
 
-    gdmcFile = new File(gdmcFolder, DEFAULT_FILE_NAME)
-    println "final gdmc file exists: ${gdmcFile.exists()}, path: ${gdmcFile.absolutePath}"
-    return gdmcFile.exists() ? gdmcFile : null
+    File gdmcSubFile = new File(gdmcFolder, DEFAULT_FILE_NAME)
+    if (gdmcSubFile.exists()) {
+      return gdmcSubFile
+    }
+
+    return defaultFile
   }
 }
