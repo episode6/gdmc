@@ -99,7 +99,23 @@ class GdmcDependencyMapper implements Plugin<Project> {
     return lookupKey((String)value.alias)
   }
 
-  void applyNewDependencies(Set<GdmcDependency> newDependencies) {
+  void applyMissingDependencies(Set<GdmcDependency> newDependencies) {
+    applyDependencies(newDependencies.findAll({
+      return mappedDependencies.get(it.key) == null
+    }))
+  }
+
+  void applyUpgradedDependencies(Set<GdmcDependency> newDependencies) {
+    applyDependencies(newDependencies.findAll({
+      def mapped = mappedDependencies.get(it.key)
+      return !mapped || mapped.isOlderThan(it)
+    }))
+  }
+
+  void applyDependencies(Set<GdmcDependency> newDependencies) {
+    if (!newDependencies) {
+      return;
+    }
     mappedDependencies.putAll(newDependencies.collectEntries {
       return [(it.key): it]
     })

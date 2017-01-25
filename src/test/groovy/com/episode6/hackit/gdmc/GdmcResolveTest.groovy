@@ -116,8 +116,6 @@ dependencies {
     result.task(":groovylib:gdmcResolve").outcome == TaskOutcome.SUCCESS
     test.gdmcJsonFile.exists()
 
-    println "gdmcFile text: ${test.gdmcJsonFile.text}"
-
     with(test.gdmcJsonFile.asJson()) {
       with(get("org.mockito:mockito-core")) {
         groupId == "org.mockito"

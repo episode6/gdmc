@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc.json
 
+import com.episode6.hackit.groovykit.versions.VersionComparator
 import org.gradle.api.Nullable
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 
@@ -64,5 +65,19 @@ class GdmcDependency {
         groupId: groupId,
         artifactId: artifactId,
         version: version)
+  }
+
+  boolean isOlderThan(GdmcDependency otherDependency) {
+    return isOlderThanVersion(otherDependency?.version)
+  }
+
+  boolean isOlderThanVersion(String otherVersion) {
+    if (!version) {
+      return true
+    }
+    if (!otherVersion) {
+      return false
+    }
+    return new VersionComparator().compare(version, otherVersion) < 0
   }
 }

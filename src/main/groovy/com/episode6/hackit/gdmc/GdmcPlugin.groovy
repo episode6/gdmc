@@ -19,7 +19,7 @@ class GdmcPlugin implements Plugin<Project> {
     project.task("gdmcResolve", type: GdmcResolveTask) {
       keys = mapper.missingDependencies
       doLast {
-        mapper.applyNewDependencies(resolvedDependencies)
+        mapper.applyMissingDependencies(resolvedDependencies)
         resolvedDependencies.each { resolved ->
           println "RESOLVED VERSION ${resolved.key} -> ${resolved}"
         }
