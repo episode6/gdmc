@@ -7,7 +7,7 @@ import org.gradle.api.Project
 /**
  * Plugin for root projects only
  */
-class GdmcRootProjectPlugin implements Plugin<Project> {
+class GdmcDependencyMapper implements Plugin<Project> {
 
   static final DEFAULT_FOLDER_NAME = "gdmc"
   static final DEFAULT_FILE_NAME = "gdmc.json"
@@ -18,7 +18,7 @@ class GdmcRootProjectPlugin implements Plugin<Project> {
   @Override
   void apply(Project project) {
     if (project != project.rootProject) {
-      throw new IllegalArgumentException("GdmcRootProjectPlugin must only be applied to the root of the project")
+      throw new IllegalArgumentException("GdmcDependencyMapper must only be applied to the root of the project")
     }
 
     this.project = project
@@ -29,7 +29,7 @@ class GdmcRootProjectPlugin implements Plugin<Project> {
     }
 
     Project.metaClass.gdmc = { key ->
-      return rootProject.plugins.getPlugin(GdmcRootProjectPlugin).dependencies.lookup(key)
+      return rootProject.plugins.getPlugin(GdmcDependencyMapper).dependencies.lookup(key)
     }
   }
 

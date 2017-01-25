@@ -3,21 +3,20 @@ package com.episode6.hackit.gdmc
 import com.episode6.hackit.gdmc.json.GdmcDependency
 import com.episode6.hackit.gdmc.throwable.GdmcParseException
 import groovy.json.JsonBuilder
-import groovy.json.JsonOutput
 import groovy.json.JsonSlurper
 
 /**
  * Container for the gdmc dependency hashmap
  */
 class GdmcDependencyContainer {
-  Map<String, GdmcDependency> map = new LinkedHashMap()
+  Map<String, GdmcDependency> mappedDependencies = new LinkedHashMap()
   List<String> missingDependencies = new LinkedList<>()
 
   void applyFile(File jsonFile) {
     try {
       Map jsonMap = new JsonSlurper().parse(jsonFile) as Map
       jsonMap.each { String key, value ->
-        map.put(key, GdmcDependency.from(value))
+        mappedDependencies.put(key, GdmcDependency.from(value))
       }
     } catch (Throwable t) {
       throw new GdmcParseException("Failed to apply gdmc file: ${jsonFile.absolutePath}", t)
@@ -25,11 +24,11 @@ class GdmcDependencyContainer {
   }
 
   void applyChanges(Map<String, GdmcDependency> newDependencies) {
-    map.putAll(newDependencies)
+    mappedDependencies.putAll(newDependencies)
   }
 
   void writeToFile(File file) {
-    Map toFileMap = new TreeMap<>(map.collectEntries { key, value ->
+    Map toFileMap = new TreeMap<>(mappedDependencies.collectEntries { key, value ->
       return ["${key}": value.toMap()]
     })
     file.text = new JsonBuilder(toFileMap).toPrettyString()
@@ -51,7 +50,7 @@ class GdmcDependencyContainer {
   }
 
   private Object lookupKey(String key) {
-    def value = map.get(key)
+    def value = mappedDependencies.get(key)
     if (value == null) {
       missingDependencies.add(key)
       return "${key}:+"

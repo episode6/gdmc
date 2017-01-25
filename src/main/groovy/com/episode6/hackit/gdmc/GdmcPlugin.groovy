@@ -1,7 +1,5 @@
 package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.gdmc.throwable.GdmcPluginMissingException
-import org.gradle.api.Nullable
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -10,12 +8,12 @@ import org.gradle.api.Project
  */
 class GdmcPlugin implements Plugin<Project> {
 
-  GdmcRootProjectPlugin rootPlugin
+  GdmcDependencyMapper rootPlugin
 
   void apply(Project project) {
-    rootPlugin = project.rootProject.plugins.findPlugin(GdmcRootProjectPlugin)
+    rootPlugin = project.rootProject.plugins.findPlugin(GdmcDependencyMapper)
     if (!rootPlugin) {
-      rootPlugin = project.rootProject.plugins.apply(GdmcRootProjectPlugin)
+      rootPlugin = project.rootProject.plugins.apply(GdmcDependencyMapper)
     }
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
