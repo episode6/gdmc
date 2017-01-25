@@ -99,7 +99,7 @@ class GdmcDependencyMapper implements Plugin<Project> {
     return lookupKey((String)value.alias)
   }
 
-  void apply(Set<GdmcDependency> newDependencies) {
+  void applyNewDependencies(Set<GdmcDependency> newDependencies) {
     mappedDependencies.putAll(newDependencies.collectEntries {
       return [(it.key): it]
     })
