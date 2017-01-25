@@ -5,6 +5,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.specs.Specs
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -14,9 +16,13 @@ class GdmcResolveTask extends DefaultTask {
 
   private static String CONFIG_NAME = "gdmcTemporaryConfig"
 
+  @Input
   List<String> keys
+
+  @Input
   boolean allowSnapshots = false
 
+  @Internal
   private Set<GdmcDependency> resolvedDependencies
 
   @TaskAction
