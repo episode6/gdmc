@@ -8,27 +8,22 @@ import org.gradle.api.Project
  */
 class GdmcPlugin implements Plugin<Project> {
 
-  GdmcDependencyMapper rootPlugin
+  GdmcDependencyMapper mapper
 
   void apply(Project project) {
-    rootPlugin = project.rootProject.plugins.findPlugin(GdmcDependencyMapper)
-    if (!rootPlugin) {
-      rootPlugin = project.rootProject.plugins.apply(GdmcDependencyMapper)
+    mapper = project.rootProject.plugins.findPlugin(GdmcDependencyMapper)
+    if (!mapper) {
+      mapper = project.rootProject.plugins.apply(GdmcDependencyMapper)
     }
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
-      keys = dependencies.missingDependencies
+      keys = mapper.missingDependencies
       doLast {
-        dependencies.applyChanges(resolvedDependencies)
-        dependencies.writeToFile(rootPlugin.gdmcFile)
-        resolvedDependencies.each { key, resolved ->
-          println "RESOLVED VERSION ${key} -> ${resolved}"
+        mapper.apply(resolvedDependencies)
+        resolvedDependencies.each { resolved ->
+          println "RESOLVED VERSION ${resolved.key} -> ${resolved}"
         }
       }
     }
-  }
-
-  GdmcDependencyContainer getDependencies() {
-    return rootPlugin.dependencies
   }
 }

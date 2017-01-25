@@ -1,11 +1,14 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.json.GdmcDependency
+import groovy.json.JsonBuilder
+import groovy.json.JsonSlurper
 import groovy.transform.Memoized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Plugin for root projects only
+ * Plugin for root projects only, holds the single instance of the dependency map
  */
 class GdmcDependencyMapper implements Plugin<Project> {
 
@@ -13,7 +16,8 @@ class GdmcDependencyMapper implements Plugin<Project> {
   static final DEFAULT_FILE_NAME = "gdmc.json"
 
   Project project
-  GdmcDependencyContainer dependencies
+  Map<String, GdmcDependency> mappedDependencies = new LinkedHashMap()
+  List<String> missingDependencies = new LinkedList<>()
 
   @Override
   void apply(Project project) {
@@ -22,14 +26,14 @@ class GdmcDependencyMapper implements Plugin<Project> {
     }
 
     this.project = project
-    dependencies = new GdmcDependencyContainer()
     if (gdmcFile.exists()) {
-      println "applying file ${gdmcFile.absolutePath}"
-      dependencies.applyFile(gdmcFile)
+      new JsonSlurper().parse(gdmcFile).each { String key, value ->
+        mappedDependencies.put(key, GdmcDependency.from(value))
+      }
     }
 
     Project.metaClass.gdmc = { key ->
-      return rootProject.plugins.getPlugin(GdmcDependencyMapper).dependencies.lookup(key)
+      return rootProject.plugins.getPlugin(GdmcDependencyMapper).lookup(key)
     }
   }
 
@@ -51,5 +55,58 @@ class GdmcDependencyMapper implements Plugin<Project> {
     }
 
     return defaultFile
+  }
+
+  Object lookup(Object key) {
+    if (key instanceof Map) {
+      return lookupMap(key)
+    }
+    return lookupKey((String)key)
+  }
+
+  private Object lookupMap(Map params) {
+    String key = "${params.group}:${params.name}"
+    if (params.version) {
+      key = "${key}:${params.version}"
+    }
+    return lookupKey(key)
+  }
+
+  private Object lookupKey(String key) {
+    def value = mappedDependencies.get(key)
+    if (value == null) {
+      missingDependencies.add(key)
+      return "${key}:+"
+//      throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
+    }
+
+    if (!value.alias) {
+      return "${value.groupId}:${value.artifactId}:${value.version}"
+    }
+
+    if (value.alias instanceof List) {
+      List<String> resolvedKeys = new ArrayList<>()
+      value.alias.each { String it ->
+        def resolved = lookupKey(it)
+        if (resolved instanceof String[]) {
+          resolvedKeys.addAll(resolved)
+        } else {
+          resolvedKeys.add((String)resolved)
+        }
+      }
+      return (String[])resolvedKeys.toArray()
+    }
+    return lookupKey((String)value.alias)
+  }
+
+  void apply(Set<GdmcDependency> newDependencies) {
+    mappedDependencies.putAll(newDependencies.collectEntries {
+      return [(it.key): it]
+    })
+
+    Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
+      return [(key): value.toMap()]
+    })
+    gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
   }
 }

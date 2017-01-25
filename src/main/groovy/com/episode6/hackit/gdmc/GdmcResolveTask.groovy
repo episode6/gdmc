@@ -17,7 +17,7 @@ class GdmcResolveTask extends DefaultTask {
   List<String> keys
   boolean allowSnapshots = false
 
-  private Map<String, GdmcDependency> resolvedDependencies
+  private Set<GdmcDependency> resolvedDependencies
 
   @TaskAction
   def resolve() {
@@ -48,13 +48,12 @@ class GdmcResolveTask extends DefaultTask {
     }
 
     // collect resolved depencies into the resolvedDependencies map
-    resolvedDependencies = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collectEntries {
-      GdmcDependency dep = GdmcDependency.from(it.module.id)
-      return ["${dep.key}": dep]
+    resolvedDependencies = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collect {
+      GdmcDependency.from(it.module.id)
     }
   }
 
-  Map<String, String> getResolvedDependencies() {
+  Set<GdmcDependency> getResolvedDependencies() {
     if (resolvedDependencies == null) {
       throw new IllegalAccessException("Called getResolvedDependencies before they have been resolved.")
     }
