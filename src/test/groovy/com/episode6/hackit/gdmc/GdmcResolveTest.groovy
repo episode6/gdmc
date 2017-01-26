@@ -119,7 +119,7 @@ dependencies {
     with(test.gdmcJsonFile.asJson()) {
       with(get("org.mockito:mockito-core")) {
         groupId == "org.mockito"
-        artifactId == "mockito-core1"
+        artifactId == "mockito-core"
         !version.contains("-SNAPSHOT")
       }
       with(get("com.episode6.hackit.chop:chop-core")) {
