@@ -10,7 +10,7 @@ import org.gradle.api.Project
 /**
  * Plugin for root projects only, holds the single instance of the dependency map
  */
-class GdmcDependencyMapper implements Plugin<Project> {
+class GdmcDependencyMapper implements Plugin<Project>, DependencyMap {
 
   static final DEFAULT_FOLDER_NAME = "gdmc"
   static final DEFAULT_FILE_NAME = "gdmc.json"
@@ -34,6 +34,11 @@ class GdmcDependencyMapper implements Plugin<Project> {
 
     Project.metaClass.gdmc = { key ->
       return rootProject.plugins.getPlugin(GdmcDependencyMapper).lookup(key)
+    }
+    Project.metaClass.gdmc2 = { String key ->
+      if (!key.contains(":")) {
+        return "com.episode6.hackit.gmdc_placeholder:${key}"
+      }
     }
   }
 
