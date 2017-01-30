@@ -1,61 +1,52 @@
 package com.episode6.hackit.gdmc.testutil
 
-import org.gradle.testkit.runner.BuildResult
-import org.gradle.testkit.runner.GradleRunner
 import org.junit.rules.TemporaryFolder
 
 /**
  * Integration test rule
  */
-class IntegrationTest extends TemporaryFolder {
-  File gradleBuildFile
+class IntegrationTest extends TemporaryFolder implements GradleTestProject {
   File gdmcJsonFile
+  List<SubProject> subProjects
 
   @Override
   protected void before() throws Throwable {
     super.before()
-    gradleBuildFile = root.newFile("build.gradle")
+    initGradleTestProject()
     gdmcJsonFile = root.newFile("gdmc.json")
+    subProjects = new LinkedList<>()
   }
 
-  BuildResult runTask(String taskName) {
-    return GradleRunner.create()
-        .withProjectDir(root)
-        .withPluginClasspath()
-        .withArguments(taskName)
-        .build()
+  SubProject subProject(String name) {
+    SubProject subProject = new SubProject(root.newFolder(name))
+    subProjects.add(subProject)
+    return subProject
   }
 
-  BuildResult runTaskAndFail(String taskName) {
-    return GradleRunner.create()
-        .withProjectDir(root)
-        .withPluginClasspath()
-        .withArguments(taskName)
-        .buildAndFail()
-  }
-
-  File createJavaFile(Map params) {
-    String packageName = params.packageName
-    String className = params.className == null ? "SampleClass" : params.className
-    String dir = params.dir == null ? "main" : params.dir
-    String imports = params.imports == null ? "" : params.imports
-
-    File javaFile = root.newFolderFromPackage("src.${dir}.java.${packageName}").newFile("${className}.java")
-    javaFile << """
-package ${packageName};
-
-${imports}
-
-/**
- * A sample class for testing
- */
-public class ${className} {
-
-  public void sampleMethod() {
-  }
-
-}
+  @Override
+  void beforeTask() {
+    if (subProjects) {
+      settingsGradleFile.text = """
+include ':${subProjects.collect {it.name}.join("', ':")}'
 """
-    return javaFile
+    } else {
+      settingsGradleFile.text = """
+rootProject.name = '${name}'
+"""
+    }
+  }
+
+  static class SubProject implements GradleTestProject {
+    File root
+
+    SubProject(File root) {
+      this.root = root
+      initGradleTestProject()
+    }
+
+    @Override
+    void beforeTask() {
+
+    }
   }
 }
