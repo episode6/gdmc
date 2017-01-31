@@ -23,6 +23,15 @@ class Tasks {
       }
     }
 
+    project.task("gdmcImport", type: GdmcResolveTask) {
+      dependencies = {
+        return findVersionedDependencies(project)
+      }
+      doLast {
+        mapper.applyFile(outputFile)
+      }
+    }
+
     //import, importTransitive, upgrade, upgradeTransitive, upgradeAll
   }
 
@@ -34,6 +43,18 @@ class Tasks {
           return []
         }
         return [unMapped]
+      }
+    }
+  }
+
+  static Collection<GdmcDependency> findVersionedDependencies(Project project) {
+    return project.configurations.collectMany { Configuration config ->
+      return config.dependencies.collectMany { Dependency dep ->
+        GdmcDependency unMapped = GdmcDependency.from(dep)
+        if (unMapped.version) {
+          return [unMapped]
+        }
+        return []
       }
     }
   }
