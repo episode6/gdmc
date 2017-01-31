@@ -74,4 +74,30 @@ dependencies {
     result.task(":build").outcome == TaskOutcome.SUCCESS
   }
 
+  def "test failure on missing dependency"() {
+    given:
+    test.gradleBuildFile << """
+plugins {
+  id 'groovy'
+  id 'com.episode6.hackit.gdmc'
+}
+
+group = 'com.example.testproject'
+version = '0.0.1-SNAPSHOT'
+
+repositories {
+  jcenter()
+}
+
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core'
+}
+"""
+
+    when:
+    def result = test.runTaskAndFail("build")
+
+    then:
+    result.output.contains("Unmapped dependency found: com.episode6.hackit.chop:chop-core")
+  }
 }
