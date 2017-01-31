@@ -8,7 +8,5 @@ import com.episode6.hackit.gdmc.json.GdmcDependency
 interface DependencyMap {
   String sanitizeKey(Object obj)
   List<GdmcDependency> lookup(Object key)
-  void applyDependencies(Set<GdmcDependency> newDependencies)
-  void applyUpgradedDependencies(Set<GdmcDependency> newDependencies)
-  void applyMissingDependencies(Set<GdmcDependency> newDependencies)
+  void applyFile(File file)
 }

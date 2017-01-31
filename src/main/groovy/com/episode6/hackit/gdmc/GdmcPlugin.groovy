@@ -45,10 +45,7 @@ class GdmcPlugin implements Plugin<Project> {
         }
       }
       doLast {
-        mapper.applyMissingDependencies(resolvedDependencies)
-        resolvedDependencies.each { resolved ->
-          println "RESOLVED VERSION ${resolved.key} -> ${resolved}"
-        }
+        mapper.applyFile(outputFile)
       }
     }
   }

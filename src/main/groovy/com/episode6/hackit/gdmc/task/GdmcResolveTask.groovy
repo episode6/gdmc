@@ -1,12 +1,14 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
+import groovy.json.JsonBuilder
+import groovy.transform.Memoized
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -15,18 +17,17 @@ import org.gradle.api.tasks.TaskAction
 class GdmcResolveTask extends DefaultTask {
 
   private static String CONFIG_NAME = "gdmcTemporaryConfig"
-//
-//  @Input
-//  List<String> keys
-//
+
   @Input
   Closure<Collection<String>> keys
 
   @Input
   boolean allowSnapshots = false
 
-  @Internal
-  private Set<GdmcDependency> resolvedDependencies
+  @OutputFile @Memoized
+  File getOutputFile() {
+    return project.file("${project.buildDir}/${name}.json")
+  }
 
   @TaskAction
   def resolve() {
@@ -53,20 +54,15 @@ class GdmcResolveTask extends DefaultTask {
 
     // add query dependencies to new config
     keys.call().each {
-      println "adding \"${it}:+\" to resolve config"
       project.dependencies.add(config.name, "${it}:+")
     }
 
     // collect resolved depencies into the resolvedDependencies map
-    resolvedDependencies = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collect {
-      GdmcDependency.from(it.module.id)
+    Collection<Map> resolvedDependencies = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collect {
+      GdmcDependency.from(it.module.id).toMap()
     }
-  }
 
-  Set<GdmcDependency> getResolvedDependencies() {
-    if (resolvedDependencies == null) {
-      throw new IllegalAccessException("Called getResolvedDependencies before they have been resolved.")
-    }
-    return resolvedDependencies
+    // write to outputFile
+    outputFile.text = new JsonBuilder(resolvedDependencies).toString()
   }
 }

@@ -14,11 +14,7 @@ class DependencyMapImpl implements DependencyMap {
   DependencyMapImpl(File file) {
     gdmcFile = file
     mappedDependencies = new LinkedHashMap<>()
-    if (gdmcFile.exists()) {
-      new JsonSlurper().parse(gdmcFile).each { String key, value ->
-        mappedDependencies.put(key, GdmcDependency.from(value))
-      }
-    }
+    applyFile(gdmcFile, false)
   }
 
   String sanitizeKey(Object obj) {
@@ -36,32 +32,28 @@ class DependencyMapImpl implements DependencyMap {
     return lookupKey(sanitizeKey(key))
   }
 
-
-  void applyMissingDependencies(Set<GdmcDependency> newDependencies) {
-    applyDependencies(newDependencies.findAll({
-      return mappedDependencies.get(it.key) == null
-    }))
-  }
-
-  void applyUpgradedDependencies(Set<GdmcDependency> newDependencies) {
-    applyDependencies(newDependencies.findAll({
-      def mapped = mappedDependencies.get(it.key)
-      return !mapped || mapped.isOlderThan(it)
-    }))
-  }
-
-  void applyDependencies(Set<GdmcDependency> newDependencies) {
-    if (!newDependencies) {
-      return;
+  void applyFile(File file, boolean persist = true) {
+    if (!file.exists()) {
+      return
     }
-    mappedDependencies.putAll(newDependencies.collectEntries {
-      return [(it.key): it]
-    })
+    def json = new JsonSlurper().parse(file)
+    if (json instanceof Map) {
+      json.each { String key, value ->
+        mappedDependencies.put(key, GdmcDependency.from(value))
+      }
+    } else if (json instanceof List) {
+      json.each { value ->
+        GdmcDependency dep = GdmcDependency.from(value)
+        mappedDependencies.put(dep.key, dep)
+      }
+    }
 
-    Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
-      return [(key): value.toMap()]
-    })
-    gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
+    if (persist) {
+      Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
+        return [(key): value.toMap()]
+      })
+      gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
+    }
   }
 
   private List<GdmcDependency> lookupKey(String key) {
@@ -85,4 +77,34 @@ class DependencyMapImpl implements DependencyMap {
     }
     return lookupKey((String)value.alias)
   }
+
+
+
+//  void applyMissingDependencies(Set<GdmcDependency> newDependencies) {
+//    applyDependencies(newDependencies.findAll({
+//      return mappedDependencies.get(it.key) == null
+//    }))
+//  }
+//
+//  void applyUpgradedDependencies(Set<GdmcDependency> newDependencies) {
+//    applyDependencies(newDependencies.findAll({
+//      def mapped = mappedDependencies.get(it.key)
+//      return !mapped || mapped.isOlderThan(it)
+//    }))
+//  }
+//
+//  void applyDependencies(Set<GdmcDependency> newDependencies) {
+//    if (!newDependencies) {
+//      return;
+//    }
+//    mappedDependencies.putAll(newDependencies.collectEntries {
+//      return [(it.key): it]
+//    })
+//
+//    Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
+//      return [(key): value.toMap()]
+//    })
+//    gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
+//  }
+
 }
