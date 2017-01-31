@@ -13,13 +13,14 @@ import org.gradle.api.artifacts.Dependency
  */
 class GdmcPlugin implements Plugin<Project> {
 
-  GdmcDependencyMapper mapper
+  DependencyMap mapper
 
   void apply(Project project) {
-    mapper = project.rootProject.plugins.findPlugin(GdmcDependencyMapper)
-    if (!mapper) {
-      mapper = project.rootProject.plugins.apply(GdmcDependencyMapper)
+    GdmcRootPlugin rootPlugin = project.rootProject.plugins.findPlugin(GdmcRootPlugin)
+    if (!rootPlugin) {
+      rootPlugin = project.rootProject.plugins.apply(GdmcRootPlugin)
     }
+    mapper = rootPlugin.dependencyMap
 
     project.configurations.all(new Action<Configuration>() {
       @Override
