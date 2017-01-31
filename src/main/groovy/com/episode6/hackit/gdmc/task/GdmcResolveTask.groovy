@@ -1,15 +1,11 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
-import groovy.json.JsonBuilder
-import groovy.transform.Memoized
-import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
@@ -20,7 +16,7 @@ class GdmcResolveTask extends AbstractGdmcTask {
   private static String CONFIG_NAME = "gdmcTemporaryConfig"
 
   @Input
-  Closure<Collection<String>> keys
+  Closure<Collection<GdmcDependency>> keys
 
   @Input
   boolean allowSnapshots = false
@@ -51,7 +47,8 @@ class GdmcResolveTask extends AbstractGdmcTask {
 
     // add query dependencies to new config
     keys.call().each {
-      project.dependencies.add(config.name, "${it}:+")
+      String notation = it.version ? it.toString() : "${it.toString()}:+"
+      project.dependencies.add(config.name, notation)
     }
 
     // collect resolved dependencies into a set

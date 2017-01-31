@@ -9,7 +9,7 @@ import org.gradle.api.artifacts.ModuleVersionSelector
 /**
  * dependency utility object. can represent either a resolved or unresolved dependency
  */
-class GdmcDependency {
+class GdmcDependency implements Serializable {
 
   private static final String PLACEHOLDER_GROUP_ID = "com.episode6.hackit.gmdc_placeholder"
 

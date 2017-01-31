@@ -24,14 +24,14 @@ class Tasks {
     }
   }
 
-  static Collection<String> findMissingDependencyKeys(Project project, DependencyMap mapper) {
+  static Collection<GdmcDependency> findMissingDependencyKeys(Project project, DependencyMap mapper) {
     return project.configurations.collectMany { Configuration config ->
       return config.dependencies.collectMany { Dependency dep ->
         GdmcDependency unMapped = GdmcDependency.from(dep)
         if (unMapped.version || mapper.lookup(unMapped.key)) {
           return []
         }
-        return [unMapped.key]
+        return [unMapped]
       }
     }
   }
