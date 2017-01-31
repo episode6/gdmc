@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.DependencyMap.DependencyFilter
 import com.episode6.hackit.gdmc.json.GdmcDependency
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -14,7 +15,7 @@ class DependencyMapImpl implements DependencyMap {
   DependencyMapImpl(File file) {
     gdmcFile = file
     mappedDependencies = new LinkedHashMap<>()
-    applyFile(gdmcFile, false)
+    applyFile(gdmcFile, null, false)
   }
 
   String sanitizeKey(Object obj) {
@@ -32,19 +33,24 @@ class DependencyMapImpl implements DependencyMap {
     return lookupKey(sanitizeKey(key))
   }
 
-  void applyFile(File file, boolean persist = true) {
+  void applyFile(File file, DependencyFilter filter = null, boolean persist = true) {
     if (!file.exists()) {
       return
     }
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
       json.each { String key, value ->
-        mappedDependencies.put(key, GdmcDependency.from(value))
+        GdmcDependency dep = GdmcDependency.from(value)
+        if (!filter || filter.shouldApply(key, dep)) {
+          mappedDependencies.put(key, dep)
+        }
       }
     } else if (json instanceof List) {
       json.each { value ->
         GdmcDependency dep = GdmcDependency.from(value)
-        mappedDependencies.put(dep.key, dep)
+        if (!filter || filter.shouldApply(dep.key, dep)) {
+          mappedDependencies.put(dep.key, dep)
+        }
       }
     }
 
