@@ -1,4 +1,4 @@
-package com.episode6.hackit.gdmc
+package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
 import org.gradle.api.DefaultTask

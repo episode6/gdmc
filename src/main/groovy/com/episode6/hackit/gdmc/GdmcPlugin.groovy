@@ -1,12 +1,12 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
+import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
-import org.gradle.api.artifacts.DependencyResolveDetails
 
 /**
  * Gradle Dependency Management Center Plugin
