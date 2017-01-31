@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
+import com.episode6.hackit.gdmc.throwable.GdmcUnmappedDependencyException
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -19,31 +20,20 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
   void execute(DependencyResolveDetails details) {
     println "found: ${details.requested.toString()}"
     GdmcDependency unMapped = GdmcDependency.from(details.requested)
-    if (!unMapped.version) {
-      apply(details, unMapped.getKey())
+    if (unMapped.version) {
+      return
     }
-//
-//    if (details.requested.group == "com.episode6.hackit.gmdc_placeholder") {
-//      String key = details.requested.toString().substring("com.episode6.hackit.gmdc_placeholder:".length())
-//      apply(details, key)
-//    } else if (!details.requested.version) {
-//      apply(details, details.requested.toString())
-//    }
-  }
 
-  private void apply(DependencyResolveDetails details, String key) {
-    println "looking up key: ${key}"
-    List<GdmcDependency> newTarget = dependencyMap.lookup(key)
-    println "using target: ${newTarget}"
-    if (!newTarget) {
-      throw new RuntimeException("PUT A REAL EXCEPTION HERE")
+    List<String> mappedDeps = dependencyMap.lookup(unMapped.key).collect {it.toString()}
+    if (!mappedDeps) {
+      throw new GdmcUnmappedDependencyException(unMapped)
     }
-    details.useTarget(newTarget[0].toString())
-    if (newTarget.size() > 1) {
-      for (int i = 1; i < newTarget.length; i++) {
-        configuration.dependencies.add(project.dependencies.create(newTarget[i].toString()))
+
+    details.useTarget(mappedDeps[0])
+    if (mappedDeps.size() > 1) {
+      for (int i = 1; i < mappedDeps.size(); i++) {
+        configuration.dependencies.add(project.dependencies.create(mappedDeps[i]))
       }
     }
-
   }
 }
