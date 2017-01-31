@@ -14,7 +14,7 @@ import org.gradle.api.tasks.TaskAction
 /**
  *
  */
-class GdmcResolveTask extends DefaultTask {
+class GdmcResolveTask extends AbstractGdmcTask {
 
   private static String CONFIG_NAME = "gdmcTemporaryConfig"
 
@@ -23,11 +23,6 @@ class GdmcResolveTask extends DefaultTask {
 
   @Input
   boolean allowSnapshots = false
-
-  @OutputFile @Memoized
-  File getOutputFile() {
-    return project.file("${project.buildDir}/${name}.json")
-  }
 
   @TaskAction
   def resolve() {
@@ -62,7 +57,6 @@ class GdmcResolveTask extends DefaultTask {
       GdmcDependency.from(it.module.id).toMap()
     }
 
-    // write to outputFile
-    outputFile.text = new JsonBuilder(resolvedDependencies).toString()
+    writeJsonToOutputFile(resolvedDependencies)
   }
 }
