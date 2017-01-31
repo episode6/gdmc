@@ -6,6 +6,7 @@ import groovy.transform.Memoized
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
+import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
@@ -24,14 +25,15 @@ class GdmcResolveTask extends AbstractGdmcTask {
   @Input
   boolean allowSnapshots = false
 
+  @Input
+  boolean resolveTransitive = false
+
   @TaskAction
   def resolve() {
 
     // create a temporary config to resolve the requested dependencies
     def config = project.configurations.create(CONFIG_NAME) {
-
-      // don't bother resolving dependencies of dependencies
-      transitive = false
+      transitive = resolveTransitive
     }
 
     // gradle includes snapshots by default, filter them out here
@@ -52,11 +54,11 @@ class GdmcResolveTask extends AbstractGdmcTask {
       project.dependencies.add(config.name, "${it}:+")
     }
 
-    // collect resolved depencies into the resolvedDependencies map
-    Collection<Map> resolvedDependencies = config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL).collect {
-      GdmcDependency.from(it.module.id).toMap()
-    }
+    // collect resolved dependencies into a set
+    Set<ResolvedDependency> resolvedDependencies = resolveTransitive ?
+        config.resolvedConfiguration.lenientConfiguration.allModuleDependencies :
+        config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL)
 
-    writeJsonToOutputFile(resolvedDependencies)
+    writeJsonToOutputFile(resolvedDependencies.collect {GdmcDependency.from(it.module.id).toMap()})
   }
 }

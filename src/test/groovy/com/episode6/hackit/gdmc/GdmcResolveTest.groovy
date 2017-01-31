@@ -8,7 +8,7 @@ import spock.lang.Specification
 /**
  * Tests the gdmcResolveMissing task
  */
-class gdmcResolveMissingTest extends Specification {
+class GdmcResolveTest extends Specification {
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
@@ -62,6 +62,7 @@ dependencies {
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
       }
+      size() == 3
       verifyJsonSortOrder((Map)delegate)
     }
   }
@@ -131,6 +132,7 @@ dependencies {
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
       }
+      size() == 3
       verifyJsonSortOrder((Map)delegate)
     }
   }
