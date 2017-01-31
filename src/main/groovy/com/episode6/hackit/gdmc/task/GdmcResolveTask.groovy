@@ -16,7 +16,7 @@ class GdmcResolveTask extends AbstractGdmcTask {
   private static String CONFIG_NAME = "gdmcTemporaryConfig"
 
   @Input
-  Closure<Collection<GdmcDependency>> keys
+  Closure<Collection<GdmcDependency>> dependencies
 
   @Input
   boolean allowSnapshots = false
@@ -46,7 +46,7 @@ class GdmcResolveTask extends AbstractGdmcTask {
     }
 
     // add query dependencies to new config
-    keys.call().each {
+    dependencies.call().each {
       String notation = it.version ? it.toString() : "${it.toString()}:+"
       project.dependencies.add(config.name, notation)
     }

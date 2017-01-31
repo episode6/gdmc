@@ -15,13 +15,15 @@ class Tasks {
     DependencyMap mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 
     project.task("gdmcResolveMissing", type: GdmcResolveTask) {
-      keys = {
+      dependencies = {
         return findMissingDependencyKeys(project, mapper)
       }
       doLast {
         mapper.applyFile(outputFile)
       }
     }
+
+    //import, importTransitive, upgrade, upgradeTransitive, upgradeAll
   }
 
   static Collection<GdmcDependency> findMissingDependencyKeys(Project project, DependencyMap mapper) {
