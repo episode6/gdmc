@@ -1,9 +1,11 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.json.GdmcDependency
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.DependencyResolveDetails
 
 /**
@@ -28,7 +30,19 @@ class GdmcPlugin implements Plugin<Project> {
     })
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
-      keys = mapper.missingDependencies
+      keys = {
+        return project.configurations.collectMany { Configuration config ->
+          return config.dependencies.collectMany { Dependency dep ->
+            GdmcDependency unMapped = GdmcDependency.from(dep)
+            if (unMapped.version || mapper.lookup(unMapped.key)) {
+              println "found valid dep: ${unMapped.toString()}"
+              return []
+            }
+            println "found invalid dep: ${unMapped.key}"
+            return [unMapped.key]
+          }
+        }
+      }
       doLast {
         mapper.applyMissingDependencies(resolvedDependencies)
         resolvedDependencies.each { resolved ->

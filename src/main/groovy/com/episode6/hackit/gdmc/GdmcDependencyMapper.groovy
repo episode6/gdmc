@@ -17,7 +17,6 @@ class GdmcDependencyMapper implements Plugin<Project>, DependencyMap {
 
   Project project
   Map<String, GdmcDependency> mappedDependencies = new LinkedHashMap()
-  List<String> missingDependencies = new LinkedList<>()
 
   @Override
   void apply(Project project) {
@@ -33,12 +32,15 @@ class GdmcDependencyMapper implements Plugin<Project>, DependencyMap {
     }
 
     Project.metaClass.gdmc = { key ->
-      return rootProject.plugins.getPlugin(GdmcDependencyMapper).lookup(key)
-    }
-    Project.metaClass.gdmc2 = { String key ->
-      if (!key.contains(":")) {
-        return "com.episode6.hackit.gmdc_placeholder:${key}"
+      List<GdmcDependency> deps = rootProject.plugins.getPlugin(GdmcDependencyMapper).lookup(key)
+      if (!deps) {
+        GdmcDependency rawDep = GdmcDependency.from(getKeyFromMap(key))
+        return rawDep.getPlaceholderKey()
       }
+      return deps.collect {
+        it.toString()
+      }
+
     }
   }
 
@@ -62,44 +64,42 @@ class GdmcDependencyMapper implements Plugin<Project>, DependencyMap {
     return defaultFile
   }
 
-  Object lookup(Object key) {
+  private String getKeyFromMap(Object obj) {
+    if (obj instanceof Map) {
+      String key = "${obj.group}:${obj.name}"
+      if (obj.version) {
+        return "${key}:${obj.version}"
+      }
+      return key
+    }
+    return obj
+  }
+
+  List<GdmcDependency> lookup(Object key) {
     if (key instanceof Map) {
-      return lookupMap(key)
+      return lookupKey(getKeyFromMap(key))
     }
     return lookupKey((String)key)
   }
 
-  private Object lookupMap(Map params) {
-    String key = "${params.group}:${params.name}"
-    if (params.version) {
-      key = "${key}:${params.version}"
+  private List<GdmcDependency> lookupKey(String key) {
+    if (key.endsWith(":")) {
+      key = key.substring(0, key.length()-1)
     }
-    return lookupKey(key)
-  }
-
-  private Object lookupKey(String key) {
+    println "called lookup: ${key}"
     def value = mappedDependencies.get(key)
     if (value == null) {
-      missingDependencies.add(key)
-      return "${key}:+"
-//      throw new RuntimeException("MISSING DEP: ${key} - PUT A REAL EXCEPTION HERE")
+      return []
     }
 
     if (!value.alias) {
-      return "${value.groupId}:${value.artifactId}:${value.version}"
+      return [value]
     }
 
     if (value.alias instanceof List) {
-      List<String> resolvedKeys = new ArrayList<>()
-      value.alias.each { String it ->
-        def resolved = lookupKey(it)
-        if (resolved instanceof String[]) {
-          resolvedKeys.addAll(resolved)
-        } else {
-          resolvedKeys.add((String)resolved)
-        }
+      return value.alias.collectMany {
+        lookupKey(it)
       }
-      return (String[])resolvedKeys.toArray()
     }
     return lookupKey((String)value.alias)
   }

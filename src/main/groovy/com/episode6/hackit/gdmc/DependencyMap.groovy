@@ -1,11 +1,10 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.json.GdmcDependency
+
 /**
  * interface for dependency mapper
  */
 interface DependencyMap {
-  /**
-   * returns objectNotation for dependency or array of dependencies (for aliases)
-   */
-  Object lookup(Object key)
+  List<GdmcDependency> lookup(Object key)
 }

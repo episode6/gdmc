@@ -60,7 +60,7 @@ repositories {
 }
 
 dependencies {
-   compile gdmc2('grouptest')
+   compile gdmc('grouptest')
    testCompile(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }

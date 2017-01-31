@@ -2,20 +2,36 @@ package com.episode6.hackit.gdmc.json
 
 import com.episode6.hackit.groovykit.versions.VersionComparator
 import org.gradle.api.Nullable
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
+import org.gradle.api.artifacts.ModuleVersionSelector
 
 /**
- * dependency object as represented in json
+ * dependency utility object. can represent either a resolved or unresolved dependency
  */
 class GdmcDependency {
 
+  private static final String PLACEHOLDER_GROUP_ID = "com.episode6.hackit.gmdc_placeholder"
+
   static @Nullable GdmcDependency from(Object obj) {
-    if (obj instanceof ModuleVersionIdentifier) {
+    if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency) {
       return new GdmcDependency(
           groupId: obj.group,
           artifactId: obj.name,
           version: obj.version)
     }
+//    if (obj instanceof ModuleVersionSelector) {
+//      return new GdmcDependency(
+//          groupId: obj.group,
+//          artifactId: obj.name,
+//          version: obj.version)
+//    }
+//    if (obj instanceof Dependency) {
+//      return new GdmcDependency(
+//          groupId: obj.group,
+//          artifactId: obj.name,
+//          version: obj.version)
+//    }
     if (obj instanceof Map) {
       return new GdmcDependency(
           groupId: obj.get("groupId"),
@@ -29,7 +45,9 @@ class GdmcDependency {
   static @Nullable GdmcDependency fromString(String identifier) {
     String[] tokens = identifier.tokenize(":")
     if (tokens.length < 2 || tokens.length > 3) {
-      return null
+      return new GdmcDependency(
+          groupId: PLACEHOLDER_GROUP_ID,
+          artifactId: identifier)
     }
     return new GdmcDependency(
         groupId: tokens[0],
@@ -42,7 +60,14 @@ class GdmcDependency {
   String artifactId
   String version
 
+  boolean isPlaceholder() {
+    return groupId == PLACEHOLDER_GROUP_ID
+  }
+
   String getKey() {
+    if (isPlaceholder()) {
+      return artifactId
+    }
     return "${groupId}:${artifactId}"
   }
 
@@ -55,6 +80,13 @@ class GdmcDependency {
       return "${getKey()}:${version}"
     }
     return getKey()
+  }
+
+  String getPlaceholderKey() {
+    if (isPlaceholder()) {
+      return "${groupId}:${artifactId}"
+    }
+    return toString()
   }
 
   Map toMap() {

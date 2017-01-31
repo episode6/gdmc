@@ -1,7 +1,6 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.testutil.IntegrationTest
-import com.episode6.hackit.gdmc.testutil.IntegrationTest.SubProject
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification

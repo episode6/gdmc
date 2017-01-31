@@ -15,9 +15,12 @@ import org.gradle.api.tasks.TaskAction
 class GdmcResolveTask extends DefaultTask {
 
   private static String CONFIG_NAME = "gdmcTemporaryConfig"
-
+//
+//  @Input
+//  List<String> keys
+//
   @Input
-  List<String> keys
+  Closure<Collection<String>> keys
 
   @Input
   boolean allowSnapshots = false
@@ -49,7 +52,8 @@ class GdmcResolveTask extends DefaultTask {
     }
 
     // add query dependencies to new config
-    keys.each {
+    keys.call().each {
+      println "adding \"${it}:+\" to resolve config"
       project.dependencies.add(config.name, "${it}:+")
     }
 
