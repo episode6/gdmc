@@ -6,9 +6,9 @@ import org.junit.Rule
 import spock.lang.Specification
 
 /**
- * Tests the gdmcResolve task
+ * Tests the gdmcResolveMissing task
  */
-class GdmcResolveTest extends Specification {
+class gdmcResolveMissingTest extends Specification {
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
@@ -41,10 +41,10 @@ dependencies {
 """
 
     when:
-    def result = test.runTask("gdmcResolve")
+    def result = test.runTask("gdmcResolveMissing")
 
     then:
-    result.task(":gdmcResolve").outcome == TaskOutcome.SUCCESS
+    result.task(":gdmcResolveMissing").outcome == TaskOutcome.SUCCESS
     test.gdmcJsonFile.exists()
     with(test.gdmcJsonFile.asJson()) {
       with(get("org.mockito:mockito-core")) {
@@ -108,11 +108,11 @@ dependencies {
     }
 
     when:
-    def result = test.runTask("gdmcResolve")
+    def result = test.runTask("gdmcResolveMissing")
 
     then:
-    result.task(":javalib:gdmcResolve").outcome == TaskOutcome.SUCCESS
-    result.task(":groovylib:gdmcResolve").outcome == TaskOutcome.SUCCESS
+    result.task(":javalib:gdmcResolveMissing").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcResolveMissing").outcome == TaskOutcome.SUCCESS
     test.gdmcJsonFile.exists()
 
     with(test.gdmcJsonFile.asJson()) {

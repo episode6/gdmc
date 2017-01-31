@@ -14,7 +14,7 @@ class Tasks {
   static void init(Project project) {
     DependencyMap mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 
-    project.task("gdmcResolve", type: GdmcResolveTask) {
+    project.task("gdmcResolveMissing", type: GdmcResolveTask) {
       keys = {
         return findMissingDependencyKeys(project, mapper)
       }
