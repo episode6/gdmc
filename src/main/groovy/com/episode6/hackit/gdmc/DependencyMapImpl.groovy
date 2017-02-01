@@ -33,6 +33,10 @@ class DependencyMapImpl implements DependencyMap {
     return lookupKey(sanitizeKey(key))
   }
 
+  List<GdmcDependency> getValidDependencies() {
+    return mappedDependencies.values().findAll {!it.alias}
+  }
+
   void applyFile(File file, DependencyFilter filter = null, boolean persist = true) {
     if (!file.exists()) {
       return
