@@ -6,7 +6,6 @@ import com.episode6.hackit.gdmc.json.GdmcDependency
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.Dependency
 
 /**
  *
@@ -23,7 +22,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
 
     project.task("gdmcResolveMissing", type: GdmcResolveTask) {
       dependencies = {
-        return findMissingDependencies()
+        return projectDependencies {!it.version && !mapper.lookup(it.key)}
       }
       doLast {
         mapper.applyFile(outputFile)
@@ -32,7 +31,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
 
     project.task("gdmcImport", type: GdmcResolveTask) {
       dependencies = {
-        return findVersionedDependencies()
+        return projectDependencies {it.version} // TODO: should we only import missing deps, or overrite existing deps?
       }
       doLast {
         mapper.applyFile(outputFile)
@@ -42,19 +41,9 @@ class GdmcTasksPlugin implements Plugin<Project> {
     //import, importTransitive, upgrade, upgradeTransitive, upgradeAll
   }
 
-  Collection<GdmcDependency> findMissingDependencies() {
+  Collection<GdmcDependency> projectDependencies(Closure filter) {
     return project.configurations.collectMany { Configuration config ->
-      return config.dependencies.collect {GdmcDependency.from(it)}.findAll {
-        !it.version && !mapper.lookup(it.key)
-      }
-    }
-  }
-
-  Collection<GdmcDependency> findVersionedDependencies() {
-    return project.configurations.collectMany { Configuration config ->
-      return config.dependencies.collect {GdmcDependency.from(it)}.findAll {
-        it.version
-      }
+      return config.dependencies.collect {GdmcDependency.from(it)}.findAll(filter)
     }
   }
 }
