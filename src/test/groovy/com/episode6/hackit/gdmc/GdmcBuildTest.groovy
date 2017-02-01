@@ -173,6 +173,42 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test springs-compat override"(String plugin) {
+    given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    // use invalid chop version in gdmc to ensure it gets overwritten by springs dependency management
+    test.gdmcJsonFile << """
+{
+"com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.0.0.0.0.1"
+   }
+}
+"""
+    test.gradleBuildFile << """
+dependencyManagement {
+  dependencies {
+    dependency 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+  }
+}
 
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core'
+}
+"""
+
+    when:
+    def result = test.runTask("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    // only testing with springs_compat
+    plugin                      | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
 
 }
