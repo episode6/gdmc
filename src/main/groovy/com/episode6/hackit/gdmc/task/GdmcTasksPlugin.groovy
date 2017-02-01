@@ -3,6 +3,7 @@ package com.episode6.hackit.gdmc.task
 import com.episode6.hackit.gdmc.DependencyMap
 import com.episode6.hackit.gdmc.GdmcRootPlugin
 import com.episode6.hackit.gdmc.json.GdmcDependency
+import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.Dependency
@@ -10,13 +11,19 @@ import org.gradle.api.artifacts.Dependency
 /**
  *
  */
-class GdmcTasksPlugin {
-  static void init(Project project) {
-    DependencyMap mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
+class GdmcTasksPlugin implements Plugin<Project> {
+
+  Project project
+  DependencyMap mapper
+
+  @Override
+  void apply(Project project) {
+    this.project = project
+    mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 
     project.task("gdmcResolveMissing", type: GdmcResolveTask) {
       dependencies = {
-        return findMissingDependencies(project, mapper)
+        return findMissingDependencies()
       }
       doLast {
         mapper.applyFile(outputFile)
@@ -25,7 +32,7 @@ class GdmcTasksPlugin {
 
     project.task("gdmcImport", type: GdmcResolveTask) {
       dependencies = {
-        return findVersionedDependencies(project)
+        return findVersionedDependencies()
       }
       doLast {
         mapper.applyFile(outputFile)
@@ -35,7 +42,7 @@ class GdmcTasksPlugin {
     //import, importTransitive, upgrade, upgradeTransitive, upgradeAll
   }
 
-  static Collection<GdmcDependency> findMissingDependencies(Project project, DependencyMap mapper) {
+  Collection<GdmcDependency> findMissingDependencies() {
     return project.configurations.collectMany { Configuration config ->
       return config.dependencies.collect {GdmcDependency.from(it)}.findAll {
         !it.version && !mapper.lookup(it.key)
@@ -43,7 +50,7 @@ class GdmcTasksPlugin {
     }
   }
 
-  static Collection<GdmcDependency> findVersionedDependencies(Project project) {
+  Collection<GdmcDependency> findVersionedDependencies() {
     return project.configurations.collectMany { Configuration config ->
       return config.dependencies.collect {GdmcDependency.from(it)}.findAll {
         it.version

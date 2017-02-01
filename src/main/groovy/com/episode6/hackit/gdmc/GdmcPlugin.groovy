@@ -18,6 +18,7 @@ class GdmcPlugin implements Plugin<Project> {
     if (!rootPlugin) {
       rootPlugin = project.rootProject.plugins.apply(GdmcRootPlugin)
     }
+    project.plugins.apply(GdmcTasksPlugin)
     mapper = rootPlugin.dependencyMap
 
     project.configurations.all(new Action<Configuration>() {
@@ -28,6 +29,5 @@ class GdmcPlugin implements Plugin<Project> {
       }
     })
 
-    GdmcTasksPlugin.init(project)
   }
 }
