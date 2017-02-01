@@ -37,24 +37,16 @@ class Tasks {
 
   static Collection<GdmcDependency> findMissingDependencies(Project project, DependencyMap mapper) {
     return project.configurations.collectMany { Configuration config ->
-      return config.dependencies.collectMany { Dependency dep ->
-        GdmcDependency unMapped = GdmcDependency.from(dep)
-        if (unMapped.version || mapper.lookup(unMapped.key)) {
-          return []
-        }
-        return [unMapped]
+      return config.dependencies.collect {GdmcDependency.from(it)}.findAll {
+        !it.version && !mapper.lookup(it.key)
       }
     }
   }
 
   static Collection<GdmcDependency> findVersionedDependencies(Project project) {
     return project.configurations.collectMany { Configuration config ->
-      return config.dependencies.collectMany { Dependency dep ->
-        GdmcDependency unMapped = GdmcDependency.from(dep)
-        if (unMapped.version) {
-          return [unMapped]
-        }
-        return []
+      return config.dependencies.collect {GdmcDependency.from(it)}.findAll {
+        it.version
       }
     }
   }
