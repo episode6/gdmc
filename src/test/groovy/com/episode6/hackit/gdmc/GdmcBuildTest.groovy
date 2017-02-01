@@ -8,7 +8,7 @@ import spock.lang.Specification
 /**
  * Tests {@link GdmcPlugin}
  */
-class GdmcPluginTest extends Specification {
+class GdmcBuildTest extends Specification {
   private static final String CHOP_IMPORT = """
 import com.episode6.hackit.chop.Chop;
 
