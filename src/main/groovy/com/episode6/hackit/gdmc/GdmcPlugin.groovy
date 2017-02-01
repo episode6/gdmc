@@ -11,21 +11,17 @@ import org.gradle.api.artifacts.Configuration
  */
 class GdmcPlugin implements Plugin<Project> {
 
-  DependencyMap mapper
-
   void apply(Project project) {
-    GdmcRootPlugin rootPlugin = project.rootProject.plugins.findPlugin(GdmcRootPlugin)
-    if (!rootPlugin) {
-      rootPlugin = project.rootProject.plugins.apply(GdmcRootPlugin)
+    if (!project.rootProject.plugins.findPlugin(GdmcRootPlugin)) {
+      project.rootProject.plugins.apply(GdmcRootPlugin)
     }
     project.plugins.apply(GdmcTasksPlugin)
-    mapper = rootPlugin.dependencyMap
 
     project.configurations.all(new Action<Configuration>() {
       @Override
       void execute(Configuration files) {
-        files.resolutionStrategy.eachDependency(
-            new VersionMapperAction(dependencyMap: mapper, configuration: files, project: project))
+        VersionMapperAction action = new VersionMapperAction(configuration: files, project: project)
+        files.resolutionStrategy.eachDependency(action)
       }
     })
 

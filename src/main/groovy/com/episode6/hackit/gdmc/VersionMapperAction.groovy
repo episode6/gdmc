@@ -2,6 +2,7 @@ package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
 import com.episode6.hackit.gdmc.throwable.GdmcUnmappedDependencyException
+import groovy.transform.Memoized
 import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -12,7 +13,6 @@ import org.gradle.api.artifacts.DependencyResolveDetails
  */
 class VersionMapperAction implements Action<DependencyResolveDetails> {
 
-  DependencyMap dependencyMap
   Configuration configuration
   Project project
 
@@ -34,5 +34,10 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
         configuration.dependencies.add(project.dependencies.create(mappedDeps[i]))
       }
     }
+  }
+
+  @Memoized
+  DependencyMap getDependencyMap() {
+    project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
   }
 }
