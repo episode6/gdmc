@@ -12,13 +12,13 @@ class GdmcResolveTest extends Specification {
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
-  def "test resolve missing dependencies"() {
+  def "test resolve missing dependencies"(String plugin) {
     given:
     test.gdmcJsonFile << "{}"
     test.gradleBuildFile << """
 plugins {
   id 'groovy'
-  id 'com.episode6.hackit.gdmc'
+  id '${plugin}'
 }
 
 group = 'com.example.testproject'
@@ -65,9 +65,13 @@ dependencies {
       size() == 3
       verifyJsonSortOrder((Map)delegate)
     }
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
   }
 
-  def "mutli-project test"() {
+  def "mutli-project test"(String plugin) {
     given:
     test.gdmcJsonFile << "{}"
     test.gradleBuildFile << """
@@ -84,7 +88,7 @@ allprojects {
       gradleBuildFile << """
 plugins {
   id 'java'
-  id 'com.episode6.hackit.gdmc'
+  id '${plugin}'
 }
 
 dependencies {
@@ -97,7 +101,7 @@ dependencies {
       gradleBuildFile << """
 plugins {
   id 'groovy'
-  id 'com.episode6.hackit.gdmc'
+  id '${plugin}'
 }
 dependencies {
    compile gdmc('com.episode6.hackit.chop:chop-core')
@@ -135,6 +139,10 @@ dependencies {
       size() == 3
       verifyJsonSortOrder((Map)delegate)
     }
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
   }
 
   private static boolean verifyJsonSortOrder(Map json) {

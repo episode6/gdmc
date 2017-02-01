@@ -12,11 +12,11 @@ class GdmcImportTest extends Specification {
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
-  def "test import from nothing"() {
+  def "test import from nothing"(String plugin) {
     test.gradleBuildFile << """
 plugins {
   id 'groovy'
-  id 'com.episode6.hackit.gdmc'
+  id '${plugin}'
 }
 
 group = 'com.example.testproject'
@@ -62,5 +62,9 @@ dependencies {
       }
       size() == 3
     }
+    
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
   }
 }

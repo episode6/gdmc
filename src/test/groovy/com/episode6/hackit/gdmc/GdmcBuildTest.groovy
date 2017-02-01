@@ -38,10 +38,11 @@ import org.mockito.Mockito;
      "version": "1.1-groovy-2.4-rc-2"
    }
 """
-  private static final String BUILD_FILE_PREFIX = """
+  private static final String buildFilePrefix(String plugin) {
+    """
 plugins {
   id 'groovy'
-  id 'com.episode6.hackit.gdmc'
+  id '${plugin}'
 }
 
 group = 'com.example.testproject'
@@ -52,18 +53,19 @@ repositories {
 }
 
 """
+  }
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
   def setup() {
-    test.gradleBuildFile << BUILD_FILE_PREFIX
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
   }
 
 
-  def "test resolve pre-set dependencies simple"() {
+  def "test resolve pre-set dependencies simple"(String plugin) {
     given:
+    test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
    compile 'com.episode6.hackit.chop:chop-core'
@@ -82,11 +84,16 @@ ${PRE_SET_DEPENDENCIES}
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
   }
 
 
-  def "test resolve pre-set dependencies aliases"() {
+  def "test resolve pre-set dependencies aliases"(String plugin) {
     given:
+    test.gradleBuildFile << buildFilePrefix(plugin)
     test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
     test.gradleBuildFile << """
 dependencies {
@@ -118,12 +125,17 @@ ${PRE_SET_DEPENDENCIES}
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
   }
 
 
 
-  def "test failure on missing dependency"() {
+  def "test failure on missing dependency"(String plugin) {
     given:
+    test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
    compile 'com.episode6.hackit.chop:chop-core'
@@ -134,5 +146,9 @@ dependencies {
 
     then:
     result.output.contains("Unmapped dependency found: com.episode6.hackit.chop:chop-core")
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
   }
 }
