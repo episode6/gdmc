@@ -18,7 +18,6 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
 
   @Override
   void execute(DependencyResolveDetails details) {
-    println "found: ${details.requested.toString()}"
     GdmcDependency unMapped = GdmcDependency.from(details.requested)
     if (unMapped.version) {
       return

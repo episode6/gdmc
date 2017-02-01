@@ -66,7 +66,6 @@ class DependencyMapImpl implements DependencyMap {
     if (key.endsWith(":")) {
       key = key.substring(0, key.length()-1)
     }
-    println "called lookup: ${key}"
     def value = mappedDependencies.get(key)
     if (value == null) {
       return []
