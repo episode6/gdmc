@@ -32,9 +32,9 @@ repositories {
 }
 
 dependencies {
-   compile gdmc('org.mockito:mockito-core')
-   compile gdmc('com.episode6.hackit.chop:chop-core')
-   testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
+   compile 'org.mockito:mockito-core'
+   compile 'com.episode6.hackit.chop:chop-core'
+   testCompile(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -92,8 +92,8 @@ plugins {
 }
 
 dependencies {
-   compile gdmc('org.mockito:mockito-core')
-   compile gdmc('com.episode6.hackit.chop:chop-core')
+   compile 'org.mockito:mockito-core'
+   compile 'com.episode6.hackit.chop:chop-core'
 }
 """
     }
@@ -104,8 +104,8 @@ plugins {
   id '${plugin}'
 }
 dependencies {
-   compile gdmc('com.episode6.hackit.chop:chop-core')
-   testCompile(gdmc(group: 'org.spockframework', name: 'spock-core'))  {
+   compile 'com.episode6.hackit.chop:chop-core'
+   testCompile(group: 'org.spockframework', name: 'spock-core') {
     exclude module: 'groovy-all'
   }
 }

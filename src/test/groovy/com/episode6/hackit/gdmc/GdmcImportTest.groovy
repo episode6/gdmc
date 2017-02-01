@@ -62,7 +62,7 @@ dependencies {
       }
       size() == 3
     }
-    
+
     where:
     plugin                      | _
     "com.episode6.hackit.gdmc"  | _
