@@ -15,12 +15,10 @@ class GdmcSpringsCompatPlugin implements Plugin<Project> {
     DependencyMap dependencyMap = GdmcRootPlugin.ensureInit(project).dependencyMap
     project.plugins.apply(GdmcTasksPlugin)
 
-    project.afterEvaluate {
-      project.dependencyManagement {
-        dependencies {
-          dependencyMap.validDependencies.each {
-            dependency it.toString()
-          }
+    project.dependencyManagement {
+      dependencies {
+        dependencyMap.validDependencies.each {
+          dependency it.toString()
         }
       }
     }
