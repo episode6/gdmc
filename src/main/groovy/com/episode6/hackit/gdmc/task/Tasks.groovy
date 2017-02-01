@@ -16,7 +16,7 @@ class Tasks {
 
     project.task("gdmcResolveMissing", type: GdmcResolveTask) {
       dependencies = {
-        return findMissingDependencyKeys(project, mapper)
+        return findMissingDependencies(project, mapper)
       }
       doLast {
         mapper.applyFile(outputFile)
@@ -35,7 +35,7 @@ class Tasks {
     //import, importTransitive, upgrade, upgradeTransitive, upgradeAll
   }
 
-  static Collection<GdmcDependency> findMissingDependencyKeys(Project project, DependencyMap mapper) {
+  static Collection<GdmcDependency> findMissingDependencies(Project project, DependencyMap mapper) {
     return project.configurations.collectMany { Configuration config ->
       return config.dependencies.collectMany { Dependency dep ->
         GdmcDependency unMapped = GdmcDependency.from(dep)
