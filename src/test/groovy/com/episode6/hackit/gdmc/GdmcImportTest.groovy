@@ -5,6 +5,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
+
 /**
  * Tests the gdmcImport task
  */
@@ -13,22 +15,8 @@ class GdmcImportTest extends Specification {
   @Rule final IntegrationTest test = new IntegrationTest()
 
   def "test import from nothing"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
-plugins {
-  id 'groovy'
-  id '${plugin}'
-}
-
-group = 'com.example.testproject'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-  jcenter()
-  maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
-}
-
 dependencies {
    compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
    compile 'org.mockito:mockito-core:2.7.0'
@@ -65,6 +53,7 @@ dependencies {
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 }

@@ -5,22 +5,12 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
+
 /**
  * Tests {@link GdmcPlugin}
  */
 class GdmcBuildTest extends Specification {
-  private static final String CHOP_IMPORT = """
-import com.episode6.hackit.chop.Chop;
-
-"""
-  private static final String SPOCK_IMPORT = """
-import spock.lang.Specification;
-
-"""
-  private static final String MOCKITO_IMPORT = """
-import org.mockito.Mockito;
-
-"""
   private static final String PRE_SET_DEPENDENCIES = """
   "com.episode6.hackit.chop:chop-core": {
       "groupId": "com.episode6.hackit.chop",
@@ -38,22 +28,6 @@ import org.mockito.Mockito;
      "version": "1.1-groovy-2.4-rc-2"
    }
 """
-  private static final String buildFilePrefix(String plugin) {
-    """
-plugins {
-  id 'groovy'
-  id '${plugin}'
-}
-
-group = 'com.example.testproject'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-  jcenter()
-}
-
-"""
-  }
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
@@ -84,7 +58,8 @@ ${PRE_SET_DEPENDENCIES}
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
 
@@ -127,7 +102,8 @@ ${PRE_SET_DEPENDENCIES}
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
 
@@ -146,18 +122,21 @@ dependencies {
     def result = test.runTaskAndFail("build")
 
     then:
-    result.output.contains("Unmapped dependency found: com.episode6.hackit.chop:chop-core")
+    result.output.contains(plugin == GDMC_PLUGIN ?
+        "Unmapped dependency found: com.episode6.hackit.chop:chop-core" :
+        "Could not resolve all dependencies for configuration")
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
 
 
   def "mutli-project test failure"(String plugin) {
     given:
-    setupMultiProject(plugin)
+    setupMultiProject(test, plugin)
 
     when:
     def result = test.runTaskAndFail("build")
@@ -167,13 +146,14 @@ dependencies {
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
 
   def "mutli-project test"(String plugin) {
     given:
-    setupMultiProject(plugin)
+    setupMultiProject(test, plugin)
     test.gdmcJsonFile << """
 {
 ${PRE_SET_DEPENDENCIES}
@@ -189,52 +169,10 @@ ${PRE_SET_DEPENDENCIES}
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
 
-  private void setupMultiProject(String plugin) {
-    test.gradleBuildFile << """
-allprojects {
-  group = "com.example"
-  version = "0.0.1-SNAPSHOT"
-  
-  repositories {
-    jcenter()
-  }
-}
-"""
-    with(test.subProject("javalib")) {
-      gradleBuildFile << """
-plugins {
-  id 'java'
-  id '${plugin}'
-}
 
-dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
-}
-"""
-      createJavaFile(packageName: "com.episode6.javalib", imports: CHOP_IMPORT)
-      createJavaFile(packageName: "com.episode6.javalib", className: "SampleClass2", imports: MOCKITO_IMPORT)
-    }
-    with(test.subProject("groovylib")) {
-      gradleBuildFile << """
-plugins {
-  id 'groovy'
-  id '${plugin}'
-}
-dependencies {
-   compile project(':javalib')
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core') {
-    exclude module: 'groovy-all'
-  }
-}
-"""
-      createJavaFile(packageName: "com.episode6.groovylib", imports: CHOP_IMPORT)
-      createJavaFile(packageName: "com.episode6.groovylib", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
-    }
-  }
 }

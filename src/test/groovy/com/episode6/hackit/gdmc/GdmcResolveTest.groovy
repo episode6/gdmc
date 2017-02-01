@@ -5,6 +5,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
+
 /**
  * Tests the gdmcResolveMissing task
  */
@@ -15,22 +17,8 @@ class GdmcResolveTest extends Specification {
   def "test resolve missing dependencies"(String plugin) {
     given:
     test.gdmcJsonFile << "{}"
+    test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
-plugins {
-  id 'groovy'
-  id '${plugin}'
-}
-
-group = 'com.example.testproject'
-version = '0.0.1-SNAPSHOT'
-
-repositories {
-  jcenter()
-  maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
-}
-
 dependencies {
    compile 'org.mockito:mockito-core'
    compile 'com.episode6.hackit.chop:chop-core'
@@ -68,50 +56,13 @@ dependencies {
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
   def "mutli-project test"(String plugin) {
     given:
-    test.gdmcJsonFile << "{}"
-    test.gradleBuildFile << """
-allprojects {
-  group = "com.example"
-  version = "0.0.1-SNAPSHOT"
-  
-  repositories {
-    jcenter()
-  }
-}
-"""
-    with(test.subProject("javalib")) {
-      gradleBuildFile << """
-plugins {
-  id 'java'
-  id '${plugin}'
-}
-
-dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
-}
-"""
-    }
-    with(test.subProject("groovylib")) {
-      gradleBuildFile << """
-plugins {
-  id 'groovy'
-  id '${plugin}'
-}
-dependencies {
-   compile project(':javalib')
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core') {
-    exclude module: 'groovy-all'
-  }
-}
-"""
-    }
+    setupMultiProject(test, plugin)
 
     when:
     def result = test.runTask("gdmcResolveMissing")
@@ -143,7 +94,8 @@ dependencies {
 
     where:
     plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
   private static boolean verifyJsonSortOrder(Map json) {
