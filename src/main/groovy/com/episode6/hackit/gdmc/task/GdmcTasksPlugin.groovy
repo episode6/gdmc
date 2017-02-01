@@ -20,7 +20,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     this.project = project
     mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 
-    project.task("gdmcResolveMissing", type: GdmcResolveTask) {
+    project.task("gdmcResolve", type: GdmcResolveTask) {
       dependencies = {
         return projectDependencies {!it.version && !mapper.lookup(it.key)}
       }

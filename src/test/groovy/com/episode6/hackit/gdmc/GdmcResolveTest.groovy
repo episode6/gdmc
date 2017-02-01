@@ -29,10 +29,10 @@ dependencies {
 """
 
     when:
-    def result = test.runTask("gdmcResolveMissing")
+    def result = test.runTask("gdmcResolve")
 
     then:
-    result.task(":gdmcResolveMissing").outcome == TaskOutcome.SUCCESS
+    result.task(":gdmcResolve").outcome == TaskOutcome.SUCCESS
     test.gdmcJsonFile.exists()
     with(test.gdmcJsonFile.asJson()) {
       with(get("org.mockito:mockito-core")) {
@@ -65,11 +65,11 @@ dependencies {
     setupMultiProject(test, plugin)
 
     when:
-    def result = test.runTask("gdmcResolveMissing")
+    def result = test.runTask("gdmcResolve")
 
     then:
-    result.task(":javalib:gdmcResolveMissing").outcome == TaskOutcome.SUCCESS
-    result.task(":groovylib:gdmcResolveMissing").outcome == TaskOutcome.SUCCESS
+    result.task(":javalib:gdmcResolve").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcResolve").outcome == TaskOutcome.SUCCESS
     test.gdmcJsonFile.exists()
 
     with(test.gdmcJsonFile.asJson()) {
