@@ -10,7 +10,7 @@ import org.gradle.api.artifacts.Dependency
 /**
  *
  */
-class Tasks {
+class GdmcTasksPlugin {
   static void init(Project project) {
     DependencyMap mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 

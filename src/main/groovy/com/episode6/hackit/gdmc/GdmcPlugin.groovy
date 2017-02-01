@@ -1,6 +1,6 @@
 package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.gdmc.task.Tasks
+import com.episode6.hackit.gdmc.task.GdmcTasksPlugin
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -28,6 +28,6 @@ class GdmcPlugin implements Plugin<Project> {
       }
     })
 
-    Tasks.init(project)
+    GdmcTasksPlugin.init(project)
   }
 }
