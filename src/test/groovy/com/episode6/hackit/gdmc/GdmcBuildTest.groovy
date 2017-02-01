@@ -151,4 +151,60 @@ dependencies {
     plugin                      | _
     "com.episode6.hackit.gdmc"  | _
   }
+
+
+
+  def "mutli-project test"(String plugin) {
+    given:
+    test.gdmcJsonFile << "{}"
+    test.gradleBuildFile << """
+allprojects {
+  group = "com.example"
+  version = "0.0.1-SNAPSHOT"
+  
+  repositories {
+    jcenter()
+  }
+}
+"""
+    with(test.subProject("javalib")) {
+      gradleBuildFile << """
+plugins {
+  id 'java'
+  id '${plugin}'
+}
+
+dependencies {
+   compile 'org.mockito:mockito-core'
+   compile 'com.episode6.hackit.chop:chop-core'
+}
+"""
+    }
+    with(test.subProject("groovylib")) {
+      gradleBuildFile << """
+plugins {
+  id 'groovy'
+  id '${plugin}'
+}
+dependencies {
+   compile project(':javalib')
+   compile 'com.episode6.hackit.chop:chop-core'
+   testCompile(group: 'org.spockframework', name: 'spock-core') {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    }
+
+    when:
+    def result = test.runTask("build")
+
+    then:
+    result.task(":javalib:build").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
+  }
 }

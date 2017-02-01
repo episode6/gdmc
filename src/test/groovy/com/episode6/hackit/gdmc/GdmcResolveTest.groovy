@@ -104,6 +104,7 @@ plugins {
   id '${plugin}'
 }
 dependencies {
+   compile project(':javalib')
    compile 'com.episode6.hackit.chop:chop-core'
    testCompile(group: 'org.spockframework', name: 'spock-core') {
     exclude module: 'groovy-all'
