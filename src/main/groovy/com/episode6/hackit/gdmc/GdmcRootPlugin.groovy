@@ -10,6 +10,14 @@ import org.gradle.api.Project
  */
 class GdmcRootPlugin implements Plugin<Project> {
 
+  public static GdmcRootPlugin ensureInit(Project project) {
+    GdmcRootPlugin rootPlugin = project.rootProject.plugins.findPlugin(GdmcRootPlugin)
+    if (!rootPlugin) {
+      rootPlugin = project.rootProject.plugins.apply(GdmcRootPlugin)
+    }
+    return rootPlugin
+  }
+
   static final DEFAULT_FOLDER_NAME = "gdmc"
   static final DEFAULT_FILE_NAME = "gdmc.json"
 

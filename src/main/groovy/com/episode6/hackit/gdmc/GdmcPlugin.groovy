@@ -12,9 +12,7 @@ import org.gradle.api.artifacts.Configuration
 class GdmcPlugin implements Plugin<Project> {
 
   void apply(Project project) {
-    if (!project.rootProject.plugins.findPlugin(GdmcRootPlugin)) {
-      project.rootProject.plugins.apply(GdmcRootPlugin)
-    }
+    GdmcRootPlugin.ensureInit(project)
     project.plugins.apply(GdmcTasksPlugin)
 
     project.configurations.all(new Action<Configuration>() {
