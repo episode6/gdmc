@@ -173,6 +173,8 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+
+  
   def "test springs-compat override"(String plugin) {
     given:
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
@@ -198,7 +200,6 @@ dependencies {
    compile 'com.episode6.hackit.chop:chop-core'
 }
 """
-
     when:
     def result = test.runTask("build")
 
