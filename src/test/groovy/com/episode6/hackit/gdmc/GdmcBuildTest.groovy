@@ -57,14 +57,11 @@ repositories {
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
-  def setup() {
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
-  }
-
 
   def "test resolve pre-set dependencies simple"(String plugin) {
     given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -93,6 +90,8 @@ ${PRE_SET_DEPENDENCIES}
 
   def "test resolve pre-set dependencies aliases"(String plugin) {
     given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
     test.gradleBuildFile << """
@@ -135,6 +134,8 @@ ${PRE_SET_DEPENDENCIES}
 
   def "test failure on missing dependency"(String plugin) {
     given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -154,9 +155,45 @@ dependencies {
 
 
 
+  def "mutli-project test failure"(String plugin) {
+    given:
+    setupMultiProject(plugin)
+
+    when:
+    def result = test.runTaskAndFail("build")
+
+    then:
+    result.output.contains("Could not resolve all dependencies")
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
+  }
+
+
   def "mutli-project test"(String plugin) {
     given:
-    test.gdmcJsonFile << "{}"
+    setupMultiProject(plugin)
+    test.gdmcJsonFile << """
+{
+${PRE_SET_DEPENDENCIES}
+}
+"""
+
+    when:
+    def result = test.runTask("build")
+
+    then:
+    result.task(":javalib:build").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    "com.episode6.hackit.gdmc"  | _
+  }
+
+
+  private void setupMultiProject(String plugin) {
     test.gradleBuildFile << """
 allprojects {
   group = "com.example"
@@ -179,6 +216,8 @@ dependencies {
    compile 'com.episode6.hackit.chop:chop-core'
 }
 """
+      createJavaFile(packageName: "com.episode6.javalib", imports: CHOP_IMPORT)
+      createJavaFile(packageName: "com.episode6.javalib", className: "SampleClass2", imports: MOCKITO_IMPORT)
     }
     with(test.subProject("groovylib")) {
       gradleBuildFile << """
@@ -194,17 +233,8 @@ dependencies {
   }
 }
 """
+      createJavaFile(packageName: "com.episode6.groovylib", imports: CHOP_IMPORT)
+      createJavaFile(packageName: "com.episode6.groovylib", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
     }
-
-    when:
-    def result = test.runTask("build")
-
-    then:
-    result.task(":javalib:build").outcome == TaskOutcome.SUCCESS
-    result.task(":groovylib:build").outcome == TaskOutcome.SUCCESS
-
-    where:
-    plugin                      | _
-    "com.episode6.hackit.gdmc"  | _
   }
 }
