@@ -1,6 +1,5 @@
 package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.chop.Chop
 import com.episode6.hackit.gdmc.json.GdmcDependency
 import com.episode6.hackit.gdmc.throwable.GdmcUnmappedDependencyException
 import groovy.transform.Memoized
@@ -8,6 +7,8 @@ import org.gradle.api.Action
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
+
+import static GdmcLogger.Chop
 
 /**
  * Resolves missing versions from the provided
