@@ -12,6 +12,7 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
   jcenter()
+  mavenLocal()
   maven {
     url "https://oss.sonatype.org/content/repositories/snapshots/"
   }
