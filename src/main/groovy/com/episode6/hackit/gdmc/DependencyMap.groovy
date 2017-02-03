@@ -1,8 +1,4 @@
 package com.episode6.hackit.gdmc
-
-import com.episode6.hackit.gdmc.DependencyMap.DependencyFilter
-import com.episode6.hackit.gdmc.json.GdmcDependency
-
 /**
  * interface for dependency mapper
  */

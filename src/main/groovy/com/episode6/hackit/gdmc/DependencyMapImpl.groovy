@@ -1,7 +1,6 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.DependencyMap.DependencyFilter
-import com.episode6.hackit.gdmc.json.GdmcDependency
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 

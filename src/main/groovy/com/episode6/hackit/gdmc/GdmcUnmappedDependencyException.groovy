@@ -1,6 +1,6 @@
-package com.episode6.hackit.gdmc.throwable
+package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.gdmc.json.GdmcDependency
+import com.episode6.hackit.gdmc.GdmcDependency
 import org.gradle.api.GradleException
 
 /**

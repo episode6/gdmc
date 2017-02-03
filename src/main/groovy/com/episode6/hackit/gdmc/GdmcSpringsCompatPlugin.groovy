@@ -1,6 +1,5 @@
 package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.gdmc.task.GdmcTasksPlugin
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

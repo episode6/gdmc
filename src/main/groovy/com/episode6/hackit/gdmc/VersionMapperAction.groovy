@@ -1,7 +1,5 @@
 package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.gdmc.json.GdmcDependency
-import com.episode6.hackit.gdmc.throwable.GdmcUnmappedDependencyException
 import groovy.transform.Memoized
 import org.gradle.api.Action
 import org.gradle.api.Project

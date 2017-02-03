@@ -1,9 +1,5 @@
-package com.episode6.hackit.gdmc.task
+package com.episode6.hackit.gdmc
 
-import com.episode6.hackit.gdmc.DependencyMap
-import com.episode6.hackit.gdmc.GdmcLogger
-import com.episode6.hackit.gdmc.GdmcRootPlugin
-import com.episode6.hackit.gdmc.json.GdmcDependency
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
