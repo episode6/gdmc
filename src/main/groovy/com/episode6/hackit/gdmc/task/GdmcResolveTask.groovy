@@ -1,11 +1,15 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.json.GdmcDependency
+import groovy.json.JsonBuilder
+import groovy.transform.Memoized
+import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 import static com.episode6.hackit.gdmc.GdmcLogger.Chop
@@ -13,7 +17,7 @@ import static com.episode6.hackit.gdmc.GdmcLogger.Chop
 /**
  *
  */
-class GdmcResolveTask extends AbstractGdmcTask {
+class GdmcResolveTask extends DefaultTask {
 
   private static String CONFIG_NAME_SUFFIX = "TemporaryConfig"
 
@@ -25,6 +29,11 @@ class GdmcResolveTask extends AbstractGdmcTask {
 
   @Input
   boolean resolveTransitive = false
+
+  @OutputFile @Memoized
+  File getOutputFile() {
+    return project.file("${project.buildDir}/${name}.json")
+  }
 
   @TaskAction
   def resolve() {
@@ -65,5 +74,10 @@ class GdmcResolveTask extends AbstractGdmcTask {
         config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL)
 
     writeJsonToOutputFile(resolvedDependencies.collect {GdmcDependency.from(it.module.id).toMap()})
+  }
+
+  private void writeJsonToOutputFile(Object obj) {
+    Chop.d("Writing to outputFile: %s content: %s", outputFile.absolutePath, obj)
+    outputFile.text = new JsonBuilder(obj).toString()
   }
 }
