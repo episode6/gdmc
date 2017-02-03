@@ -5,6 +5,8 @@ import com.episode6.hackit.gdmc.json.GdmcDependency
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
+import static GdmcLogger.Chop
+
 /**
  *
  */
@@ -41,6 +43,9 @@ class DependencyMapImpl implements DependencyMap {
     if (!file.exists()) {
       return
     }
+
+    Chop.d("Applying file to dependency map: %s", file.absolutePath)
+
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
       json.each { String key, value ->
