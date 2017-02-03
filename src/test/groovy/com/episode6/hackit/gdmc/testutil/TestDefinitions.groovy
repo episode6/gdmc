@@ -30,6 +30,10 @@ plugins {
 ${plugins}
 }
 
+gdmcLogger {
+ enable()
+}
+
 group = 'com.example.testproject'
 version = '0.0.1-SNAPSHOT'
 
@@ -64,6 +68,10 @@ plugins {
 ${plugin}
 }
 
+gdmcLogger {
+ enable()
+}
+
 dependencies {
    compile 'org.mockito:mockito-core'
    compile 'com.episode6.hackit.chop:chop-core'
@@ -83,6 +91,11 @@ plugins {
   id 'groovy'
 ${plugin}
 }
+
+gdmcLogger {
+ enable()
+}
+
 dependencies {
    compile project(':javalib')
    compile 'com.episode6.hackit.chop:chop-core'

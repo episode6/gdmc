@@ -8,12 +8,14 @@ import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
+import static com.episode6.hackit.gdmc.GdmcLogger.Chop
+
 /**
  *
  */
 class GdmcResolveTask extends AbstractGdmcTask {
 
-  private static String CONFIG_NAME = "gdmcTemporaryConfig"
+  private static String CONFIG_NAME_SUFFIX = "TemporaryConfig"
 
   @Input
   Closure<Collection<GdmcDependency>> dependencies
@@ -26,9 +28,14 @@ class GdmcResolveTask extends AbstractGdmcTask {
 
   @TaskAction
   def resolve() {
+    Chop.d(
+        "Starting GdmcResolveTask named: %s, allowSnapshots: %s, resolveTransitive: %s",
+        name,
+        allowSnapshots,
+        resolveTransitive)
 
     // create a temporary config to resolve the requested dependencies
-    def config = project.configurations.create(CONFIG_NAME) {
+    def config = project.configurations.create("${name}${CONFIG_NAME_SUFFIX}") {
       transitive = resolveTransitive
     }
 
@@ -47,6 +54,7 @@ class GdmcResolveTask extends AbstractGdmcTask {
 
     // add query dependencies to new config
     dependencies.call().each {
+      Chop.d("Adding dependency: %s to config: %s", it, config.name)
       String notation = it.version ? it.toString() : "${it.toString()}:+"
       project.dependencies.add(config.name, notation)
     }
