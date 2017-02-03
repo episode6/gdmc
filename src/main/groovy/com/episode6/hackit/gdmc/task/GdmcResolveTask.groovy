@@ -29,11 +29,10 @@ class GdmcResolveTask extends AbstractGdmcTask {
   @TaskAction
   def resolve() {
     Chop.d(
-        "Starting GdmcResolveTask named: %s, allowSnapshots: %s, resolveTransitive: %s, depedencies: %s",
+        "Starting GdmcResolveTask named: %s, allowSnapshots: %s, resolveTransitive: %s",
         name,
         allowSnapshots,
-        resolveTransitive,
-        dependencies)
+        resolveTransitive)
 
     // create a temporary config to resolve the requested dependencies
     def config = project.configurations.create("${name}${CONFIG_NAME_SUFFIX}") {
@@ -55,6 +54,7 @@ class GdmcResolveTask extends AbstractGdmcTask {
 
     // add query dependencies to new config
     dependencies.call().each {
+      Chop.d("Adding dependency: %s to config: %s", it, config.name)
       String notation = it.version ? it.toString() : "${it.toString()}:+"
       project.dependencies.add(config.name, notation)
     }
@@ -64,10 +64,6 @@ class GdmcResolveTask extends AbstractGdmcTask {
         config.resolvedConfiguration.lenientConfiguration.allModuleDependencies :
         config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL)
 
-    writeJsonToOutputFile(resolvedDependencies.collect {
-      def dep = GdmcDependency.from(it.module.id)
-      Chop.d("writing resolved dependency: %s", dep)
-      return dep.toMap()
-    })
+    writeJsonToOutputFile(resolvedDependencies.collect {GdmcDependency.from(it.module.id).toMap()})
   }
 }

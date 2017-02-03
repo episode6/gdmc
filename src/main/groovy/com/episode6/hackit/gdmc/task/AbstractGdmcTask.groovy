@@ -5,6 +5,8 @@ import groovy.transform.Memoized
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.OutputFile
 
+import static com.episode6.hackit.gdmc.GdmcLogger.Chop
+
 /**
  *
  */
@@ -16,6 +18,7 @@ abstract class AbstractGdmcTask extends DefaultTask {
   }
 
   protected void writeJsonToOutputFile(Object obj) {
+    Chop.d("Writing to outputFile: %s content: %s", outputFile.absolutePath, obj)
     outputFile.text = new JsonBuilder(obj).toString()
   }
 }
