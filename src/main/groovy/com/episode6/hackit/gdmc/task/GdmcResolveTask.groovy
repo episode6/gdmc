@@ -8,12 +8,14 @@ import org.gradle.api.specs.Specs
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 
+import static com.episode6.hackit.gdmc.GdmcLogger.Chop
+
 /**
  *
  */
 class GdmcResolveTask extends AbstractGdmcTask {
 
-  private static String CONFIG_NAME = "gdmcTemporaryConfig"
+  private static String CONFIG_NAME_SUFFIX = "TemporaryConfig"
 
   @Input
   Closure<Collection<GdmcDependency>> dependencies
@@ -26,9 +28,15 @@ class GdmcResolveTask extends AbstractGdmcTask {
 
   @TaskAction
   def resolve() {
+    Chop.d(
+        "Starting GdmcResolveTask named: %s, allowSnapshots: %s, resolveTransitive: %s, depedencies: %s",
+        name,
+        allowSnapshots,
+        resolveTransitive,
+        dependencies)
 
     // create a temporary config to resolve the requested dependencies
-    def config = project.configurations.create(CONFIG_NAME) {
+    def config = project.configurations.create("${name}${CONFIG_NAME_SUFFIX}") {
       transitive = resolveTransitive
     }
 
@@ -56,6 +64,10 @@ class GdmcResolveTask extends AbstractGdmcTask {
         config.resolvedConfiguration.lenientConfiguration.allModuleDependencies :
         config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL)
 
-    writeJsonToOutputFile(resolvedDependencies.collect {GdmcDependency.from(it.module.id).toMap()})
+    writeJsonToOutputFile(resolvedDependencies.collect {
+      def dep = GdmcDependency.from(it.module.id)
+      Chop.d("writing resolved dependency: %s", dep)
+      return dep.toMap()
+    })
   }
 }
