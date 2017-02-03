@@ -8,7 +8,7 @@ import spock.lang.Specification
 import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
 
 /**
- * Tests {@link GdmcPlugin}
+ * Tests {@link com.episode6.hackit.gdmc.plugin.GdmcPlugin}
  */
 class GdmcBuildTest extends Specification {
   private static final String PRE_SET_DEPENDENCIES = """

@@ -1,4 +1,4 @@
-package com.episode6.hackit.gdmc
+package com.episode6.hackit.gdmc.data
 
 import com.episode6.hackit.groovykit.versions.VersionComparator
 import org.gradle.api.Nullable

@@ -1,5 +1,8 @@
-package com.episode6.hackit.gdmc
+package com.episode6.hackit.gdmc.plugin
 
+import com.episode6.hackit.gdmc.data.DependencyMap
+import com.episode6.hackit.gdmc.data.DependencyMapImpl
+import com.episode6.hackit.gdmc.data.GdmcDependency
 import groovy.transform.Memoized
 import org.gradle.api.Plugin
 import org.gradle.api.Project

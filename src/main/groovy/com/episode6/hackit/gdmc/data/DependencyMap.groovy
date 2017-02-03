@@ -1,4 +1,4 @@
-package com.episode6.hackit.gdmc
+package com.episode6.hackit.gdmc.data
 /**
  * interface for dependency mapper
  */

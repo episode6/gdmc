@@ -1,4 +1,4 @@
-package com.episode6.hackit.gdmc
+package com.episode6.hackit.gdmc.util
 
 import com.episode6.hackit.chop.Chop.ChoppingToolsAdapter
 import com.episode6.hackit.chop.Chop.Tree

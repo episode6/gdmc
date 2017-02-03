@@ -1,5 +1,6 @@
-package com.episode6.hackit.gdmc
+package com.episode6.hackit.gdmc.plugin
 
+import com.episode6.hackit.gdmc.util.VersionMapperAction
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
