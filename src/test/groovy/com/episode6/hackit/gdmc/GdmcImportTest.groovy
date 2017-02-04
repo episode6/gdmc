@@ -206,4 +206,127 @@ dependencies {
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
+
+
+
+  def "test importTransitive from nothing"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+}
+"""
+    when:
+    def result = test.build("gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("net.sourceforge.findbugs:jsr305")) {
+        groupId == "net.sourceforge.findbugs"
+        artifactId == "jsr305"
+        version == "1.3.7"
+      }
+      size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test importTransitive doesnt overwrite existing gdmc"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+}
+"""
+    test.gdmcJsonFile << """
+{
+  "net.sourceforge.findbugs:jsr305": {
+      "groupId": "net.sourceforge.findbugs",
+      "artifactId": "jsr305",
+      "version": "1.3.2"
+   }
+}
+"""
+    when:
+    def result = test.build("gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("net.sourceforge.findbugs:jsr305")) {
+        groupId == "net.sourceforge.findbugs"
+        artifactId == "jsr305"
+        version == "1.3.2"
+      }
+      size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  /**
+   * importTransitive can't overwrite transitive dependencies that already exist when using
+   * springs's dependency management plugin. It's a bummer but not blocking on it now.
+   */
+  def "test importTransitive does overwrite existing gdmc when told"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+}
+"""
+    test.gdmcJsonFile << """
+{
+  "net.sourceforge.findbugs:jsr305": {
+      "groupId": "net.sourceforge.findbugs",
+      "artifactId": "jsr305",
+      "version": "1.3.2"
+   }
+}
+"""
+    when:
+    def result = test.build("-Poverwrite=true", "gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("net.sourceforge.findbugs:jsr305")) {
+        groupId == "net.sourceforge.findbugs"
+        artifactId == "jsr305"
+        version == "1.3.7"
+      }
+      size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    // purposefully not testing GDMC_SPRINGS_COMPAT_PLUGIN here
+  }
 }

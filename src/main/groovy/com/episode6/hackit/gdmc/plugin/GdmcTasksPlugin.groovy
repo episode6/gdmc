@@ -36,12 +36,28 @@ class GdmcTasksPlugin implements Plugin<Project> {
     project.task("gdmcImport", type: GdmcResolveTask) {
       dependencies = {
         return findExternalDependencies {
-          boolean overwrite = project.hasProperty("overwrite") && project.overwrite
           it.version && (overwrite || !mapper.lookup(it.key))
         }
       }
       doLast {
-        mapper.applyFile(outputFile)
+        mapper.applyFile(outputFile, { String key, GdmcDependency dep ->
+          return overwrite || !mapper.lookup(key)
+        })
+      }
+    }
+
+    project.task("gdmcImportTransitive", type: GdmcResolveTask) {
+      resolveTransitive = true
+
+      dependencies = {
+        return findExternalDependencies {
+          it.version && (overwrite || !mapper.lookup(it.key))
+        }
+      }
+      doLast {
+        mapper.applyFile(outputFile, { String key, GdmcDependency dep ->
+          return overwrite || !mapper.lookup(key)
+        })
       }
     }
 
@@ -56,5 +72,9 @@ class GdmcTasksPlugin implements Plugin<Project> {
         GdmcDependency.from(it)
       }.findAll(filter)
     })
+  }
+
+  boolean getOverwrite() {
+    return project.hasProperty("overwrite") && project.overwrite
   }
 }
