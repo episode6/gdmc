@@ -47,7 +47,7 @@ repositories {
 """
   }
 
-  static void setupMultiProject(IntegrationTest test, String plugin) {
+  static void setupMultiProject(IntegrationTest test, String plugin, Map versions = [:]) {
     test.gradleBuildFile << """
 allprojects {
   group = "com.example"
@@ -73,8 +73,8 @@ gdmcLogger {
 }
 
 dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
+   compile 'org.mockito:mockito-core${versions.mockitoVersion ?: ''}'
+   compile 'com.episode6.hackit.chop:chop-core${versions.chopVersion ?: ''}'
 }
 """
       createJavaFile(
@@ -98,8 +98,8 @@ gdmcLogger {
 
 dependencies {
    compile project(':javalib')
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core') {
+   compile 'com.episode6.hackit.chop:chop-core${versions.chopVersion ?: ''}'
+   testCompile('org.spockframework:spock-core${versions.spockVersion ?: ''}') {
     exclude module: 'groovy-all'
   }
 }
