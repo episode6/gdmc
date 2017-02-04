@@ -35,7 +35,10 @@ class GdmcTasksPlugin implements Plugin<Project> {
 
     project.task("gdmcImport", type: GdmcResolveTask) {
       dependencies = {
-        return findExternalDependencies {it.version} // TODO: should we only import missing deps, or overrite existing deps?
+        return findExternalDependencies {
+          boolean overwrite = project.hasProperty("overwrite") && project.overwrite
+          it.version && (overwrite || !mapper.lookup(it.key))
+        }
       }
       doLast {
         mapper.applyFile(outputFile)
