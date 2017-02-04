@@ -51,7 +51,7 @@ ${PRE_SET_DEPENDENCIES}
 }
 """
     when:
-    def result = test.runTask("build")
+    def result = test.build("build")
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
@@ -95,7 +95,7 @@ ${PRE_SET_DEPENDENCIES}
 }
 """
     when:
-    def result = test.runTask("build")
+    def result = test.build("build")
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS
@@ -119,7 +119,7 @@ dependencies {
 }
 """
     when:
-    def result = test.runTaskAndFail("build")
+    def result = test.buildAndFail("build")
 
     then:
     result.output.contains(plugin == GDMC_PLUGIN ?
@@ -139,7 +139,7 @@ dependencies {
     setupMultiProject(test, plugin)
 
     when:
-    def result = test.runTaskAndFail("build")
+    def result = test.buildAndFail("build")
 
     then:
     result.output.contains("Could not resolve all dependencies")
@@ -161,7 +161,7 @@ ${PRE_SET_DEPENDENCIES}
 """
 
     when:
-    def result = test.runTask("build")
+    def result = test.build("build")
 
     then:
     result.task(":javalib:build").outcome == TaskOutcome.SUCCESS
@@ -201,7 +201,7 @@ dependencies {
 }
 """
     when:
-    def result = test.runTask("build")
+    def result = test.build("build")
 
     then:
     result.task(":build").outcome == TaskOutcome.SUCCESS

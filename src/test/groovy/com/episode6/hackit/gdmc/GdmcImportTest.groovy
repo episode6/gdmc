@@ -27,7 +27,7 @@ dependencies {
 }
 """
     when:
-    def result = test.runTask("gdmcImport")
+    def result = test.build("gdmcImport")
 
     then:
     result.task(":gdmcImport").outcome == TaskOutcome.SUCCESS
@@ -65,7 +65,7 @@ dependencies {
         spockVersion: ':1.1-groovy-2.4-rc-2'])
 
     when:
-    def result = test.runTask("gdmcImport")
+    def result = test.build("gdmcImport")
 
     then:
     result.task(":javalib:gdmcImport").outcome == TaskOutcome.SUCCESS

@@ -21,21 +21,21 @@ trait GradleTestProject {
     settingsGradleFile = root.newFile("settings.gradle")
   }
 
-  BuildResult runTask(String taskName) {
+  BuildResult build(String... argument) {
     beforeTask()
     return GradleRunner.create()
         .withProjectDir(root)
         .withPluginClasspath()
-        .withArguments(taskName)
+        .withArguments(argument)
         .build()
   }
 
-  BuildResult runTaskAndFail(String taskName) {
+  BuildResult buildAndFail(String... arguments) {
     beforeTask()
     return GradleRunner.create()
         .withProjectDir(root)
         .withPluginClasspath()
-        .withArguments(taskName)
+        .withArguments(arguments)
         .buildAndFail()
   }
 

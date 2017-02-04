@@ -29,7 +29,7 @@ dependencies {
 """
 
     when:
-    def result = test.runTask("gdmcResolve")
+    def result = test.build("gdmcResolve")
 
     then:
     result.task(":gdmcResolve").outcome == TaskOutcome.SUCCESS
@@ -65,7 +65,7 @@ dependencies {
     setupMultiProject(test, plugin)
 
     when:
-    def result = test.runTask("gdmcResolve")
+    def result = test.build("gdmcResolve")
 
     then:
     result.task(":javalib:gdmcResolve").outcome == TaskOutcome.SUCCESS
