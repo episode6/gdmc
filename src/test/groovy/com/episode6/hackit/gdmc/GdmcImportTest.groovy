@@ -56,4 +56,43 @@ dependencies {
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
+
+  def "test import from nothing mutli-project"(String plugin) {
+    given:
+    setupMultiProject(test, plugin, [
+        mockitoVersion: ':2.7.0',
+        chopVersion: ':0.1.7.2',
+        spockVersion: ':1.1-groovy-2.4-rc-2'])
+
+    when:
+    def result = test.runTask("gdmcImport")
+
+    then:
+    result.task(":javalib:gdmcImport").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcImport").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        version == "2.7.0"
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        version == "1.1-groovy-2.4-rc-2"
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
 }
