@@ -62,7 +62,6 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-
   def "test resolve pre-set dependencies aliases"(String plugin) {
     given:
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
@@ -106,8 +105,6 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-
-
   def "test failure on missing dependency"(String plugin) {
     given:
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
@@ -132,8 +129,6 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-
-
   def "mutli-project test failure"(String plugin) {
     given:
     setupMultiProject(test, plugin)
@@ -150,7 +145,6 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-
   def "mutli-project test"(String plugin) {
     given:
     setupMultiProject(test, plugin)
@@ -159,7 +153,6 @@ dependencies {
 ${PRE_SET_DEPENDENCIES}
 }
 """
-
     when:
     def result = test.build("build")
 
@@ -172,8 +165,6 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
-
-
   
   def "test springs-compat override"(String plugin) {
     given:
@@ -211,5 +202,4 @@ dependencies {
     plugin                      | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
-
 }
