@@ -12,5 +12,6 @@ class GdmcUnmappedDependencyException extends GradleException {
 
   GdmcUnmappedDependencyException(GdmcDependency unmappedDependency) {
     super("Unmapped dependency found: ${unmappedDependency}")
+    this.unmappedDependency = unmappedDependency
   }
 }
