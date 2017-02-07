@@ -10,8 +10,10 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
 
+import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
+
 /**
- * Resolves missing versions from the provided
+ * Resolves missing versions from the provided DependencyResolveDetails
  */
 class VersionMapperAction implements Action<DependencyResolveDetails> {
 
@@ -20,26 +22,26 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
 
   @Override
   void execute(DependencyResolveDetails details) {
-    GdmcLogger.Chop.d("Attempting to resolve %s", details.requested)
+    Chop.d("Attempting to resolve %s", details.requested)
     GdmcDependency unMapped = GdmcDependency.from(details.requested)
     if (unMapped.version) {
-      GdmcLogger.Chop.d("%s has a version, skipping", details.requested)
+      Chop.d("%s has a version, skipping", details.requested)
       return
     }
 
     List<String> mappedDeps = dependencyMap.lookup(unMapped.key).collect {it.toString()}
     if (!mappedDeps) {
-      throw GdmcLogger.Chop.e(
+      throw Chop.e(
           new GdmcUnmappedDependencyException(unMapped),
           "Could not find mapped dependency for key: %s",
           unMapped.key)
     }
 
-    GdmcLogger.Chop.d("Replacing %s with %s", details.requested, mappedDeps[0])
+    Chop.d("Replacing %s with %s", details.requested, mappedDeps[0])
     details.useTarget(mappedDeps[0])
     if (mappedDeps.size() > 1) {
       for (int i = 1; i < mappedDeps.size(); i++) {
-        GdmcLogger.Chop.d("Adding extra dependency %s to config %s", mappedDeps[i], configuration.name)
+        Chop.d("Adding extra dependency %s to config %s", mappedDeps[i], configuration.name)
         configuration.dependencies.add(project.dependencies.create(mappedDeps[i]))
       }
     }

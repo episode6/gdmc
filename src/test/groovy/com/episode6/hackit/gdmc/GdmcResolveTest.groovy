@@ -8,7 +8,7 @@ import spock.lang.Specification
 import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
 
 /**
- * Tests the gdmcResolveMissing task
+ * Tests the gdmcResolve task.
  */
 class GdmcResolveTest extends Specification {
 

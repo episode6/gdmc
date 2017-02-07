@@ -8,7 +8,7 @@ import spock.lang.Specification
 import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
 
 /**
- * Tests the gdmcImport task
+ * Tests the gdmcImport task.
  */
 class GdmcImportTest extends Specification {
 

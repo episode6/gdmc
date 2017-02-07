@@ -1,11 +1,14 @@
 package com.episode6.hackit.gdmc.data
 
-import com.episode6.hackit.gdmc.util.GdmcLogger
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
+import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
+
 /**
- *
+ * An implementation of DependencyMap. Currently this is backed by an in-memory map
+ * built with jsonSluper. At some point I'd like to update this to a streaming json
+ * parser so that it can scale.
  */
 class DependencyMapImpl implements DependencyMap {
   private File gdmcFile
@@ -41,7 +44,7 @@ class DependencyMapImpl implements DependencyMap {
       return
     }
 
-    GdmcLogger.Chop.d("Applying file to dependency map: %s", file.absolutePath)
+    Chop.d("Applying file to dependency map: %s", file.absolutePath)
 
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
@@ -88,34 +91,4 @@ class DependencyMapImpl implements DependencyMap {
     }
     return lookupKey((String)value.alias)
   }
-
-
-
-//  void applyMissingDependencies(Set<GdmcDependency> newDependencies) {
-//    applyDependencies(newDependencies.findAll({
-//      return mappedDependencies.get(it.key) == null
-//    }))
-//  }
-//
-//  void applyUpgradedDependencies(Set<GdmcDependency> newDependencies) {
-//    applyDependencies(newDependencies.findAll({
-//      def mapped = mappedDependencies.get(it.key)
-//      return !mapped || mapped.isOlderThan(it)
-//    }))
-//  }
-//
-//  void applyDependencies(Set<GdmcDependency> newDependencies) {
-//    if (!newDependencies) {
-//      return;
-//    }
-//    mappedDependencies.putAll(newDependencies.collectEntries {
-//      return [(it.key): it]
-//    })
-//
-//    Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
-//      return [(key): value.toMap()]
-//    })
-//    gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
-//  }
-
 }

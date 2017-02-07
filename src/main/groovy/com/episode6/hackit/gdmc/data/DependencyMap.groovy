@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc.data
+
 /**
- * interface for dependency mapper
+ * Interface for dependency mapper
  */
 interface DependencyMap {
   interface DependencyFilter {

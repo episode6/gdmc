@@ -7,7 +7,7 @@ import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ModuleVersionSelector
 
 /**
- * dependency utility object. can represent either a resolved or unresolved dependency
+ * Dependency utility object. can represent either a resolved or unresolved dependency
  */
 class GdmcDependency implements Serializable {
 
@@ -20,18 +20,6 @@ class GdmcDependency implements Serializable {
           artifactId: obj.name,
           version: obj.version)
     }
-//    if (obj instanceof ModuleVersionSelector) {
-//      return new GdmcDependency(
-//          groupId: obj.group,
-//          artifactId: obj.name,
-//          version: obj.version)
-//    }
-//    if (obj instanceof Dependency) {
-//      return new GdmcDependency(
-//          groupId: obj.group,
-//          artifactId: obj.name,
-//          version: obj.version)
-//    }
     if (obj instanceof Map) {
       return new GdmcDependency(
           groupId: obj.get("groupId"),

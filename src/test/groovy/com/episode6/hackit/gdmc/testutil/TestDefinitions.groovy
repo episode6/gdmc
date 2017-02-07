@@ -1,7 +1,7 @@
 package com.episode6.hackit.gdmc.testutil
 
 /**
- * definitions for test files
+ * Definitions for test files.
  */
 class TestDefinitions {
   static final GDMC_PLUGIN = "id 'com.episode6.hackit.gdmc'"

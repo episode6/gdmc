@@ -8,7 +8,8 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 
 /**
- * Plugin for root projects only, holds the single instance of the dependency map
+ * Plugin for root projects only, holds the single instance of the dependency
+ * map and adds the gdmc method to Project.
  */
 class GdmcRootPlugin implements Plugin<Project> {
 

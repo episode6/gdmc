@@ -1,6 +1,5 @@
 package com.episode6.hackit.gdmc.task
 
-import com.episode6.hackit.gdmc.util.GdmcLogger
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import groovy.json.JsonBuilder
 import groovy.transform.Memoized
@@ -13,8 +12,10 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
+import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
+
 /**
- *
+ * Task type to resolve dependencies (usually written to gdmc.json)
  */
 class GdmcResolveTask extends DefaultTask {
 
@@ -36,7 +37,7 @@ class GdmcResolveTask extends DefaultTask {
 
   @TaskAction
   def resolve() {
-    GdmcLogger.Chop.d(
+    Chop.d(
         "Starting GdmcResolveTask named: %s, allowSnapshots: %s, resolveTransitive: %s",
         name,
         allowSnapshots,
@@ -62,7 +63,7 @@ class GdmcResolveTask extends DefaultTask {
 
     // add query dependencies to new config
     dependencies.call().each {
-      GdmcLogger.Chop.d("Adding dependency: %s to config: %s", it, config.name)
+      Chop.d("Adding dependency: %s to config: %s", it, config.name)
       String notation = it.version ? it.toString() : "${it.toString()}:+"
       project.dependencies.add(config.name, notation)
     }
@@ -76,7 +77,7 @@ class GdmcResolveTask extends DefaultTask {
   }
 
   private void writeJsonToOutputFile(Object obj) {
-    GdmcLogger.Chop.d("Writing to outputFile: %s content: %s", outputFile.absolutePath, obj)
+    Chop.d("Writing to outputFile: %s content: %s", outputFile.absolutePath, obj)
     outputFile.text = new JsonBuilder(obj).toString()
   }
 }

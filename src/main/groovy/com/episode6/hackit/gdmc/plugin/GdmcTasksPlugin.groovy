@@ -10,7 +10,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
 
 /**
- *
+ * Common plugin for both the main gdmc plugin and the gdmc-spring-compat.
  */
 class GdmcTasksPlugin implements Plugin<Project> {
 

@@ -4,7 +4,7 @@ import org.gradle.testkit.runner.BuildResult
 import org.gradle.testkit.runner.GradleRunner
 
 /**
- * Trait for elements common to a root gradle project and a subproject
+ * Trait for elements common to a root gradle project and a subproject.
  */
 trait GradleTestProject {
 

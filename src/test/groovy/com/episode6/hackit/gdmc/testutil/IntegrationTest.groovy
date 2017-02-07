@@ -3,7 +3,7 @@ package com.episode6.hackit.gdmc.testutil
 import org.junit.rules.TemporaryFolder
 
 /**
- * Integration test rule
+ * Integration test rule.
  */
 class IntegrationTest extends TemporaryFolder implements GradleTestProject {
   File gdmcJsonFile

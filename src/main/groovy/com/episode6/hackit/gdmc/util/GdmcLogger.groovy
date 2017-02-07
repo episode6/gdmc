@@ -6,7 +6,7 @@ import com.episode6.hackit.chop.groovy.GroovyDebugTagger
 import com.episode6.hackit.chop.tree.StdOutDebugTree
 
 /**
- * helper class to to turn on logging
+ * Helper class to to turn on logging
  */
 class GdmcLogger {
   static final ChoppingToolsAdapter Chop = com.episode6.hackit.chop.Chop.withTagger(new GroovyDebugTagger())
