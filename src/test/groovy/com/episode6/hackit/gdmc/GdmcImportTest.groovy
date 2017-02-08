@@ -437,6 +437,46 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test import ignores unmapped dependencies"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'junit:junit'
+}
+"""
+    when:
+    def result = test.build("gdmcImport")
+
+    then:
+    result.task(":gdmcImport").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.asJson().size() == 0
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test importTransitive ignores unmapped dependencies"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'junit:junit'
+}
+"""
+    when:
+    def result = test.build("gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.asJson().size() == 0
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   /**
    * importTransitive can't overwrite transitive dependencies that already exist when using
    * springs's dependency management plugin. It's a bummer but not blocking on it now.

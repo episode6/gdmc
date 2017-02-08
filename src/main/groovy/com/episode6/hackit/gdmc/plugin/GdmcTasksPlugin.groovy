@@ -2,13 +2,14 @@ package com.episode6.hackit.gdmc.plugin
 
 import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
-import com.episode6.hackit.gdmc.exception.GdmcUnmappedDependencyException
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.util.GdmcLogger
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
+
+import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
 
 /**
  * Common plugin for both the main gdmc plugin and the gdmc-spring-compat.
@@ -51,13 +52,18 @@ class GdmcTasksPlugin implements Plugin<Project> {
       resolveTransitive = true
 
       dependencies = {
+        // Because this is importing transitive deps, we need to resolve
+        // existing dependencies that are mapped as well as versioned ones
+        // that may be unmapped. I.e. we can't filter anything out because it
+        // might have transitive deps we don't know about
         return findExternalDependencies({true}).collectMany {
           if (it.version) {
             return [it]
           }
           List<GdmcDependency> mappedDeps = mapper.lookup(it.key)
           if (!mappedDeps) {
-            throw new GdmcUnmappedDependencyException(it)
+            Chop.w("Skipping unmapped dependency: %s", it)
+            return []
           }
           return mappedDeps
         }
