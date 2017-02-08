@@ -7,7 +7,7 @@ class TestDefinitions {
   static final GDMC_PLUGIN = "id 'com.episode6.hackit.gdmc'"
   static final GDMC_SPRINGS_COMPAT_PLUGIN = """
 id 'com.episode6.hackit.gdmc-spring-compat'
-id 'io.spring.dependency-management' version '1.0.0.RC2'
+id 'io.spring.dependency-management' version '1.0.0.RELEASE'
 """
 
   static final String CHOP_IMPORT = """
