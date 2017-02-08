@@ -4,7 +4,7 @@ import com.episode6.hackit.gdmc.data.DependencyMap
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
+import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 
 /**
  * Plugin to make gdmc compatible with Spring's dependency management plugin
@@ -20,7 +20,7 @@ class GdmcSpringsCompatPlugin implements Plugin<Project> {
     project.dependencyManagement {
       dependencies {
         dependencyMap.validDependencies.each {
-          Chop.d("added dependency %s to dependncyManager", it)
+          GChop.d("added dependency %s to dependncyManager", it)
           dependency it.toString()
         }
       }

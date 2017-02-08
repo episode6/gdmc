@@ -9,7 +9,7 @@ import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
 
-import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
+import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 
 /**
  * Common plugin for both the main gdmc plugin and the gdmc-spring-compat.
@@ -62,7 +62,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
           }
           List<GdmcDependency> mappedDeps = mapper.lookup(it.key)
           if (!mappedDeps) {
-            Chop.w("Skipping unmapped dependency: %s", it)
+            GChop.w("Skipping unmapped dependency: %s", it)
             return []
           }
           return mappedDeps

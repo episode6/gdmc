@@ -3,7 +3,7 @@ package com.episode6.hackit.gdmc.data
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
-import static com.episode6.hackit.gdmc.util.GdmcLogger.Chop
+import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 
 /**
  * An implementation of DependencyMap. Currently this is backed by an in-memory map
@@ -44,7 +44,7 @@ class DependencyMapImpl implements DependencyMap {
       return
     }
 
-    Chop.d("Applying file to dependency map: %s", file.absolutePath)
+    GChop.d("Applying file to dependency map: %s", file.absolutePath)
 
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
