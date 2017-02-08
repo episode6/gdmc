@@ -383,7 +383,7 @@ dependencies {
       with(get("testalias")) {
         alias.size() == 2
       }
-      size() == 3
+      size() == 5
     }
 
     where:
