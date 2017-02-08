@@ -8,6 +8,7 @@ interface DependencyMap {
     boolean shouldApply(String key, GdmcDependency dependency)
   }
 
+  boolean isAlias(Object key)
   List<GdmcDependency> lookup(Object key)
   List<GdmcDependency> getValidDependencies()
   void applyFile(File file)

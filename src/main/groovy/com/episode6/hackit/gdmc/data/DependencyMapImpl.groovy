@@ -21,6 +21,13 @@ class DependencyMapImpl implements DependencyMap {
     applyFile(gdmcFile, null, false)
   }
 
+  @Override
+  boolean isAlias(Object key) {
+    String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
+    def value = mappedDependencies.get(keyStr)
+    return value?.alias
+  }
+
   List<GdmcDependency> lookup(Object key) {
     return lookupKey(DependencyKeys.sanitize(key))
   }
@@ -62,9 +69,7 @@ class DependencyMapImpl implements DependencyMap {
   }
 
   private List<GdmcDependency> lookupKey(String key) {
-    if (key.endsWith(":")) {
-      key = key.substring(0, key.length()-1)
-    }
+    key = removeTrailingColon(key)
     def value = mappedDependencies.get(key)
     if (value == null) {
       return []
@@ -80,5 +85,12 @@ class DependencyMapImpl implements DependencyMap {
       }
     }
     return lookupKey((String)value.alias)
+  }
+
+  private static String removeTrailingColon(String key) {
+    if (key.endsWith(":")) {
+      return key.substring(0, key.length()-1)
+    }
+    return key
   }
 }

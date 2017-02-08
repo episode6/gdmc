@@ -88,13 +88,12 @@ class GdmcTasksPlugin implements Plugin<Project> {
             it instanceof ExternalDependency
           }.collect {
             GdmcDependency.from(it)
+          }.findAll {
+            mapper.isAlias(it.key)
           }.collectMany {
-            if (it.isPlaceholder()) {
-              return mapper.lookup(it.artifactId)
-            }
-            return []
+            return mapper.lookup(it.key)
           }.each {
-            GChop.d("Adding %s to config %s because it is mapped via an alias")
+            GChop.d("Adding %s to config %s because it is mapped via an alias", it, files)
             project.dependencies.add(files.name, it.toString())
           }
         }

@@ -105,6 +105,50 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test resolve pre-set dependencies namespaced aliases"(String plugin) {
+    given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
+    test.gradleBuildFile << """
+dependencies {
+   compile 'testing:subgroup'
+   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.gdmcJsonFile << """
+{
+  "biggroup": {
+    "alias": [
+      "com.episode6.hackit.chop:chop-core",
+      "mockito"
+    ]
+  },
+  "testing:subgroup": {
+    "alias": "biggroup"
+  },
+  "mockito": {
+    "alias": "org.mockito:mockito-core"
+  },
+${PRE_SET_DEPENDENCIES}
+}
+"""
+    when:
+    def result = test.build("build")
+
+    then:
+    println result.output
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test failure on missing dependency"(String plugin) {
     given:
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)

@@ -38,7 +38,7 @@ class GdmcSpringsCompatPlugin implements Plugin<Project> {
         VersionMapperAction action = new VersionMapperAction(configuration: files, project: project) {
           @Override
           boolean shouldSkipMappingVersion(GdmcDependency unMapped) {
-            return !unMapped.isPlaceholder()
+            return !dependencyMap.isAlias(unMapped.key)
           }
         }
         files.resolutionStrategy.eachDependency(action)
