@@ -2,6 +2,7 @@ package com.episode6.hackit.gdmc.plugin
 
 import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
+import com.episode6.hackit.gdmc.exception.GdmcUnmappedDependencyException
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.util.GdmcLogger
 import org.gradle.api.Plugin
@@ -50,7 +51,16 @@ class GdmcTasksPlugin implements Plugin<Project> {
       resolveTransitive = true
 
       dependencies = {
-        return findExternalDependencies {true}
+        return findExternalDependencies({true}).collectMany {
+          if (it.version) {
+            return [it]
+          }
+          List<GdmcDependency> mappedDeps = mapper.lookup(it.key)
+          if (!mappedDeps) {
+            throw new GdmcUnmappedDependencyException(it)
+          }
+          return mappedDeps
+        }
       }
       doLast {
         mapper.applyFile(outputFile, { String key, GdmcDependency dep ->

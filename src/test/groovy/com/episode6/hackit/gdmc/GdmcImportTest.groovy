@@ -392,6 +392,51 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test importTransitive pulls from mapped dependency version, not resolved/upgraded version"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'junit:junit'
+}
+"""
+    test.gdmcJsonFile << """
+{
+   "junit:junit": {
+      "groupId": "junit",
+      "artifactId": "junit",
+      "version": "4.9"
+   }
+}
+"""
+    when:
+    def result = test.build("gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+
+    // upgraded versions of junit include an updated hamcrest dependency.
+    // here we want to ensure we old hamcrest 1.1, which junit 4.9 depended on
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("junit:junit")) {
+        groupId == "junit"
+        artifactId == "junit"
+        version == "4.9"
+      }
+      with(get("org.hamcrest:hamcrest-core")) {
+        groupId == "org.hamcrest"
+        artifactId == "hamcrest-core"
+        version == "1.1"
+      }
+      size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   /**
    * importTransitive can't overwrite transitive dependencies that already exist when using
    * springs's dependency management plugin. It's a bummer but not blocking on it now.
