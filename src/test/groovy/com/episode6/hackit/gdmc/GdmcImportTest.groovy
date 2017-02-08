@@ -284,6 +284,114 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test importTransitive pulls in transitive deps even if first order dep is mapped"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+}
+"""
+    test.gdmcJsonFile << """
+{
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.7.2"
+   },
+}
+"""
+    when:
+    def result = test.build("gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("net.sourceforge.findbugs:jsr305")) {
+        groupId == "net.sourceforge.findbugs"
+        artifactId == "jsr305"
+        version == "1.3.7"
+      }
+      size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test importTransitive pulls in transitive deps even if first order dep is mapped alias"(String plugin) {
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile gdmc('testalias')
+}
+"""
+    test.gdmcJsonFile << """
+{
+  "testalias": {
+      "alias": [
+        "com.episode6.hackit.chop:chop-core",
+        "junit:junit"
+      ]
+  },
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.7.2"
+   },
+   "junit:junit": {
+      "groupId": "junit",
+      "artifactId": "junit",
+      "version": "4.12"
+   }
+}
+"""
+    when:
+    def result = test.build("gdmcImportTransitive")
+
+    then:
+    result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("net.sourceforge.findbugs:jsr305")) {
+        groupId == "net.sourceforge.findbugs"
+        artifactId == "jsr305"
+        version == "1.3.7"
+      }
+      with(get("junit:junit")) {
+        groupId == "junit"
+        artifactId == "junit"
+        version == "4.12"
+      }
+      with(get("org.hamcrest:hamcrest-core")) {
+        groupId == "org.hamcrest"
+        artifactId == "hamcrest-core"
+        version == "1.3"
+      }
+      with(get("testalias")) {
+        alias.size() == 2
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   /**
    * importTransitive can't overwrite transitive dependencies that already exist when using
    * springs's dependency management plugin. It's a bummer but not blocking on it now.

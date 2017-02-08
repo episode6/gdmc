@@ -50,9 +50,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
       resolveTransitive = true
 
       dependencies = {
-        return findExternalDependencies {
-          it.version && (overwrite || !mapper.lookup(it.key))
-        }
+        return findExternalDependencies {true}
       }
       doLast {
         mapper.applyFile(outputFile, { String key, GdmcDependency dep ->
