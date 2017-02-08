@@ -20,12 +20,26 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
   Configuration configuration
   Project project
 
+  VersionMapperAction(Map map) {
+    this.configuration = map.configuration
+    this.project = map.project
+  }
+
+  /**
+   * This method is seperate so that it can be overridden in the SpringsCompat plugin.
+   * Return true to skip this dependency (i.e. leave it as is) or false to look it up
+   * and replace it.
+   */
+  boolean shouldSkipMappingVersion(GdmcDependency unMapped) {
+    return unMapped.version
+  }
+
   @Override
   void execute(DependencyResolveDetails details) {
     GChop.d("Attempting to resolve %s", details.requested)
     GdmcDependency unMapped = GdmcDependency.from(details.requested)
-    if (unMapped.version) {
-      GChop.d("%s has a version, skipping", details.requested)
+    if (shouldSkipMappingVersion(unMapped)) {
+      GChop.d("Skipping mapping for %s", details.requested)
       return
     }
 
@@ -39,12 +53,7 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
 
     GChop.d("Replacing %s with %s", details.requested, mappedDeps[0])
     details.useTarget(mappedDeps[0])
-    if (mappedDeps.size() > 1) {
-      for (int i = 1; i < mappedDeps.size(); i++) {
-        GChop.d("Adding extra dependency %s to config %s", mappedDeps[i], configuration.name)
-        configuration.dependencies.add(project.dependencies.create(mappedDeps[i]))
-      }
-    }
+    // if mappedDeps.size() > 1, the other deps will have been added prior to this action being run
   }
 
   @Memoized

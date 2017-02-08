@@ -2,7 +2,7 @@ package com.episode6.hackit.gdmc.plugin
 
 import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.DependencyMapImpl
-import com.episode6.hackit.gdmc.data.GdmcDependency
+import com.episode6.hackit.gdmc.util.DependencyKeys
 import groovy.transform.Memoized
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -37,16 +37,7 @@ class GdmcRootPlugin implements Plugin<Project> {
     dependencyMap = new DependencyMapImpl(gdmcFile)
 
     Project.metaClass.gdmc = { key ->
-      DependencyMap depMap = rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
-      List<GdmcDependency> deps = depMap.lookup(key)
-      if (!deps) {
-        GdmcDependency rawDep = GdmcDependency.from(depMap.sanitizeKey(key))
-        return rawDep.getPlaceholderKey()
-      }
-      return deps.collect {
-        it.toString()
-      }
-
+      return DependencyKeys.sanitizedGdmcDep(key).placeholderKey
     }
   }
 

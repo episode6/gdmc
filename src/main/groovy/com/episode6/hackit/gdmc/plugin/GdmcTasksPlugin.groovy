@@ -4,6 +4,7 @@ import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.util.GdmcLogger
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -75,7 +76,30 @@ class GdmcTasksPlugin implements Plugin<Project> {
       }
     }
 
-    //import, importTransitive, upgrade, upgradeTransitive, upgradeAll
+    // upgrade, upgradeAll importSelf, validateSelf
+
+    // We can't add extra dependencies from inside the VersionMapperAction, so instead,
+    // we look for any dependencies that are mapped to aliases, and resolve and add them here
+    project.afterEvaluate {
+      project.configurations.all(new Action<Configuration>() {
+        @Override
+        void execute(Configuration files) {
+          files.dependencies.findAll {
+            it instanceof ExternalDependency
+          }.collect {
+            GdmcDependency.from(it)
+          }.collectMany {
+            if (it.isPlaceholder()) {
+              return mapper.lookup(it.artifactId)
+            }
+            return []
+          }.each {
+            GChop.d("Adding %s to config %s because it is mapped via an alias")
+            project.dependencies.add(files.name, it.toString())
+          }
+        }
+      })
+    }
   }
 
   Collection<GdmcDependency> findExternalDependencies(Closure filter) {

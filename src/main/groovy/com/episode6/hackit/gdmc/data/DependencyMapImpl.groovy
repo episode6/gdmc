@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc.data
 
+import com.episode6.hackit.gdmc.util.DependencyKeys
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
@@ -20,19 +21,8 @@ class DependencyMapImpl implements DependencyMap {
     applyFile(gdmcFile, null, false)
   }
 
-  String sanitizeKey(Object obj) {
-    if (obj instanceof Map) {
-      String key = "${obj.group}:${obj.name}"
-      if (obj.version) {
-        return "${key}:${obj.version}"
-      }
-      return key
-    }
-    return obj
-  }
-
   List<GdmcDependency> lookup(Object key) {
-    return lookupKey(sanitizeKey(key))
+    return lookupKey(DependencyKeys.sanitize(key))
   }
 
   List<GdmcDependency> getValidDependencies() {
