@@ -4,6 +4,7 @@ import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.util.GdmcLogger
+import com.episode6.hackit.gdmc.util.ProjectProperties
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -104,6 +105,6 @@ class GdmcTasksPlugin implements Plugin<Project> {
   }
 
   boolean getOverwrite() {
-    return project.hasProperty("overwrite") && project.overwrite
+    return ProjectProperties.overwrite(project)
   }
 }
