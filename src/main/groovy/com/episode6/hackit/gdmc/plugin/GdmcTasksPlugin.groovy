@@ -55,18 +55,9 @@ class GdmcTasksPlugin implements Plugin<Project> {
       dependencies = {
         // Because this is importing transitive deps, we need to resolve
         // existing dependencies that are mapped as well as versioned ones
-        // that may be unmapped. I.e. we can't filter anything out because it
-        // might have transitive deps we don't know about
-        return findExternalDependencies({true}).collectMany {
-          if (it.version) {
-            return [it]
-          }
-          List<GdmcDependency> mappedDeps = mapper.lookup(it.key)
-          if (!mappedDeps) {
-            GChop.w("Skipping unmapped dependency: %s", it)
-            return []
-          }
-          return mappedDeps
+        // that may be unmapped.
+        return findExternalDependencies {it.version || mapper.isAlias(it.key)}.collectMany {
+          return it.version ? [it] : mapper.lookup(it.key)
         }
       }
       doLast {
@@ -89,7 +80,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
           }.collect {
             GdmcDependency.from(it)
           }.findAll {
-            mapper.isAlias(it.key)
+            !it.version && mapper.isAlias(it.key)
           }.collectMany {
             return mapper.lookup(it.key)
           }.each {

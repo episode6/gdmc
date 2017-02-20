@@ -140,7 +140,6 @@ ${PRE_SET_DEPENDENCIES}
     def result = test.build("build")
 
     then:
-    println result.output
     result.task(":build").outcome == TaskOutcome.SUCCESS
 
     where:
