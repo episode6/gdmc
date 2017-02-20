@@ -477,10 +477,6 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-  /**
-   * importTransitive can't overwrite transitive dependencies that already exist when using
-   * springs's dependency management plugin. It's a bummer but not blocking on it now.
-   */
   def "test importTransitive does overwrite existing gdmc when told"(String plugin) {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
@@ -520,6 +516,6 @@ dependencies {
     where:
     plugin                      | _
     GDMC_PLUGIN                 | _
-    // purposefully not testing GDMC_SPRINGS_COMPAT_PLUGIN here
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 }
