@@ -6,6 +6,7 @@ import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.util.GdmcConvention
 import com.episode6.hackit.gdmc.util.GdmcLogger
 import com.episode6.hackit.gdmc.util.ProjectProperties
+import com.episode6.hackit.gdmc.util.TaskAssertions
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -84,6 +85,18 @@ class GdmcTasksPlugin implements Plugin<Project> {
       dependencies = { mapper.validDependencies.collect {it.withoutVersion()} }
       doLast {
         mapper.applyFile(outputFile)
+      }
+    }
+
+    project.task("gdmcImportSelf") {
+      doFirst {
+        TaskAssertions.assertLonelyTask(delegate)
+      }
+      doLast {
+        mapper.put(new GdmcDependency(
+            groupId: project.group,
+            artifactId: project.name,
+            version: project.version))
       }
     }
 
