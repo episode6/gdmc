@@ -7,7 +7,9 @@ import org.gradle.api.Project
  */
 class ProjectProperties {
 
+  private static final String OVERWRITE = "overwrite"
+
   static boolean overwrite(Project project) {
-    return project.hasProperty("overwrite") && project.overwrite
+    return project.hasProperty(OVERWRITE) && project.property(OVERWRITE)
   }
 }
