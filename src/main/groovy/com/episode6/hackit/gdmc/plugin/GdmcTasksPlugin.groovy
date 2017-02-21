@@ -60,9 +60,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
         // existing dependencies that are mapped as well as versioned ones
         // that may be unmapped. I.e. we can't filter anything out because it
         // might have transitive deps we don't know about
-        return findExternalDependencies({true}).collectMany {
-          return it.version ? [it] : mapper.lookup(it.key)
-        }
+        return findMappedExternalDependencies()
       }
       doLast {
         mapper.applyFile(outputFile, { String key, GdmcDependency dep ->
@@ -104,6 +102,12 @@ class GdmcTasksPlugin implements Plugin<Project> {
         GdmcDependency.from(it)
       }.findAll(filter)
     })
+  }
+
+  Collection<GdmcDependency> findMappedExternalDependencies() {
+    return findExternalDependencies({true}).collectMany {
+      return it.version ? [it] : mapper.lookup(it.key)
+    }
   }
 
   boolean getOverwrite() {
