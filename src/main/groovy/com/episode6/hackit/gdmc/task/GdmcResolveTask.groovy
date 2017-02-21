@@ -1,11 +1,10 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
-import com.episode6.hackit.gdmc.exception.GdmcIllegalTaskGroupingException
+import com.episode6.hackit.gdmc.util.TaskAssertions
 import groovy.json.JsonBuilder
 import groovy.transform.Memoized
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.artifacts.ComponentMetadata
 import org.gradle.api.artifacts.ComponentSelection
 import org.gradle.api.artifacts.ResolvedDependency
@@ -20,8 +19,6 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
  * Task type to resolve dependencies (usually written to gdmc.json)
  */
 class GdmcResolveTask extends DefaultTask {
-
-  private static final List<String> LEGAL_TASKS = ["clean"]
 
   private static final String CONFIG_NAME_SUFFIX = "TemporaryConfig"
 
@@ -41,7 +38,7 @@ class GdmcResolveTask extends DefaultTask {
 
   @TaskAction
   def resolve() {
-    assertLonelyTask()
+    TaskAssertions.assertLonelyTask(this)
 
     GChop.d(
         "Starting GdmcResolveTask named: %s, allowSnapshots: %s, resolveTransitive: %s",
@@ -85,23 +82,5 @@ class GdmcResolveTask extends DefaultTask {
   private void writeJsonToOutputFile(Object obj) {
     GChop.d("Writing to outputFile: %s content: %s", outputFile.absolutePath, obj)
     outputFile.text = new JsonBuilder(obj).toString()
-  }
-
-  /**
-   * Ensure this task is being executed by itself
-   */
-  private void assertLonelyTask() {
-    List<String> legalSuffixes = new LinkedList<>(LEGAL_TASKS)
-    legalSuffixes.add(name)
-
-    def illegalTask = project.gradle.taskGraph.allTasks.find { task ->
-      legalSuffixes.find { legalSuffix ->
-        task.name.endsWith(legalSuffix)
-      } == null
-    }
-
-    if (illegalTask) {
-      throw new GdmcIllegalTaskGroupingException(this, illegalTask)
-    }
   }
 }
