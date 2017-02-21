@@ -1,6 +1,5 @@
 package com.episode6.hackit.gdmc.data
 
-import com.episode6.hackit.groovykit.versions.VersionComparator
 import org.gradle.api.Nullable
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
@@ -87,29 +86,13 @@ class GdmcDependency implements Serializable {
         version: version)
   }
 
-  boolean isOlderThan(GdmcDependency otherDependency) {
-    return isOlderThanVersion(otherDependency?.version)
-  }
-
-  boolean isOlderThanVersion(String otherVersion) {
-    if (!version) {
-      return true
-    }
-    if (!otherVersion) {
-      return false
-    }
-    return new VersionComparator().compare(version, otherVersion) < 0
-  }
-
   GdmcDependency withoutVersion() {
     if (alias) {
       throw new IllegalAccessException("Called GdmcDependency.withoutVersion() on an alias: ${this}")
     }
-
     if (!version) {
       return this
     }
-
     return new GdmcDependency(
         groupId: groupId,
         artifactId: artifactId)
