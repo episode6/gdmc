@@ -69,7 +69,18 @@ class GdmcTasksPlugin implements Plugin<Project> {
       }
     }
 
-    // upgrade, upgradeAll importSelf, validateSelf
+    project.task("gdmcUpgrade", type: GdmcResolveTask) {
+      dependencies = {
+        return findMappedExternalDependencies().collect { GdmcDependency dep ->
+          return dep.withoutVersion()
+        }
+      }
+      doLast {
+        mapper.applyFile(outputFile)
+      }
+    }
+
+    // upgradeAll importSelf, validateSelf
 
     // We can't add extra dependencies from inside the VersionMapperAction, so instead,
     // we look for any dependencies that are mapped to aliases, and resolve and add them here

@@ -100,4 +100,18 @@ class GdmcDependency implements Serializable {
     }
     return new VersionComparator().compare(version, otherVersion) < 0
   }
+
+  GdmcDependency withoutVersion() {
+    if (alias) {
+      throw new IllegalAccessException("Called GdmcDependency.withoutVersion() on an alias: ${this}")
+    }
+
+    if (!version) {
+      return this
+    }
+
+    return new GdmcDependency(
+        groupId: groupId,
+        artifactId: artifactId)
+  }
 }
