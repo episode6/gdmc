@@ -8,6 +8,7 @@ class TestDefinitions {
   static final TASK_IMPORT = "gdmcImport"
   static final TASK_IMPORT_TRANS = "gdmcImportTransitive"
   static final TASK_UPGRADE = "gdmcUpgrade"
+  static final TASK_UPGRADE_ALL = "gdmcUpgradeAll"
 
   static final GDMC_PLUGIN = "id 'com.episode6.hackit.gdmc'"
   static final GDMC_SPRINGS_COMPAT_PLUGIN = """

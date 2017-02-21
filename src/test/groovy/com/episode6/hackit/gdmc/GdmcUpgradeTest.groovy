@@ -121,4 +121,116 @@ dependencies {
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
+
+  def "test single-project upgradeAll"(String plugin) {
+    given:
+    test.gdmcJsonFile << PRE_SET_DEPENDENCIES
+    test.gradleBuildFile << buildFilePrefix(plugin)
+
+    when:
+    def result = test.build("gdmcUpgradeAll")
+
+    then:
+    result.task(":gdmcUpgradeAll").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("2.6.0")
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.7.1")
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test multi-project upgradeAll"(String plugin) {
+    given:
+    test.gdmcJsonFile << PRE_SET_DEPENDENCIES
+    test.gradleBuildFile << """
+allprojects {
+  group = "com.example"
+  version = "0.0.1-SNAPSHOT"
+  
+  repositories {
+    jcenter()
+  }
+}
+"""
+    test.subProject("javalib").with {
+      gradleBuildFile << """
+plugins {
+  id 'java'
+${plugin}
+}
+
+gdmcLogger {
+ enable()
+}
+"""
+    }
+    test.subProject("groovylib").with {
+      gradleBuildFile << """
+plugins {
+  id 'groovy'
+${plugin}
+}
+
+dependencies {
+   compile project(':javalib')
+}
+"""
+    }
+
+    when:
+    def result = test.build("gdmcUpgradeAll")
+
+    then:
+    result.task(":javalib:gdmcUpgradeAll").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcUpgradeAll").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("2.6.0")
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.7.1")
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
 }

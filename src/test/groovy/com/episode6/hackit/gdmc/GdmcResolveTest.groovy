@@ -121,6 +121,8 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT_TRANS
     GDMC_PLUGIN                 | TASK_UPGRADE
     GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_UPGRADE
+    GDMC_PLUGIN                 | TASK_UPGRADE_ALL
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_UPGRADE_ALL
   }
 
   def "test resolve tasks only runs by themselves (multi-project)"(String plugin, String taskName) {
@@ -150,6 +152,8 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT_TRANS
     GDMC_PLUGIN                 | TASK_UPGRADE
     GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_UPGRADE
+    GDMC_PLUGIN                 | TASK_UPGRADE_ALL
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_UPGRADE_ALL
   }
 
   def "test resolve tasks see clean as a legal task (multi-project)"(String plugin, String taskName) {
@@ -178,6 +182,8 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT_TRANS
     GDMC_PLUGIN                 | TASK_UPGRADE
     GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_UPGRADE
+    GDMC_PLUGIN                 | TASK_UPGRADE_ALL
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_UPGRADE_ALL
   }
 
   private static boolean verifyJsonSortOrder(Map json) {
