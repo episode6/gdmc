@@ -13,4 +13,5 @@ interface DependencyMap {
   List<GdmcDependency> getValidDependencies()
   void applyFile(File file)
   void applyFile(File file, DependencyFilter filter)
+  void put(GdmcDependency dependency)
 }

@@ -61,11 +61,20 @@ class DependencyMapImpl implements DependencyMap {
     }
 
     if (persist) {
-      Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
-        return [(key): value.toMap()]
-      })
-      gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
+      writeToFile()
     }
+  }
+
+  void put(GdmcDependency dependency) {
+    mappedDependencies.put(dependency.key, dependency)
+    writeToFile()
+  }
+
+  private void writeToFile() {
+    Map sortedMap = mappedDependencies.collectEntries(new TreeMap(), { key, value ->
+      return [(key): value.toMap()]
+    })
+    gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
   }
 
   private List<GdmcDependency> lookupKey(String key) {
