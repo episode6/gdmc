@@ -140,7 +140,7 @@ dependencies {
     test.gdmcJsonFile << GDMC_CONTENTS
 
     when:
-    def result = test.build("-Poverwrite=true", "gdmcImport")
+    def result = test.build("-Pgdmc.overwrite=true", "gdmcImport")
 
     then:
     result.task(":gdmcImport").outcome == TaskOutcome.SUCCESS
@@ -505,7 +505,7 @@ dependencies {
 }
 """
     when:
-    def result = test.build("-Poverwrite=true", "gdmcImportTransitive")
+    def result = test.build("-Pgdmc.overwrite=true", "gdmcImportTransitive")
 
     then:
     result.task(":gdmcImportTransitive").outcome == TaskOutcome.SUCCESS
