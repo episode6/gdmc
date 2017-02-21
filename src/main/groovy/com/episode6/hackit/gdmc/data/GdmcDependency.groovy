@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc.data
 
 import org.gradle.api.Nullable
+import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ModuleVersionSelector
@@ -13,7 +14,7 @@ class GdmcDependency implements Serializable {
   private static final String PLACEHOLDER_GROUP_ID = "com.episode6.hackit.gmdc_placeholder"
 
   static @Nullable GdmcDependency from(Object obj) {
-    if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency) {
+    if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency || obj instanceof Project) {
       return new GdmcDependency(
           groupId: obj.group,
           artifactId: obj.name,

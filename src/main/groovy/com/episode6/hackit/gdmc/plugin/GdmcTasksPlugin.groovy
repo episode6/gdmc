@@ -93,10 +93,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
         TaskAssertions.assertLonelyTask(delegate)
       }
       doLast {
-        mapper.put(new GdmcDependency(
-            groupId: project.group,
-            artifactId: project.name,
-            version: project.version))
+        mapper.put(GdmcDependency.from(project))
       }
     }
 
