@@ -4,6 +4,10 @@ package com.episode6.hackit.gdmc.testutil
  * Definitions for test files.
  */
 class TestDefinitions {
+  static final TASK_RESOLVE = "gdmcResolve"
+  static final TASK_IMPORT = "gdmcImport"
+  static final TASK_IMPORT_TRANS = "gdmcImportTransitive"
+
   static final GDMC_PLUGIN = "id 'com.episode6.hackit.gdmc'"
   static final GDMC_SPRINGS_COMPAT_PLUGIN = """
 id 'com.episode6.hackit.gdmc-spring-compat'

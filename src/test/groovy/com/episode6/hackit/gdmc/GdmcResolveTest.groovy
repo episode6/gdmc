@@ -98,6 +98,82 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test resolve tasks only runs by themselves"(String plugin, String taskName) {
+    given:
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.createJavaFile(packageName: "com.episode6.testproject")
+
+    when:
+    def result = test.buildAndFail(taskName, "build")
+
+    then:
+    result.task(":${taskName}").outcome == TaskOutcome.FAILED
+    result.task(":build") == null
+    result.output.contains("Illegal task found")
+
+    where:
+    plugin                      | taskName
+    GDMC_PLUGIN                 | TASK_RESOLVE
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_RESOLVE
+    GDMC_PLUGIN                 | TASK_IMPORT
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT
+    GDMC_PLUGIN                 | TASK_IMPORT_TRANS
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT_TRANS
+  }
+
+  def "test resolve tasks only runs by themselves (multi-project)"(String plugin, String taskName) {
+    given:
+    setupMultiProject(test, plugin, [
+        mockitoVersion: ':2.7.0',
+        chopVersion: ':0.1.7.2',
+        spockVersion: ':1.1-groovy-2.4-rc-2'])
+
+    when:
+    def result = test.buildAndFail(taskName, "build")
+
+    then:
+    result.task(":javalib:${taskName}")?.outcome == TaskOutcome.FAILED ||
+        result.task(":groovylib:${taskName}")?.outcome == TaskOutcome.FAILED
+    result.task(":javalib:build") == null
+    result.task(":groovylib:build") == null
+    result.output.contains("Illegal task found")
+
+    where:
+    plugin                      | taskName
+    GDMC_PLUGIN                 | TASK_RESOLVE
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_RESOLVE
+    GDMC_PLUGIN                 | TASK_IMPORT
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT
+    GDMC_PLUGIN                 | TASK_IMPORT_TRANS
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT_TRANS
+  }
+
+  def "test resolve tasks see clean as a legal task (multi-project)"(String plugin, String taskName) {
+    given:
+    setupMultiProject(test, plugin, [
+        mockitoVersion: ':2.7.0',
+        chopVersion: ':0.1.7.2',
+        spockVersion: ':1.1-groovy-2.4-rc-2'])
+
+    when:
+    def result = test.build("clean", taskName)
+
+    then:
+    result.task(":javalib:clean").outcome == TaskOutcome.UP_TO_DATE
+    result.task(":groovylib:clean").outcome == TaskOutcome.UP_TO_DATE
+    result.task(":javalib:${taskName}").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:${taskName}").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | taskName
+    GDMC_PLUGIN                 | TASK_RESOLVE
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_RESOLVE
+    GDMC_PLUGIN                 | TASK_IMPORT
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT
+    GDMC_PLUGIN                 | TASK_IMPORT_TRANS
+    GDMC_SPRINGS_COMPAT_PLUGIN  | TASK_IMPORT_TRANS
+  }
+
   private static boolean verifyJsonSortOrder(Map json) {
     String lastKey = null
     json.keySet().each { key ->
