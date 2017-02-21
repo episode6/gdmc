@@ -3,7 +3,7 @@ package com.episode6.hackit.gdmc.plugin
 import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.DependencyMapImpl
 import com.episode6.hackit.gdmc.util.DependencyKeys
-import groovy.transform.Memoized
+import com.episode6.hackit.gdmc.util.ProjectProperties
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -21,9 +21,6 @@ class GdmcRootPlugin implements Plugin<Project> {
     return rootPlugin
   }
 
-  static final DEFAULT_FOLDER_NAME = "gdmc"
-  static final DEFAULT_FILE_NAME = "gdmc.json"
-
   Project project
   DependencyMap dependencyMap
 
@@ -34,30 +31,10 @@ class GdmcRootPlugin implements Plugin<Project> {
     }
 
     this.project = project
-    dependencyMap = new DependencyMapImpl(gdmcFile)
+    dependencyMap = new DependencyMapImpl(ProjectProperties.gdmcFile(project))
 
     Project.metaClass.gdmc = { key ->
       return DependencyKeys.sanitizedGdmcDep(key).placeholderKey
     }
-  }
-
-  @Memoized
-  File getGdmcFile() {
-    File defaultFile = new File(project.rootDir, DEFAULT_FILE_NAME)
-    if (defaultFile.exists()) {
-      return defaultFile
-    }
-
-    File gdmcFolder = new File(project.rootDir, DEFAULT_FOLDER_NAME)
-    if (!gdmcFolder.exists() || !gdmcFolder.isDirectory()) {
-      return defaultFile
-    }
-
-    File gdmcSubFile = new File(gdmcFolder, DEFAULT_FILE_NAME)
-    if (gdmcSubFile.exists()) {
-      return gdmcSubFile
-    }
-
-    return defaultFile
   }
 }

@@ -62,6 +62,40 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test resolve pre-set dependencies diff gdmc file location"(String plugin) {
+    given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core'
+   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.newFolder("gdmcFolder").newFile("new_gdmc_file.json") << """
+{
+${PRE_SET_DEPENDENCIES}
+}
+"""
+    test.newFile("gradle.properties") << """
+gdmc.file=gdmcFolder/new_gdmc_file.json
+"""
+
+    when:
+    def result = test.build("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test resolve pre-set dependencies aliases"(String plugin) {
     given:
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
