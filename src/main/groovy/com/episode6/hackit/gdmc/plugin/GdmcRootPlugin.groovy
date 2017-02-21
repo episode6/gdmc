@@ -32,9 +32,5 @@ class GdmcRootPlugin implements Plugin<Project> {
 
     this.project = project
     dependencyMap = new DependencyMapImpl(ProjectProperties.gdmcFile(project))
-
-    Project.metaClass.gdmc = { key ->
-      return DependencyKeys.sanitizedGdmcDep(key).placeholderKey
-    }
   }
 }

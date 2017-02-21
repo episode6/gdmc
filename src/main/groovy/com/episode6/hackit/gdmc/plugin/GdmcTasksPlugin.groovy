@@ -3,6 +3,7 @@ package com.episode6.hackit.gdmc.plugin
 import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
+import com.episode6.hackit.gdmc.util.GdmcConvention
 import com.episode6.hackit.gdmc.util.GdmcLogger
 import com.episode6.hackit.gdmc.util.ProjectProperties
 import org.gradle.api.Action
@@ -27,6 +28,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 
     project.extensions.create("gdmcLogger", GdmcLogger)
+    project.convention.plugins.gdmcConvention = new GdmcConvention()
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
       dependencies = {
