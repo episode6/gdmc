@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc.data
 
+import groovy.transform.EqualsAndHashCode
 import org.gradle.api.Nullable
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
@@ -9,6 +10,7 @@ import org.gradle.api.artifacts.ModuleVersionSelector
 /**
  * Dependency utility object. can represent either a resolved or unresolved dependency
  */
+@EqualsAndHashCode
 class GdmcDependency implements Serializable {
 
   private static final String PLACEHOLDER_GROUP_ID = "com.episode6.hackit.gmdc_placeholder"

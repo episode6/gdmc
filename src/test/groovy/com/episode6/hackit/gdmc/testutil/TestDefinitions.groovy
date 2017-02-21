@@ -30,7 +30,7 @@ import org.mockito.Mockito;
 
 """
 
-  static final String buildFilePrefix(String plugins) {
+  static final String buildFilePrefix(String plugins, Map opts = [:]) {
     """
 plugins {
   id 'groovy'
@@ -42,7 +42,7 @@ gdmcLogger {
 }
 
 group = 'com.example.testproject'
-version = '0.0.1-SNAPSHOT'
+version = '${opts.version ?: '0.0.1-SNAPSHOT'}'
 
 repositories {
   jcenter()
@@ -58,7 +58,7 @@ repositories {
     test.gradleBuildFile << """
 allprojects {
   group = "com.example"
-  version = "0.0.1-SNAPSHOT"
+  version = "${versions.projectVersion ?: '0.0.1-SNAPSHOT'}"
   
   repositories {
     jcenter()

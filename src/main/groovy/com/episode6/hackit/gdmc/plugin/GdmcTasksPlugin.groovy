@@ -3,6 +3,7 @@ package com.episode6.hackit.gdmc.plugin
 import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
+import com.episode6.hackit.gdmc.task.GdmcValidateSelfTask
 import com.episode6.hackit.gdmc.util.GdmcConvention
 import com.episode6.hackit.gdmc.util.GdmcLogger
 import com.episode6.hackit.gdmc.util.ProjectProperties
@@ -97,11 +98,15 @@ class GdmcTasksPlugin implements Plugin<Project> {
       }
     }
 
-    // importSelf, validateSelf
+    project.task("gdmcValidateSelf", type: GdmcValidateSelfTask)
 
-    // We can't add extra dependencies from inside the VersionMapperAction, so instead,
-    // we look for any dependencies that are mapped to aliases, and resolve and add them here
     project.afterEvaluate {
+
+      project.tasks.findByPath("check")?.dependsOn project.gdmcValidateSelf
+      project.tasks.findByPath("test")?.dependsOn project.gdmcValidateSelf
+
+      // We can't add extra dependencies from inside the VersionMapperAction, so instead,
+      // we look for any dependencies that are mapped to aliases, and resolve and add them here
       project.configurations.all(new Action<Configuration>() {
         @Override
         void execute(Configuration files) {
