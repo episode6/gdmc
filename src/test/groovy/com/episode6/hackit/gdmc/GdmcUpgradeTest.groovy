@@ -81,6 +81,7 @@ dependencies {
 
   def "test multi-project upgrade"(String plugin) {
     given:
+    test.gdmcJsonFile << PRE_SET_DEPENDENCIES
     setupMultiProject(test, plugin, [
         mockitoVersion: ':2.6.0',
         chopVersion: ':0.1.7.1',
