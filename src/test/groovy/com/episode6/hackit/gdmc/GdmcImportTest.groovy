@@ -35,6 +35,7 @@ class GdmcImportTest extends Specification {
   @Rule final IntegrationTest test = new IntegrationTest()
 
   def "test import from nothing"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -78,6 +79,7 @@ dependencies {
   }
 
   def "test import doesnt overwrite existing gdmc"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -123,6 +125,7 @@ dependencies {
   }
 
   def "test import does overwrite existing gdmc when told"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -210,6 +213,7 @@ dependencies {
 
 
   def "test importTransitive from nothing"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -243,6 +247,7 @@ dependencies {
   }
 
   def "test importTransitive doesnt overwrite existing gdmc"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -285,6 +290,7 @@ dependencies {
   }
 
   def "test importTransitive pulls in transitive deps even if first order dep is mapped"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -327,6 +333,7 @@ dependencies {
   }
 
   def "test importTransitive pulls in transitive deps even if first order dep is mapped alias"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -393,6 +400,7 @@ dependencies {
   }
 
   def "test importTransitive pulls from mapped dependency version, not resolved/upgraded version"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -438,6 +446,7 @@ dependencies {
   }
 
   def "test import ignores unmapped dependencies"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -458,6 +467,7 @@ dependencies {
   }
 
   def "test importTransitive ignores unmapped dependencies"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
@@ -478,6 +488,7 @@ dependencies {
   }
 
   def "test importTransitive does overwrite existing gdmc when told"(String plugin) {
+    given:
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
