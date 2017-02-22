@@ -12,10 +12,6 @@ version = "0.0.1-SNAPSHOT"
 
 repositories {
   jcenter()
-  mavenLocal()
-  maven {
-    url "https://oss.sonatype.org/content/repositories/snapshots/"
-  }
 }
 
 apply plugin: 'groovy'
@@ -27,8 +23,8 @@ dependencies {
   compile localGroovy()
   compile gradleApi()
 
-  compile 'com.episode6.hackit.chop:chop-core:0.1.8-SNAPSHOT'
-  compile 'com.episode6.hackit.chop:chop-groovy:0.1.8-SNAPSHOT'
+  compile 'com.episode6.hackit.chop:chop-core:0.1.8'
+  compile 'com.episode6.hackit.chop:chop-groovy:0.1.8'
 
   testCompile("org.spockframework:spock-core:1.1-groovy-2.4-rc-2")  {
     exclude module: 'groovy-all'
