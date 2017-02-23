@@ -10,12 +10,17 @@ class ProjectProperties {
 
   private static final String PROP_OVERWRITE = "gdmc.overwrite"
   private static final String PROP_GDMC_FILE = "gdmc.file"
+  private static final String PROP_FORCE_RESOLVE = "gdmc.forceResolve"
 
   private static final DEFAULT_FOLDER_NAME = "gdmc"
   private static final DEFAULT_FILE_NAME = "gdmc.json"
 
   static boolean overwrite(Project project) {
-    return project.hasProperty(PROP_OVERWRITE) && project.property(PROP_OVERWRITE)
+    return booleanProperty(project, PROP_OVERWRITE)
+  }
+
+  static boolean forceResolve(Project project) {
+    return booleanProperty(project, PROP_FORCE_RESOLVE)
   }
 
   @Memoized
@@ -40,5 +45,9 @@ class ProjectProperties {
     }
 
     return defaultFile
+  }
+
+  private static boolean booleanProperty(Project project, String propName) {
+    return project.hasProperty(propName) && project.property(propName)
   }
 }
