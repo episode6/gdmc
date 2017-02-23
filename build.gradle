@@ -8,7 +8,7 @@ buildscript {
 }
 
 group = "com.episode6.hackit.gdmc"
-version = "0.0.9.1-SNAPSHOT"
+version = "0.0.9.3-SNAPSHOT"
 
 repositories {
   jcenter()
