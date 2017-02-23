@@ -15,11 +15,11 @@ class GdmcPlugin implements Plugin<Project> {
     GdmcRootPlugin.ensureInit(project)
     project.plugins.apply(GdmcTasksPlugin)
 
+    VersionMapperAction versionMapper = new VersionMapperAction(project: project)
     project.configurations.all(new Action<Configuration>() {
       @Override
-      void execute(Configuration files) {
-        VersionMapperAction action = new VersionMapperAction(configuration: files, project: project)
-        files.resolutionStrategy.eachDependency(action)
+      void execute(Configuration config) {
+        config.resolutionStrategy.eachDependency(versionMapper)
       }
     })
 

@@ -7,7 +7,6 @@ import com.episode6.hackit.gdmc.plugin.GdmcRootPlugin
 import groovy.transform.Memoized
 import org.gradle.api.Action
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.DependencyResolveDetails
 
 import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
@@ -17,11 +16,9 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
  */
 class VersionMapperAction implements Action<DependencyResolveDetails> {
 
-  Configuration configuration
   Project project
 
   VersionMapperAction(Map map) {
-    this.configuration = map.configuration
     this.project = map.project
   }
 

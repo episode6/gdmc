@@ -39,16 +39,16 @@ class GdmcSpringsCompatPlugin implements Plugin<Project> {
 
     // While we leave most of the dependency mapping up to the springs plugin, we must ensure any aliases
     // get mapped properly
+    VersionMapperAction aliasMapper = new VersionMapperAction(project: project) {
+      @Override
+      boolean shouldSkipMappingVersion(GdmcDependency unMapped) {
+        return !dependencyMap.isAlias(unMapped.key)
+      }
+    }
     project.configurations.all(new Action<Configuration>() {
       @Override
-      void execute(Configuration files) {
-        VersionMapperAction action = new VersionMapperAction(configuration: files, project: project) {
-          @Override
-          boolean shouldSkipMappingVersion(GdmcDependency unMapped) {
-            return !dependencyMap.isAlias(unMapped.key)
-          }
-        }
-        files.resolutionStrategy.eachDependency(action)
+      void execute(Configuration config) {
+        config.resolutionStrategy.eachDependency(aliasMapper)
       }
     })
   }
