@@ -42,10 +42,8 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
 
     List<String> mappedDeps = dependencyMap.lookup(unMapped.key).collect {it.toString()}
     if (!mappedDeps) {
-      throw GChop.e(
-          new GdmcUnmappedDependencyException(unMapped),
-          "Could not find mapped dependency for key: %s",
-          unMapped.key)
+      handleUnmappedDependency(details, unMapped)
+      return;
     }
 
     GChop.d("Replacing %s with %s", details.requested, mappedDeps[0])
@@ -53,8 +51,25 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
     // if mappedDeps.size() > 1, the other deps will have been added prior to this action being run
   }
 
+  private void handleUnmappedDependency(DependencyResolveDetails details, GdmcDependency unMapped) {
+    if (forceResolve()) {
+      GChop.e("Unmapped dependency found: %s, forceResolve flag set, using + as version")
+      details.useVersion("+")
+    } else {
+      throw GChop.e(
+          new GdmcUnmappedDependencyException(unMapped),
+          "Could not find mapped dependency for key: %s",
+          unMapped.key)
+    }
+  }
+
   @Memoized
   DependencyMap getDependencyMap() {
     project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
+  }
+
+  @Memoized
+  boolean forceResolve() {
+    return ProjectProperties.forceResolve(project)
   }
 }
