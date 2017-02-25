@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc.testutil
+
 /**
- * Verifies maven output
+ * Verifies maven output (specifically the dependencies)
  */
 class MavenOutputVerifier {
 
@@ -26,7 +27,7 @@ class MavenOutputVerifier {
     return getMavenVersionDir().newFile(getArtifactFileName(extension, descriptor))
   }
 
-  boolean verifyStandardOutput(String artifactPackaging = "jar") {
+  boolean verifyStandardOutput() {
     return verifyRootMavenMetaData() &&
         verifyVersionSpecificMavenMetaData() &&
         verifyPomData()

@@ -10,7 +10,7 @@ import spock.lang.Specification
 import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
 
 /**
- * Test using gdmc with deployable
+ * Test using gdmc with deployable plugin
  */
 class GdmcDeployableTest extends Specification {
 

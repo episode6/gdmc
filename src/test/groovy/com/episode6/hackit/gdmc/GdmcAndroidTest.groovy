@@ -20,7 +20,8 @@ buildscript {
     jcenter()
   }
 
-  // we need to declare this in order to retrieve the android plugin's dependencies
+  // We need to declare this in order to retrieve the android plugin's dependencies
+  // I don't really understand why this is.
   dependencies {
     classpath '${MyDependencyMap.lookupDep("com.android.tools.build:gradle")}'
   }
