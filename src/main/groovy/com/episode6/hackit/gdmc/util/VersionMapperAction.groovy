@@ -14,12 +14,10 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 /**
  * Resolves missing versions from the provided DependencyResolveDetails
  */
-class VersionMapperAction implements Action<DependencyResolveDetails> {
+class VersionMapperAction implements Action<DependencyResolveDetails>, AbstractActionTrait {
 
-  Project project
-
-  VersionMapperAction(Map map) {
-    this.project = map.project
+  VersionMapperAction(Map opts) {
+    this.project = opts.project
   }
 
   /**
@@ -61,11 +59,6 @@ class VersionMapperAction implements Action<DependencyResolveDetails> {
           "Could not find mapped dependency for key: %s",
           unMapped.key)
     }
-  }
-
-  @Memoized
-  DependencyMap getDependencyMap() {
-    project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
   }
 
   @Memoized
