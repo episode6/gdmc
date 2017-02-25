@@ -18,6 +18,10 @@ class DependencyResolveDetailsWrapper implements DependencyResolveDetails {
     this.moduleVersionSelector = new ModuleVersionSelectorWrapper()
   }
 
+  def getDependencyDelegate() {
+    return dependencyDelegate
+  }
+
   @Override
   ModuleVersionSelector getRequested() {
     return moduleVersionSelector

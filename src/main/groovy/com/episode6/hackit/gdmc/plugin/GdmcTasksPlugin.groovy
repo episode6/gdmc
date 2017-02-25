@@ -4,18 +4,12 @@ import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.task.GdmcValidateSelfTask
-import com.episode6.hackit.gdmc.util.DependencyResolveDetailsWrapper
-import com.episode6.hackit.gdmc.util.GdmcConvention
-import com.episode6.hackit.gdmc.util.GdmcLogger
-import com.episode6.hackit.gdmc.util.ProjectProperties
-import com.episode6.hackit.gdmc.util.TaskAssertions
-import com.episode6.hackit.gdmc.util.VersionMapperAction
+import com.episode6.hackit.gdmc.util.*
 import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
-import org.gradle.api.artifacts.maven.MavenPom
 import org.gradle.api.plugins.MavenPlugin
 
 import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
@@ -130,43 +124,12 @@ class GdmcTasksPlugin implements Plugin<Project> {
       })
 
       if (project.plugins.findPlugin(MavenPlugin)) {
-
-        VersionMapperAction mavenMapperAction = new VersionMapperAction(project: project)
-
-        Action<MavenPom> mavenAction = new Action<MavenPom>() {
-          @Override
-          void execute(MavenPom mavenPom) {
-            GChop.d("mavenPom dependencies: %s", mavenPom.dependencies)
-            List<Map> aliasDeps = new LinkedList()
-            mavenPom.dependencies.each {
-              DependencyResolveDetailsWrapper wrapper = new DependencyResolveDetailsWrapper(it)
-              mavenMapperAction.execute(wrapper)
-
-              GdmcDependency unMapped = GdmcDependency.from(wrapper.requested)
-              if (mapper.isAlias(unMapped.key)) {
-                aliasDeps.add([rawDep: it, gdmcDep: unMapped])
-              }
-            }
-
-            for (Map depInfo : aliasDeps) {
-              List<GdmcDependency> mappedDeps = mapper.lookup(depInfo.gdmcDep.key)
-              mappedDeps.each { GdmcDependency mapped ->
-                if (mavenPom.dependencies.find({it.groupId == mapped.groupId && it.artifactId == mapped.artifactId && it.version == mapped.version}) == null) {
-                  def newDep = depInfo.rawDep.clone()
-                  newDep.groupId = mapped.groupId
-                  newDep.artifactId = mapped.artifactId
-                  newDep.version = mapped.version
-                  mavenPom.dependencies.add(newDep)
-                }
-              }
-            }
-          }
-        }
+        MavenConfigurationAction mavenConfigurationAction = new MavenConfigurationAction(project: project)
         project.tasks.findByPath("uploadArchives")?.repositories {
-          mavenDeployer.pom.whenConfigured(mavenAction)
+          mavenDeployer.pom.whenConfigured(mavenConfigurationAction)
         }
         project.tasks.findByPath("install")?.repositories {
-          mavenInstaller.pom.whenConfigured(mavenAction)
+          mavenInstaller.pom.whenConfigured(mavenConfigurationAction)
 
         }
       }
