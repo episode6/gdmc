@@ -18,16 +18,17 @@ buildscript {
   repositories {
     jcenter()
   }
+
+  // we need to declare this in order to retrieve the android plugin's dependencies
   dependencies {
     classpath 'com.android.tools.build:gradle:2.2.3'
   }
 }
 
 plugins {
+id 'com.android.library'
 ${plugin}
 }
-
-apply plugin: 'com.android.library'
 
 gdmcLogger {
  enable()
