@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc
 
 import com.episode6.hackit.gdmc.testutil.IntegrationTest
+import com.episode6.hackit.gdmc.testutil.MyDependencyMap
 import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
@@ -21,7 +22,7 @@ buildscript {
 
   // we need to declare this in order to retrieve the android plugin's dependencies
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.2.3'
+    classpath '${MyDependencyMap.lookupDep("com.android.tools.build:gradle")}'
   }
 }
 

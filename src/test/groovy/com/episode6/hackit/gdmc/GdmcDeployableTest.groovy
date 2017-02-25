@@ -24,9 +24,7 @@ buildscript {
   repositories {
     jcenter()
   }
-  dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.2'
-  }
+  
 }
 
 plugins {
