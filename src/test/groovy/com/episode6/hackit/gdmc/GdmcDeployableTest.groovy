@@ -1,5 +1,6 @@
 package com.episode6.hackit.gdmc
 
+import com.episode6.hackit.gdmc.testutil.GradleTestProject
 import com.episode6.hackit.gdmc.testutil.IntegrationTest
 import com.episode6.hackit.gdmc.testutil.MavenOutputVerifier
 import org.gradle.testkit.runner.TaskOutcome
@@ -96,34 +97,35 @@ ${deps}
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
+  private MavenOutputVerifier commonSetup(Map opts = [:]) {
+    GradleTestProject testProject = opts.testProject ?: test
+    String packageName = opts.packageName ?: "com.example.testproject"
+    String version = opts.version ?: "0.0.1-SNAPSHOT"
+    File repoFile = opts.repoFile
+
+    testProject.createJavaFile(packageName: packageName, imports: CHOP_IMPORT)
+    testProject.createJavaFile(packageName: packageName, className: "SampleClass2", imports: MOCKITO_IMPORT)
+    return new MavenOutputVerifier(
+        repo: repoFile,
+        groupId: packageName,
+        artifactId: testProject.name,
+        versionName: version)
+  }
+
   def "test deployable library"(String plugin) {
     given:
     test.name = "javalib"
     File snapshotRepo = test.newFolder("build", "m2", "snapshot")
+    MavenOutputVerifier mavenOutputVerifier = commonSetup(repoFile: snapshotRepo)
     test.gradleBuildFile << deployableBuildGradle(plugin, [repoFile: snapshotRepo])
     test.gdmcJsonFile << "{${GDMC_CONTENTS}}"
-    test.createJavaFile(packageName: "com.example.testproject", imports: CHOP_IMPORT)
-    test.createJavaFile(packageName: "com.example.testproject", className: "SampleClass2", imports: MOCKITO_IMPORT)
-    MavenOutputVerifier mavenOutputVerifier = new MavenOutputVerifier(
-        repo: snapshotRepo,
-        groupId: "com.example.testproject",
-        artifactId: "javalib",
-        versionName: "0.0.1-SNAPSHOT")
 
     when:
     def result = test.build("deploy")
 
     then:
     result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
-    mavenOutputVerifier.verifyStandardOutput()
-    mavenOutputVerifier.verifyPomDependency(
-        groupId: "com.episode6.hackit.chop",
-        artifactId: "chop-core",
-        version: "0.1.7.1")
-    mavenOutputVerifier.verifyPomDependency(
-        groupId: "org.mockito",
-        artifactId: "mockito-core",
-        version: "2.7.0")
+    commonVerify(mavenOutputVerifier)
 
     where:
     plugin                      | _
@@ -135,6 +137,7 @@ ${deps}
     given:
     test.name = "javalib"
     File snapshotRepo = test.newFolder("build", "m2", "snapshot")
+    MavenOutputVerifier mavenOutputVerifier = commonSetup(repoFile: snapshotRepo)
     test.gradleBuildFile << deployableBuildGradle(plugin, [
         repoFile: snapshotRepo,
         deps: "compile gdmc('myAlias')"])
@@ -148,28 +151,12 @@ ${deps}
 ${GDMC_CONTENTS}
 }
 """
-    test.createJavaFile(packageName: "com.example.testproject", imports: CHOP_IMPORT)
-    test.createJavaFile(packageName: "com.example.testproject", className: "SampleClass2", imports: MOCKITO_IMPORT)
-    MavenOutputVerifier mavenOutputVerifier = new MavenOutputVerifier(
-        repo: snapshotRepo,
-        groupId: "com.example.testproject",
-        artifactId: "javalib",
-        versionName: "0.0.1-SNAPSHOT")
-
     when:
     def result = test.build("deploy")
 
     then:
     result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
-    mavenOutputVerifier.verifyStandardOutput()
-    mavenOutputVerifier.verifyPomDependency(
-        groupId: "com.episode6.hackit.chop",
-        artifactId: "chop-core",
-        version: "0.1.7.1")
-    mavenOutputVerifier.verifyPomDependency(
-        groupId: "org.mockito",
-        artifactId: "mockito-core",
-        version: "2.7.0")
+    commonVerify(mavenOutputVerifier)
 
     where:
     plugin                      | _
@@ -181,6 +168,7 @@ ${GDMC_CONTENTS}
     given:
     test.name = "javalib"
     File snapshotRepo = test.newFolder("build", "m2", "snapshot")
+    MavenOutputVerifier mavenOutputVerifier = commonSetup(repoFile: snapshotRepo)
     test.gradleBuildFile << deployableBuildGradle(plugin, [
         repoFile: snapshotRepo,
         deps: "compile 'namespaced:alias'"])
@@ -194,32 +182,30 @@ ${GDMC_CONTENTS}
 ${GDMC_CONTENTS}
 }
 """
-    test.createJavaFile(packageName: "com.example.testproject", imports: CHOP_IMPORT)
-    test.createJavaFile(packageName: "com.example.testproject", className: "SampleClass2", imports: MOCKITO_IMPORT)
-    MavenOutputVerifier mavenOutputVerifier = new MavenOutputVerifier(
-        repo: snapshotRepo,
-        groupId: "com.example.testproject",
-        artifactId: "javalib",
-        versionName: "0.0.1-SNAPSHOT")
-
     when:
     def result = test.build("deploy")
 
     then:
     result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
-    mavenOutputVerifier.verifyStandardOutput()
-    mavenOutputVerifier.verifyPomDependency(
-        groupId: "com.episode6.hackit.chop",
-        artifactId:  "chop-core",
-        version:  "0.1.7.1")
-    mavenOutputVerifier.verifyPomDependency(
-        groupId: "org.mockito",
-        artifactId:  "mockito-core",
-        version:  "2.7.0")
+    commonVerify(mavenOutputVerifier)
 
     where:
     plugin                      | _
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
+
+  private static boolean commonVerify(MavenOutputVerifier mavenOutputVerifier) {
+    assert mavenOutputVerifier.verifyStandardOutput()
+    assert mavenOutputVerifier.verifyPomDependency(
+        groupId: "com.episode6.hackit.chop",
+        artifactId:  "chop-core",
+        version:  "0.1.7.1")
+    assert mavenOutputVerifier.verifyPomDependency(
+        groupId: "org.mockito",
+        artifactId:  "mockito-core",
+        version:  "2.7.0")
+    return true
+  }
+
 }
