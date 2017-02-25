@@ -26,10 +26,10 @@ buildscript {
 
 plugins {
 id 'java'
+id 'com.episode6.hackit.deployable.jar'
 ${plugin}
 }
 
-apply plugin: 'com.episode6.hackit.deployable.jar'
 
 deployable {
   pom {
