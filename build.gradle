@@ -55,7 +55,7 @@ dependencies {
   testCompile 'com.episode6.hackit.groovykit:gk-versions'
 
   alsoUnderTestCompile 'com.episode6.hackit.deployable:deployable'
-  alsoUnderTestCompile 'com.android.tools.build:gradle:2.2.3'
+  alsoUnderTestCompile 'com.android.tools.build:gradle'
 }
 
 pluginUnderTestMetadata {
