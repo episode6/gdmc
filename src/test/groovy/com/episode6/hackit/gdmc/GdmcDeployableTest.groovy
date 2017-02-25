@@ -116,8 +116,14 @@ ${deps}
     then:
     result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
     mavenOutputVerifier.verifyStandardOutput()
-    mavenOutputVerifier.verifyPomDependency("com.episode6.hackit.chop", "chop-core", "0.1.7.1")
-    mavenOutputVerifier.verifyPomDependency("org.mockito", "mockito-core", "2.7.0")
+    mavenOutputVerifier.verifyPomDependency(
+        groupId: "com.episode6.hackit.chop",
+        artifactId: "chop-core",
+        version: "0.1.7.1")
+    mavenOutputVerifier.verifyPomDependency(
+        groupId: "org.mockito",
+        artifactId: "mockito-core",
+        version: "2.7.0")
 
     where:
     plugin                      | _
@@ -156,8 +162,14 @@ ${GDMC_CONTENTS}
     then:
     result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
     mavenOutputVerifier.verifyStandardOutput()
-    mavenOutputVerifier.verifyPomDependency("com.episode6.hackit.chop", "chop-core", "0.1.7.1")
-    mavenOutputVerifier.verifyPomDependency("org.mockito", "mockito-core", "2.7.0")
+    mavenOutputVerifier.verifyPomDependency(
+        groupId: "com.episode6.hackit.chop",
+        artifactId: "chop-core",
+        version: "0.1.7.1")
+    mavenOutputVerifier.verifyPomDependency(
+        groupId: "org.mockito",
+        artifactId: "mockito-core",
+        version: "2.7.0")
 
     where:
     plugin                      | _
@@ -196,8 +208,14 @@ ${GDMC_CONTENTS}
     then:
     result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
     mavenOutputVerifier.verifyStandardOutput()
-    mavenOutputVerifier.verifyPomDependency("com.episode6.hackit.chop", "chop-core", "0.1.7.1")
-    mavenOutputVerifier.verifyPomDependency("org.mockito", "mockito-core", "2.7.0")
+    mavenOutputVerifier.verifyPomDependency(
+        groupId: "com.episode6.hackit.chop",
+        artifactId:  "chop-core",
+        version:  "0.1.7.1")
+    mavenOutputVerifier.verifyPomDependency(
+        groupId: "org.mockito",
+        artifactId:  "mockito-core",
+        version:  "2.7.0")
 
     where:
     plugin                      | _

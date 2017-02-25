@@ -75,14 +75,24 @@ class MavenOutputVerifier {
     return true
   }
 
-  boolean verifyPomDependency(String groupId, String artifactId, String version, String scope = "compile") {
+  boolean verifyPomDependency(Map opts = [:]) {
+    String groupId = opts.groupId ?: ''
+    String artifactId = opts.artifactId ?: ''
+    String version = opts.version ?: ''
+    String scope = opts.scope ?: 'compile'
+    Integer times = opts.times
     def pom = getArtifactFile("pom").asXml()
-    def pomDep = pom.dependencies.dependency.find { pd ->
+    Collection foundDeps = pom.dependencies.dependency.depthFirst().findAll { pd ->
       pd.groupId.text() == groupId &&
           pd.artifactId.text() == artifactId &&
           pd.version.text() == version &&
           pd.scope.text() == scope
     }
+    assert foundDeps.size() > 0
+    if (times) {
+      assert foundDeps.size() == times
+    }
+    def pomDep = foundDeps[0]
     assert pomDep.groupId.text() == groupId &&
         pomDep.artifactId.text() == artifactId &&
         pomDep.version.text() == version &&
