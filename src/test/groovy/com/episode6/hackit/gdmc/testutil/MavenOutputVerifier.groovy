@@ -88,15 +88,18 @@ class MavenOutputVerifier {
           pd.version.text() == version &&
           pd.scope.text() == scope
     }
+
     assert foundDeps.size() > 0
-    if (times) {
-      assert foundDeps.size() == times
-    }
+
     def pomDep = foundDeps[0]
     assert pomDep.groupId.text() == groupId &&
         pomDep.artifactId.text() == artifactId &&
         pomDep.version.text() == version &&
         pomDep.scope.text() == scope
+
+    if (times) {
+      assert foundDeps.size() == times
+    }
     return true
   }
 
