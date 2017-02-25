@@ -200,11 +200,13 @@ ${GDMC_CONTENTS}
     assert mavenOutputVerifier.verifyPomDependency(
         groupId: "com.episode6.hackit.chop",
         artifactId:  "chop-core",
-        version:  "0.1.7.1")
+        version:  "0.1.7.1",
+        times: 1)
     assert mavenOutputVerifier.verifyPomDependency(
         groupId: "org.mockito",
         artifactId:  "mockito-core",
-        version:  "2.7.0")
+        version:  "2.7.0",
+        times: 1)
     return true
   }
 
