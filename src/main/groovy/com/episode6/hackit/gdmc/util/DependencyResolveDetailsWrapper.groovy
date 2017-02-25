@@ -22,6 +22,10 @@ class DependencyResolveDetailsWrapper implements DependencyResolveDetails {
     return dependencyDelegate
   }
 
+  GdmcDependency asGdmcDependency() {
+    return GdmcDependency.from(requested)
+  }
+
   @Override
   ModuleVersionSelector getRequested() {
     return moduleVersionSelector
