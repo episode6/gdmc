@@ -14,6 +14,10 @@ import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
 class GdmcDeployableTest extends Specification {
 
   private static String deployableBuildGradle(String plugin, Map opts = [:]) {
+    String deps = opts.deps ?: """
+   compile 'org.mockito:mockito-core'
+   compile 'com.episode6.hackit.chop:chop-core'
+"""
     return """
 buildscript {
   repositories {
@@ -72,14 +76,12 @@ repositories {
 }
 
 dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
+${deps}
 }
 """
   }
 
   static final String GDMC_CONTENTS = """
-{
   "com.episode6.hackit.chop:chop-core": {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-core",
@@ -90,7 +92,6 @@ dependencies {
      "artifactId": "mockito-core",
      "version": "2.7.0"
    }
-}
 """
 
   @Rule final IntegrationTest test = new IntegrationTest()
@@ -100,8 +101,89 @@ dependencies {
     test.name = "javalib"
     File snapshotRepo = test.newFolder("build", "m2", "snapshot")
     test.gradleBuildFile << deployableBuildGradle(plugin, [repoFile: snapshotRepo])
-    test.gdmcJsonFile << GDMC_CONTENTS
+    test.gdmcJsonFile << "{${GDMC_CONTENTS}}"
     test.createJavaFile(packageName: "com.example.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.example.testproject", className: "SampleClass2", imports: MOCKITO_IMPORT)
+    MavenOutputVerifier mavenOutputVerifier = new MavenOutputVerifier(
+        repo: snapshotRepo,
+        groupId: "com.example.testproject",
+        artifactId: "javalib",
+        versionName: "0.0.1-SNAPSHOT")
+
+    when:
+    def result = test.build("deploy")
+
+    then:
+    result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
+    mavenOutputVerifier.verifyStandardOutput()
+    mavenOutputVerifier.verifyPomDependency("com.episode6.hackit.chop", "chop-core", "0.1.7.1")
+    mavenOutputVerifier.verifyPomDependency("org.mockito", "mockito-core", "2.7.0")
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test deployable library with aliases"(String plugin) {
+    given:
+    test.name = "javalib"
+    File snapshotRepo = test.newFolder("build", "m2", "snapshot")
+    test.gradleBuildFile << deployableBuildGradle(plugin, [
+        repoFile: snapshotRepo,
+        deps: "compile gdmc('myAlias')"])
+    test.gdmcJsonFile << """
+{
+  "myAlias": {
+    "alias": [
+      "com.episode6.hackit.chop:chop-core",
+      "org.mockito:mockito-core"]
+  },
+${GDMC_CONTENTS}
+}
+"""
+    test.createJavaFile(packageName: "com.example.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.example.testproject", className: "SampleClass2", imports: MOCKITO_IMPORT)
+    MavenOutputVerifier mavenOutputVerifier = new MavenOutputVerifier(
+        repo: snapshotRepo,
+        groupId: "com.example.testproject",
+        artifactId: "javalib",
+        versionName: "0.0.1-SNAPSHOT")
+
+    when:
+    def result = test.build("deploy")
+
+    then:
+    result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
+    mavenOutputVerifier.verifyStandardOutput()
+    mavenOutputVerifier.verifyPomDependency("com.episode6.hackit.chop", "chop-core", "0.1.7.1")
+    mavenOutputVerifier.verifyPomDependency("org.mockito", "mockito-core", "2.7.0")
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test deployable library with namespaced aliases"(String plugin) {
+    given:
+    test.name = "javalib"
+    File snapshotRepo = test.newFolder("build", "m2", "snapshot")
+    test.gradleBuildFile << deployableBuildGradle(plugin, [
+        repoFile: snapshotRepo,
+        deps: "compile 'namespaced:alias'"])
+    test.gdmcJsonFile << """
+{
+  "namespaced:alias": {
+    "alias": [
+      "com.episode6.hackit.chop:chop-core",
+      "org.mockito:mockito-core"]
+  },
+${GDMC_CONTENTS}
+}
+"""
+    test.createJavaFile(packageName: "com.example.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.example.testproject", className: "SampleClass2", imports: MOCKITO_IMPORT)
     MavenOutputVerifier mavenOutputVerifier = new MavenOutputVerifier(
         repo: snapshotRepo,
         groupId: "com.example.testproject",
