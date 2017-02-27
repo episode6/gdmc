@@ -33,7 +33,7 @@ dependencies {
 }
 ```
 
-Execute the `gdmcResolve` task, and a `gdmc.json` file will be automatically generated for you.
+Before your first build, execute the `gdmcResolve` task. A `gdmc.json` file will be automatically generated for you.
 ```json
 {
     "com.episode6.hackit.chop:chop-core": {
@@ -53,12 +53,13 @@ Execute the `gdmcResolve` task, and a `gdmc.json` file will be automatically gen
     }
 }
 ```
-(this file should be added to your project's source control)
+This file should be added to your project's source control, once it has been generated you should be able to build normally and the versions mapped in the `gdmc.json` file will be applied.
 
-If you're adding gdmc to an existing project with many dependencies, you can can execute the `gdmcImport` task before removing the versions from your build.gradle. This will import the fully-qualified dependencies from your project into the `gdmc.json` file instead of resolving their latest versions.
+#### Importing existing dependencies
+If you're adding gdmc to an existing project with many dependencies, you can, instead, execute the `gdmcImport` task before removing the versions from your build.gradle. This will import the fully-qualified dependencies from your project into the `gdmc.json` file instead of resolving their latest versions.
 
 
-## gdmc file
+### gdmc file
 gdmc will look for it's json file in the following locations in the following order
 - If the property `gdmc.file` contains a valid file path, it will be used.
 - `$rootDir/gdmc.json` will be used if it exists
@@ -66,7 +67,7 @@ gdmc will look for it's json file in the following locations in the following or
 
 If no valid gdmc file is found, `$rootDir/gdmc.json` will be used.
 
-## gdmc tasks
+### gdmc tasks
 gdmc provides the following tasks to handle resolving, importing and upgrading dependencies.
 - `gdmcResolve`: Find any unmapped dependencies in the project (i.e. version not defined in gradle, and key not mapped in gdmc), resolve the latest release version of said dependencies, and add them to gdmc.json
  - Note: some plugins cause dependencies to be resolved before this task gets a chance to execute (android gradle build tools is a known example). If you see an unmapped dependency error when executing this task, simply override the `gdmc.forceResolve` gradle property by running
@@ -88,7 +89,7 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
  gdmcValidateSelf.required = {false}
  ```
 
-## gdmc aliases
+### gdmc aliases
 If you want to define groups of dependencies or even just shorten some dependency names, you can manually add aliases to the `gdmc.json` file.
 
 - namespaced aliases contain a ':' (colon)
@@ -125,7 +126,7 @@ dependencies {
 }
 ```
 
-## gdmc and spring dependency management plugin
+### gdmc and spring dependency management plugin
 Gdmc can be used as along-side [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin). This allows you to combine gdmc mappings with mavenBoms, and enables enforced versions for transitive dependencies (something gdmc does not handle on its own).
 
 Instead of applying the normal gdmc plugin, apply the `gdmc-spring-compat` plugin along-side `io.spring.dependency-management`...
@@ -157,5 +158,5 @@ In this mode gdmc will dump it's dependency map into spring's dependencyManager,
 - Provide a [mechanism to define aliases](#gdmc-aliases) for dependencies with long or obnoxious groupIds, and for groups of dependencies that often get applied together.
 
 
-### License
+## License
 MIT: https://github.com/episode6/gdmc/blob/master/LICENSE
