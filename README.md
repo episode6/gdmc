@@ -11,10 +11,10 @@ When building open source libraries, one of my goals is to keep them as small, s
 - Map dependency keys -> versions in a separate file, and make it possible for that file to be stored in a submodule, so that it may be shared by multiple projects.
  - Technically, the spring dependency management plugin can also accomplish this by defining your dependencyManagement{} block in a separate file, and applying that file to your project. This is a valid alternative if have no use for the requirements below.
  - The spring plugin also has a mechanism for 'releasing' mavenBoms (groups of dependencies) to public maven repos, but this adds an entire new release cycle just for managing versions and feels like too much process. In the case of our small, new and volitile libraries, the instant updates and branching capabilities of a submodule are more appealing.
-- Automatically resolve missing dependencies via a gradle task so that you don't have to explicitly look up current versions (without a good reason).
+- Automatically resolve missing dependencies via [a gradle task](#gdmc-tasks) so that you don't have to explicitly look up current versions (without a good reason).
  - Since we want to update the map programmatically, we decided to back it with a (pretty-printed) json file instead of a groovy file.
-- Provide gradle tasks to 'upgrade' dependencies that are mapped via gdmc, to make it easier to stay on the latest stable releases or your dependencies
-- Provide a mechanism to define aliases for dependencies with long or obnoxious groupIds, and for groups of dependencies that often get applied together.
+- Provide [gradle tasks](#gdmc-tasks) to 'upgrade' dependencies that are mapped via gdmc, to make it easier to stay on the latest stable releases or your dependencies
+- Provide a [mechanism to define aliases](#gdmc-aliases) for dependencies with long or obnoxious groupIds, and for groups of dependencies that often get applied together.
 
 ## Usage
 Add gdmc to your buildscript dependencies...
