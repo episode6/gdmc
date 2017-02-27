@@ -7,7 +7,7 @@ When building open source libraries, one of my goals is to keep them as small, s
 
 ## Goals
 - Allow dependencies to be decalred in gradle without versions defined
- - If you've used [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin), this will sound familiar. The dependency management plugin & gdmc do share some functionality, but have different areas of focus (gdmc doesn't override transitive dependencies or handle mapped exclusions at this time). You can actually use gdmc along-side spring's dependency management plugin by applying the `com.episode6.hackit.gdmc-spring-compat` plugin instead of the normal gdmc plugin.
+ - If you've used [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin), this will sound familiar. The dependency management plugin & gdmc do share some functionality, but have different areas of focus (gdmc doesn't override transitive dependencies or handle mapped exclusions at this time). [You can actually use gdmc along-side spring's dependency management plugin](#gdmc-spring-compat) by applying the `com.episode6.hackit.gdmc-spring-compat` plugin instead of the normal gdmc plugin.
 - Map dependency keys -> versions in a separate file, and make it possible for that file to be stored in a submodule, so that it may be shared by multiple projects.
  - Technically, the spring dependency management plugin can also accomplish this by defining your dependencyManagement{} block in a separate file, and applying that file to your project. This is a valid alternative if have no use for the requirements below.
  - The spring plugin also has a mechanism for 'releasing' mavenBoms (groups of dependencies) to public maven repos, but this adds an entire new release cycle just for managing versions and feels like too much process. In the case of our small, new and volitile libraries, the instant updates and branching capabilities of a submodule are more appealing.
@@ -138,6 +138,8 @@ dependencies {
 ```
 
 ## gdmc and spring's dependency management plugin
+(#gdmc-spring-compat)
+
 TODO
 
 
