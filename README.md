@@ -138,8 +138,24 @@ dependencies {
 ```
 
 ## gdmc and spring dependency management plugin
+Gdmc can be used as along-side [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin). This allows you to combine gdmc mappings with mavenBoms, and enables enforced versions for transitive dependencies (something gdmc does not handle on its own).
 
-TODO
+Instead of applying the normal gdmc plugin, apply the `gdmc-spring-compat` plugin along-side `io.spring.dependency-management`...
+```groovy
+buildscript {
+  repositories {
+    jcenter()
+  }
+  dependencies {
+    classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.0.9.8-SNAPSHOT'
+  }
+}
+
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.episode6.hackit.gdmc-spring-compat'
+```
+In this mode gdmc will dump it's dependency map into spring's dependencyManager, and most of the mapping will be handled by the spring plugin (aliases are still mapped by gdmc, as they are not supported by dependencyManager). You can add to or override gdmc's mapping (and add exclude blocks) via the usual dependencyManagement DSL
 
 
 ### License
