@@ -62,6 +62,8 @@ pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
 }
 
+conf2ScopeMappings.addMapping(0, configurations.alsoUnderTest, "test")
+
 test {
   testLogging {
     showStandardStreams = true
