@@ -34,9 +34,8 @@ dependencies {
 }
 ```
 
-Execute the `gdmcResolve` task and the latest release versions of your new / missing dependencies will be resolved into a `gdmc.json` file. This file should be added to your source control and will be the source of truth for what versions are used to build your project. It will look something like this...
+Execute the `gdmcResolve` task, and a `gdmc.json` file will be automatically generated for you.
 ```json
-// auto generated via gdmcResolve task
 {
     "com.episode6.hackit.chop:chop-core": {
         "groupId": "com.episode6.hackit.chop",
@@ -55,6 +54,7 @@ Execute the `gdmcResolve` task and the latest release versions of your new / mis
     }
 }
 ```
+(this file should be added to your project's source control)
 
 If you're adding gdmc to an existing project with many dependencies, you can can execute the `gdmcImport` task before removing the versions from your build.gradle. This will import the fully-qualified dependencies from your project into the `gdmc.json` file instead of resolving their latest versions.
 
