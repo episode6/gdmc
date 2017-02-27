@@ -3,7 +3,18 @@ gdmc: Gradle Dependency Management Center
 An attempt to add some sanity to maven dependencies across multiple gradle projects
 
 ## Why
-TODO
+When building open source libraries, one of my goals is to keep them as small, simple and segregated as possible, while minimizing code-duplication (i.e. copy-pasta). However, after releasing only a few modules, I quickly became weary of managing similar or identical dependencies across these projects. For every new dependency, in every project, I'm forced to go lookup what version I'm supposed to be using, and manually add it to `build.gradle`.  If I ever decide to upgrade one of these dependencies (across the board), I must go find every project that uses it, manually update the referenced version, and test it. I'm sick of this.
+
+## Goals
+- Allow dependencies to be decalred in gradle without versions defined
+ - If you've used [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin), this will sound familiar. The dependency management plugin & gdmc do share some functionality, but have different areas of focus (gdmc doesn't override transitive dependencies or handle mapped exclusions at this time). You can actually use gdmc along-side spring's dependency management plugin by applying the `com.episode6.hackit.gdmc-spring-compat` plugin instead of the normal gdmc plugin.
+- Map dependency keys -> versions in a separate file, and make it possible for that file to be stored in a submodule, so that it may be shared by multiple projects.
+ - Technically, the spring dependency management plugin can also accomplish this by defining your dependencyManagement{} block in a separate file, and applying that file to your project. This is a valid alternative if have no use for the requirements below.
+ - The spring plugin also has a mechanism for 'releasing' mavenBoms (groups of dependencies) to public maven repos, but this adds an entire new release cycle just for managing versions and feels like too much process. In the case of our small, new and volitile libraries, the instant updates and branching capabilities of a submodule are more appealing.
+- Automatically resolve missing dependencies via a gradle task so that you don't have to explicitly look up current versions (without a good reason).
+ - Since we want to update the map programmatically, we decided to back it with a (pretty-printed) json file instead of a groovy file.
+- Provide gradle tasks to 'upgrade' dependencies that are mapped via gdmc, to make it easier to stay on the latest stable releases or your dependencies
+- Provide a mechanism to define aliases for dependencies with long or obnoxious groupIds, and for groups of dependencies that often get applied together.
 
 ## Usage
 Add gdmc to your buildscript dependencies...
