@@ -136,7 +136,7 @@ buildscript {
   }
   dependencies {
     classpath 'io.spring.gradle:dependency-management-plugin:1.0.0.RELEASE'
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.0.9.8-SNAPSHOT'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1'
   }
 }
 
