@@ -61,7 +61,7 @@ If you're adding gdmc to an existing project with many dependencies, you can, in
 
 ### gdmc file
 gdmc will look for it's json file in the following locations in the following order
-- If the property `gdmc.file` contains a valid file path, it will be used.
+- If the gradle property `gdmc.file` contains a valid file path, it will be used.
 - `$rootDir/gdmc.json` will be used if it exists
 - `$rootDir/gdmc/gdmc.json` will be used if it exists.
 
