@@ -31,6 +31,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     project.convention.plugins.gdmcConvention = new GdmcConvention()
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
+      description = "Resolves any missing dependencies in project '${project.name}' and adds them to gdmc."
       dependencies = {
         return findExternalDependencies {!it.version && !mapper.lookup(it.key)}
       }
@@ -40,6 +41,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     }
 
     project.task("gdmcImport", type: GdmcResolveTask) {
+      description = "Imports fully-qualified dependencies from this project into gdmc."
       dependencies = {
         return findExternalDependencies {
           it.version && (overwrite || !mapper.lookup(it.key))
@@ -53,6 +55,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     }
 
     project.task("gdmcImportTransitive", type: GdmcResolveTask) {
+      description = "Imports fully-qualified dependencies and all transitive dependencies into gdmc."
       resolveTransitive = true
 
       dependencies = {
@@ -70,6 +73,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     }
 
     project.task("gdmcUpgrade", type: GdmcResolveTask) {
+      description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       dependencies = {
         return findMappedExternalDependencies().collect { GdmcDependency dep ->
           return dep.withoutVersion()
@@ -81,6 +85,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     }
 
     project.task("gdmcUpgradeAll", type: GdmcResolveTask) {
+      description = "Resolves the latest versions of all entries in gdmc and apply those new versions to gdmc."
       dependencies = { mapper.validDependencies.collect {it.withoutVersion()} }
       doLast {
         mapper.applyFile(outputFile)
@@ -88,6 +93,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
     }
 
     project.task("gdmcImportSelf") {
+      description = "Imports '${project.group}:${project.name}:${project.version}' as a dependency into gdmc."
       doFirst {
         TaskAssertions.assertLonelyTask(delegate)
       }
@@ -96,7 +102,9 @@ class GdmcTasksPlugin implements Plugin<Project> {
       }
     }
 
-    project.task("gdmcValidateSelf", type: GdmcValidateSelfTask)
+    project.task("gdmcValidateSelf", type: GdmcValidateSelfTask) {
+      description = "Verifies that the gdmc file contains a valid mapping for '${project.group}:${project.name}:${project.version}'."
+    }
 
     project.afterEvaluate {
 
