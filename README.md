@@ -103,7 +103,7 @@ If you want to define groups of dependencies or even just shorten some dependenc
     }
 ```
 
-- raw alias do not contain a ':' (colon)
+- raw aliases do not contain a ':' (colon)
 
 ```json
     "chop-all": {
@@ -154,7 +154,7 @@ In this mode gdmc will dump it's dependency map into spring's dependencyManager,
  - The spring plugin also has a mechanism for 'releasing' mavenBoms (groups of dependencies) to public maven repos, but this adds an entire new release cycle just for managing versions and feels like too much process. In the case of our small, new and volitile libraries, the instant updates and branching capabilities of a submodule are more appealing.
 - Automatically resolve missing dependencies via [a gradle task](#gdmc-tasks) so that you don't have to explicitly look up current versions (without a good reason).
  - Since we want to update the map programmatically, we decided to back it with a (pretty-printed) json file instead of a groovy file.
-- Provide [gradle tasks](#gdmc-tasks) to 'upgrade' dependencies that are mapped via gdmc, to make it easier to stay on the latest stable releases or your dependencies
+- Provide [gradle tasks](#gdmc-tasks) to upgrade dependencies that are mapped via gdmc, to make it easier to stay on the latest stable releases or your dependencies
 - Provide a [mechanism to define aliases](#gdmc-aliases) for dependencies with long or obnoxious groupIds, and for groups of dependencies that often get applied together.
 
 
