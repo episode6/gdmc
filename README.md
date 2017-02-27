@@ -2,9 +2,6 @@ gdmc: Gradle Dependency Management Center
 =========================================
 An attempt to add some sanity to maven dependencies across multiple gradle projects
 
-## Why
-When building open source libraries, one of my goals is to keep them as small, simple and segregated as possible, while minimizing code-duplication (i.e. copy-pasta). However, after releasing only a few modules, I quickly became weary of managing similar or identical dependencies across these projects. For every new dependency, in every project, I'm forced to go lookup what version I'm supposed to be using, and manually add it to `build.gradle`.  If I ever decide to upgrade one of these dependencies (across the board), I must go find every project that uses it, manually update the referenced version, and test it. I'm sick of this.
-
 ## Goals
 - Allow dependencies to be decalred in gradle without versions defined
  - If you've used [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin), this will sound familiar. The dependency management plugin & gdmc do share some functionality, but have different areas of focus (gdmc doesn't override transitive dependencies or handle mapped exclusions at this time). [You can actually use gdmc along-side spring's dependency management plugin](#gdmc-and-spring-dependency-management-plugin) by applying the `com.episode6.hackit.gdmc-spring-compat` plugin instead of the normal gdmc plugin.
