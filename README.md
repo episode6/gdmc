@@ -126,6 +126,19 @@ dependencies {
 }
 ```
 
+### gdmc locked dependencies
+If needed, you can lock gdmc dependencies to a specific version by adding the `"locked": true` to the entry in `gdmc.json`. This will force gdmc's tasks to ignore it when upgrading/importing dependencies.
+```json
+{
+    "javax.inject:javax.inject": {
+        "groupId": "javax.inject",
+        "artifactId": "javax.inject",
+        "version": "1",
+        "locked": true
+    }
+}
+```
+
 ### gdmc and spring dependency management plugin
 Gdmc can be used as along-side [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin). This allows you to combine gdmc mappings with mavenBoms, and enables enforced versions for transitive dependencies (something gdmc does not handle on its own).
 
