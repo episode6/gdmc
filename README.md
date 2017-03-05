@@ -12,7 +12,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.1'
   }
 }
 ```
@@ -123,6 +123,19 @@ dependencies {
 
   // raw aliases must be wrapped by the gdmc method for gradle to handle them properly
   compile gdmc('chop-all')
+}
+```
+
+### gdmc locked dependencies
+If needed, you can lock gdmc dependencies to a specific version by adding `"locked": true` to the entry in `gdmc.json`. This will force gdmc's tasks to ignore it when upgrading/importing dependencies.
+```json
+{
+    "javax.inject:javax.inject": {
+        "groupId": "javax.inject",
+        "artifactId": "javax.inject",
+        "version": "1",
+        "locked": true
+    }
 }
 ```
 

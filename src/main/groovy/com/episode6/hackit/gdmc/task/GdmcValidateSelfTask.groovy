@@ -1,10 +1,10 @@
 package com.episode6.hackit.gdmc.task
 
-import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.exception.GdmcSelfValidationException
-import com.episode6.hackit.gdmc.plugin.GdmcRootPlugin
+import com.episode6.hackit.gdmc.util.HasProjectTrait
 import org.gradle.api.DefaultTask
+import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
@@ -14,7 +14,7 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 /**
  * Task that ensures your project's gdmc file always references it's current version
  */
-class GdmcValidateSelfTask extends DefaultTask implements VerificationTask {
+class GdmcValidateSelfTask extends DefaultTask implements VerificationTask, HasProjectTrait {
 
   @Input Closure<Boolean> required = {!project.version.contains("SNAPSHOT")}
 
@@ -28,10 +28,8 @@ class GdmcValidateSelfTask extends DefaultTask implements VerificationTask {
       return
     }
 
-    DependencyMap mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
     GdmcDependency selfDep = GdmcDependency.from(project)
-
-    mapper.lookup(selfDep.key).with {
+    dependencyMap.lookup(selfDep.key).with {
       if (size() == 1 && get(0) == selfDep) {
         GChop.d("Succesfully validated ${selfDep} in gdmc.")
       } else {

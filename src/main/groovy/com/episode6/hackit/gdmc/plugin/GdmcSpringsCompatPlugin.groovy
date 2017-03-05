@@ -1,7 +1,7 @@
 package com.episode6.hackit.gdmc.plugin
 
-import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
+import com.episode6.hackit.gdmc.util.HasProjectTrait
 import com.episode6.hackit.gdmc.util.ProjectProperties
 import com.episode6.hackit.gdmc.util.VersionMapperAction
 import org.gradle.api.Action
@@ -15,11 +15,14 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
  * Plugin to make gdmc compatible with Spring's dependency management plugin
  * https://github.com/spring-gradle-plugins/dependency-management-plugin
  */
-class GdmcSpringsCompatPlugin implements Plugin<Project> {
+class GdmcSpringsCompatPlugin implements Plugin<Project>, HasProjectTrait {
+
+  Project project
 
   @Override
   void apply(Project project) {
-    DependencyMap dependencyMap = GdmcRootPlugin.ensureInit(project).dependencyMap
+    this.project = project
+    GdmcRootPlugin.ensureInit(project)
     project.plugins.apply(GdmcTasksPlugin)
 
     // If we see the overwrite property on the project, we assume that we are performing an import task
@@ -27,11 +30,11 @@ class GdmcSpringsCompatPlugin implements Plugin<Project> {
     // we may bypass spring's dependency-mapping actions and see the true transitive dependency versions
     // we are looking for.
     if (!ProjectProperties.overwrite(project)) {
-      project.dependencyManagement {
-        dependencies {
-          dependencyMap.validDependencies.each {
-            GChop.d("added dependency %s to dependencyManager", it)
-            dependency it.toString()
+      dependencyMap.validDependencies.each { GdmcDependency dep ->
+        GChop.d("adding dependency %s to dependencyManager", dep)
+        project.dependencyManagement {
+          dependencies {
+            dependency dep.toString()
           }
         }
       }

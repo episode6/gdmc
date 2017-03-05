@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
+import com.episode6.hackit.gdmc.util.HasProjectTrait
 import com.episode6.hackit.gdmc.util.TaskAssertions
 import groovy.json.JsonBuilder
 import groovy.transform.Memoized
@@ -18,7 +19,7 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 /**
  * Task type to resolve dependencies (usually written to gdmc.json)
  */
-class GdmcResolveTask extends DefaultTask {
+class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
 
   private static final String CONFIG_NAME_SUFFIX = "TemporaryConfig"
 
@@ -65,7 +66,10 @@ class GdmcResolveTask extends DefaultTask {
     }
 
     // add query dependencies to new config
-    dependencies.call().each {
+    dependencies.call().findAll {
+      // ignore self and locked dependencies
+      !it.matchesAnyProject(project) && !dependencyMap.isLocked(it.key)
+    }.each {
       GChop.d("Adding dependency: %s to config: %s", it, config.name)
       String notation = it.version ? it.toString() : "${it.toString()}:+"
       project.dependencies.add(config.name, notation)

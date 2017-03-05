@@ -1,9 +1,7 @@
 package com.episode6.hackit.gdmc.util
 
-import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.exception.GdmcUnmappedDependencyException
-import com.episode6.hackit.gdmc.plugin.GdmcRootPlugin
 import groovy.transform.Memoized
 import org.gradle.api.Action
 import org.gradle.api.Project
@@ -14,7 +12,9 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 /**
  * Resolves missing versions from the provided DependencyResolveDetails
  */
-class VersionMapperAction implements Action<DependencyResolveDetails>, AbstractActionTrait {
+class VersionMapperAction implements Action<DependencyResolveDetails>, HasProjectTrait {
+
+  Project project
 
   VersionMapperAction(Map opts) {
     this.project = opts.project
