@@ -6,10 +6,11 @@ import groovy.transform.Memoized
 import org.gradle.api.Project
 
 /**
- * common code shared by actions
+ * common code for objects that have an instance of project
  */
-trait AbstractActionTrait {
-  Project project
+trait HasProjectTrait {
+
+  abstract Project getProject()
 
   @Memoized
   DependencyMap getDependencyMap() {

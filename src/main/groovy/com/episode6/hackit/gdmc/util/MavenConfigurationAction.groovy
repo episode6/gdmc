@@ -1,7 +1,7 @@
 package com.episode6.hackit.gdmc.util
 
-import com.episode6.hackit.gdmc.data.GdmcDependency
 import org.gradle.api.Action
+import org.gradle.api.Project
 import org.gradle.api.artifacts.maven.MavenPom
 
 import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
@@ -12,8 +12,9 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
  * via alias-mapping, but it does not respect replacements made by the
  * versionMapperAction
  */
-class MavenConfigurationAction implements Action<MavenPom>, AbstractActionTrait {
+class MavenConfigurationAction implements Action<MavenPom>, HasProjectTrait {
 
+  Project project
   VersionMapperAction versionMapperAction
 
   MavenConfigurationAction(Map opts) {
