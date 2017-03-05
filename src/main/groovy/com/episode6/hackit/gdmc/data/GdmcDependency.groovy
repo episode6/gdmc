@@ -106,4 +106,10 @@ class GdmcDependency implements Serializable {
         groupId: groupId,
         artifactId: artifactId)
   }
+
+  boolean matchesAnyProject(Project project) {
+    project.rootProject.allprojects.find {
+      groupId == it.group && artifactId == it.name
+    } != null
+  }
 }
