@@ -127,7 +127,7 @@ dependencies {
 ```
 
 ### gdmc locked dependencies
-If needed, you can lock gdmc dependencies to a specific version by adding the `"locked": true` to the entry in `gdmc.json`. This will force gdmc's tasks to ignore it when upgrading/importing dependencies.
+If needed, you can lock gdmc dependencies to a specific version by adding `"locked": true` to the entry in `gdmc.json`. This will force gdmc's tasks to ignore it when upgrading/importing dependencies.
 ```json
 {
     "javax.inject:javax.inject": {
