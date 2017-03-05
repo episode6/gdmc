@@ -32,6 +32,28 @@ class GdmcUpgradeTest extends Specification {
 }
 """
 
+  private static final String LOCKED_DEPENDENCIES = """
+{
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.7.1"
+   },
+   "org.mockito:mockito-core": {
+     "groupId": "org.mockito",
+     "artifactId": "mockito-core",
+     "version": "2.6.0",
+     "locked": true
+   },
+   "javax.inject:javax.inject": {
+     "groupId": "javax.inject",
+     "artifactId": "javax.inject",
+     "version": "1",
+     "locked": true
+   }
+}
+"""
+
   @Rule final IntegrationTest test = new IntegrationTest()
 
   def "test single-project upgrade"(String plugin) {
@@ -69,6 +91,52 @@ dependencies {
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
         version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test locked upgrade"(String plugin) {
+    given:
+    test.gdmcJsonFile << LOCKED_DEPENDENCIES
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+  compile 'com.episode6.hackit.chop:chop-core'
+  compile 'org.mockito:mockito-core'
+  compile 'javax.inject:javax.inject'
+}
+"""
+    when:
+    def result = test.build("gdmcUpgrade")
+
+    then:
+    result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        version == "2.6.0"
+        locked == true
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.7.1")
+        get("locked") == null
+      }
+      with(get("javax.inject:javax.inject")) {
+        groupId == "javax.inject"
+        artifactId == "javax.inject"
+        version == "1"
+        locked == true
       }
       size() == 3
     }

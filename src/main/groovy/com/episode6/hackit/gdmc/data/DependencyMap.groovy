@@ -9,6 +9,7 @@ interface DependencyMap {
   }
 
   boolean isAlias(Object key)
+  boolean isLocked(Object key)
   List<GdmcDependency> lookup(Object key)
   List<GdmcDependency> getValidDependencies()
   void applyFile(File file)

@@ -27,7 +27,8 @@ class GdmcDependency implements Serializable {
           groupId: obj.get("groupId"),
           artifactId: obj.get("artifactId"),
           version: obj.get("version"),
-          alias: obj.get("alias"))
+          alias: obj.get("alias"),
+          locked: obj.get("locked"))
     }
     return fromString(obj)
   }
@@ -49,6 +50,7 @@ class GdmcDependency implements Serializable {
   String groupId
   String artifactId
   String version
+  Boolean locked
 
   boolean isPlaceholder() {
     return groupId == PLACEHOLDER_GROUP_ID
@@ -83,10 +85,14 @@ class GdmcDependency implements Serializable {
     if (alias) {
       return new LinkedHashMap(alias: alias)
     }
-    return new LinkedHashMap(
+    LinkedHashMap map = new LinkedHashMap(
         groupId: groupId,
         artifactId: artifactId,
         version: version)
+    if (locked) {
+      map.put("locked", locked)
+    }
+    return map
   }
 
   GdmcDependency withoutVersion() {

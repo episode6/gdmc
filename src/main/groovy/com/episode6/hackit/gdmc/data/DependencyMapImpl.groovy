@@ -28,6 +28,12 @@ class DependencyMapImpl implements DependencyMap {
     return value?.alias
   }
 
+  boolean isLocked(Object key) {
+    String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
+    def value = mappedDependencies.get(keyStr)
+    return value?.locked
+  }
+
   List<GdmcDependency> lookup(Object key) {
     return lookupKey(DependencyKeys.sanitize(key))
   }
