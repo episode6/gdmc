@@ -1,6 +1,5 @@
 package com.episode6.hackit.gdmc.plugin
 
-import com.episode6.hackit.gdmc.data.DependencyMap
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
 import com.episode6.hackit.gdmc.task.GdmcValidateSelfTask
@@ -17,18 +16,16 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 /**
  * Common plugin for both the main gdmc plugin and the gdmc-spring-compat.
  */
-class GdmcTasksPlugin implements Plugin<Project> {
+class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
 
   static final GDMC_RESOLVE_TASK_GROUP = "gdmc resolve"
   static final VERIFICATION_TASK_GROUP = "verification"
 
   Project project
-  DependencyMap mapper
 
   @Override
   void apply(Project project) {
     this.project = project
-    mapper = project.rootProject.plugins.getPlugin(GdmcRootPlugin).dependencyMap
 
     project.extensions.create("gdmcLogger", GdmcLogger)
     project.convention.plugins.gdmcConvention = new GdmcConvention()
@@ -37,10 +34,10 @@ class GdmcTasksPlugin implements Plugin<Project> {
       description = "Resolves any missing dependencies in project '${project.name}' and adds them to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findExternalDependencies {!it.version && !mapper.lookup(it.key)}
+        return findExternalDependencies {!it.version && !dependencyMap.lookup(it.key)}
       }
       doLast {
-        mapper.applyFile(outputFile)
+        dependencyMap.applyFile(outputFile)
       }
     }
 
@@ -49,12 +46,12 @@ class GdmcTasksPlugin implements Plugin<Project> {
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
         return findExternalDependencies {
-          it.version && (overwrite || !mapper.lookup(it.key))
+          it.version && (overwrite || !dependencyMap.lookup(it.key))
         }
       }
       doLast {
-        mapper.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !mapper.lookup(key)
+        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookup(key)
         })
       }
     }
@@ -72,8 +69,8 @@ class GdmcTasksPlugin implements Plugin<Project> {
         return findMappedExternalDependencies()
       }
       doLast {
-        mapper.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !mapper.lookup(key)
+        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookup(key)
         })
       }
     }
@@ -87,16 +84,16 @@ class GdmcTasksPlugin implements Plugin<Project> {
         }
       }
       doLast {
-        mapper.applyFile(outputFile)
+        dependencyMap.applyFile(outputFile)
       }
     }
 
     project.task("gdmcUpgradeAll", type: GdmcResolveTask) {
       description = "Resolves the latest versions of all entries in gdmc and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
-      dependencies = { mapper.validDependencies.collect {it.withoutVersion()} }
+      dependencies = { dependencyMap.validDependencies.collect {it.withoutVersion()} }
       doLast {
-        mapper.applyFile(outputFile)
+        dependencyMap.applyFile(outputFile)
       }
     }
 
@@ -107,7 +104,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
         TaskAssertions.assertLonelyTask(delegate)
       }
       doLast {
-        mapper.put(GdmcDependency.from(project))
+        dependencyMap.put(GdmcDependency.from(project))
       }
     }
 
@@ -131,9 +128,9 @@ class GdmcTasksPlugin implements Plugin<Project> {
           }.collect {
             GdmcDependency.from(it)
           }.findAll {
-            !it.version && mapper.isAlias(it.key)
+            !it.version && dependencyMap.isAlias(it.key)
           }.collectMany {
-            return mapper.lookup(it.key)
+            return dependencyMap.lookup(it.key)
           }.each {
             GChop.d("Adding %s to config %s because it is mapped via an alias", it, files)
             project.dependencies.add(files.name, it.toString())
@@ -166,7 +163,7 @@ class GdmcTasksPlugin implements Plugin<Project> {
 
   Collection<GdmcDependency> findMappedExternalDependencies() {
     return findExternalDependencies({true}).collectMany {
-      return it.version ? [it] : mapper.lookup(it.key)
+      return it.version ? [it] : dependencyMap.lookup(it.key)
     }
   }
 
