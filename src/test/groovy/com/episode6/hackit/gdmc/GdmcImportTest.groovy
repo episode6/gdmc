@@ -170,6 +170,55 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test import from nothing ignores overrides"(String plugin) {
+    given:
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   compile 'org.mockito:mockito-core:2.7.1'
+   
+   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.newFile("gradle.properties") << """
+gdmc.overrideFiles=gdmcOverrides.json
+"""
+    test.newFile("gdmcOverrides.json") << GDMC_CONTENTS
+
+    when:
+    def result = test.build("-Pgdmc.overwrite=true", "gdmcImport")
+
+    then:
+    result.task(":gdmcImport").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        version == "2.7.1"
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        version == "0.1.7.2"
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        version == "1.1-groovy-2.4-rc-3"
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
 
   def "test import from nothing mutli-project"(String plugin) {
     given:
