@@ -46,7 +46,7 @@ class GdmcSpringsCompatPlugin implements Plugin<Project>, HasProjectTrait {
       @Override
       boolean shouldSkipMappingVersion(GdmcDependency unMapped) {
         // if forceResolve param is set, we should apply this to everything w/o a version
-        return forceResolve() ? super.shouldSkipMappingVersion(unMapped) : !dependencyMap.isAlias(unMapped.key)
+        return forceResolve() ? super.shouldSkipMappingVersion(unMapped) : !dependencyMap.isOverrideAlias(unMapped.key)
       }
     }
     project.configurations.all(new Action<Configuration>() {

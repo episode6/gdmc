@@ -8,11 +8,14 @@ interface DependencyMap {
     boolean shouldApply(String key, GdmcDependency dependency)
   }
 
-  boolean isAlias(Object key)
+  boolean isSourceAlias(Object key)
+  boolean isOverrideAlias(Object key)
   boolean isLocked(Object key)
-  List<GdmcDependency> lookup(Object key)
+  List<GdmcDependency> lookupFromSource(Object key)
+  List<GdmcDependency> lookupWithOverrides(Object key)
   List<GdmcDependency> getValidDependencies()
   void applyFile(File file)
   void applyFile(File file, DependencyFilter filter)
+  void applyOverrides(File file)
   void put(GdmcDependency dependency)
 }

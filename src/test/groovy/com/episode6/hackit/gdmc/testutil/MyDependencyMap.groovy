@@ -17,7 +17,7 @@ class MyDependencyMap {
   }
 
   static String lookupDep(String key) {
-    List<GdmcDependency> mapped = get().lookup(key)
+    List<GdmcDependency> mapped = get().lookupWithOverrides(key)
     if (!mapped) {
       throw new NullPointerException("Could not find version for key: ${key}")
     }

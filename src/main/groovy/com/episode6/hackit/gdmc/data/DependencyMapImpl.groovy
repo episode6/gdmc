@@ -14,18 +14,27 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 class DependencyMapImpl implements DependencyMap {
   private File gdmcFile
   private Map<String, GdmcDependency> mappedDependencies
+  private Map<String, GdmcDependency> overrides
 
   DependencyMapImpl(File file) {
     gdmcFile = file
     mappedDependencies = new LinkedHashMap<>()
+    overrides = new LinkedHashMap<>()
     applyFile(gdmcFile, null, false)
   }
 
   @Override
-  boolean isAlias(Object key) {
+  boolean isSourceAlias(Object key) {
     String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
     def value = mappedDependencies.get(keyStr)
     return value?.alias
+  }
+
+  @Override
+  boolean isOverrideAlias(Object key) {
+    String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
+    def value = overrides.get(keyStr)
+    return value != null ? value.alias : isSourceAlias(key)
   }
 
   boolean isLocked(Object key) {
@@ -34,12 +43,32 @@ class DependencyMapImpl implements DependencyMap {
     return value?.locked
   }
 
-  List<GdmcDependency> lookup(Object key) {
-    return lookupKey(DependencyKeys.sanitize(key))
+  @Override
+  List<GdmcDependency> lookupFromSource(Object key) {
+    return lookupKeyFromSource(DependencyKeys.sanitize(key))
+  }
+
+  @Override
+  List<GdmcDependency> lookupWithOverrides(Object key) {
+    return lookupKeyWithOverrides(DependencyKeys.sanitize(key))
   }
 
   List<GdmcDependency> getValidDependencies() {
     return mappedDependencies.values().findAll {!it.alias}
+  }
+
+  void applyOverrides(File file) {
+    if (!file.exists()) {
+      return
+    }
+
+    GChop.d("Applying overrides file to dependency map: %s", file.absolutePath)
+
+    def json = new JsonSlurper().parse(file)
+    json.each { String key, value ->
+      GdmcDependency dep = GdmcDependency.from(value)
+      overrides.put(key, dep)
+    }
   }
 
   void applyFile(File file, DependencyMap.DependencyFilter filter = null, boolean persist = true) {
@@ -83,7 +112,7 @@ class DependencyMapImpl implements DependencyMap {
     gdmcFile.text = new JsonBuilder(sortedMap).toPrettyString()
   }
 
-  private List<GdmcDependency> lookupKey(String key) {
+  private List<GdmcDependency> lookupKeyFromSource(String key) {
     key = removeTrailingColon(key)
     def value = mappedDependencies.get(key)
     if (value == null) {
@@ -96,10 +125,33 @@ class DependencyMapImpl implements DependencyMap {
 
     if (value.alias instanceof List) {
       return value.alias.collectMany {
-        lookupKey(it)
+        lookupKeyFromSource(it)
       }
     }
-    return lookupKey((String)value.alias)
+    return lookupKeyFromSource((String)value.alias)
+  }
+
+  private List<GdmcDependency> lookupKeyWithOverrides(String key) {
+    key = removeTrailingColon(key)
+    def value = overrides.get(key)
+    if (value == null) {
+      value = mappedDependencies.get(key)
+    }
+
+    if (value == null) {
+      return []
+    }
+
+    if (!value.alias) {
+      return [value]
+    }
+
+    if (value.alias instanceof List) {
+      return value.alias.collectMany {
+        lookupKeyWithOverrides(it)
+      }
+    }
+    return lookupKeyWithOverrides((String)value.alias)
   }
 
   private static String removeTrailingColon(String key) {
