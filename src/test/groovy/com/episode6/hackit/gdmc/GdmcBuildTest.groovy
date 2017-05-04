@@ -139,6 +139,110 @@ ${PRE_SET_DEPENDENCIES}
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test resolve pre-set dependencies aliases from overrides"(String plugin) {
+    given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
+    test.gradleBuildFile << """
+dependencies {
+   compile gdmc('subgroup')
+   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.gdmcJsonFile << """
+{
+${PRE_SET_DEPENDENCIES}
+}
+"""
+    test.newFile("gradle.properties") << """
+gdmc.overrideFiles=overrides_root.json
+"""
+    test.newFile("overrides_root.json") << """
+{
+  "biggroup": {
+    "alias": [
+      "com.episode6.hackit.chop:chop-core",
+      "mockito"
+    ]
+  },
+  "subgroup": {
+    "alias": "biggroup"
+  },
+  "mockito": {
+    "alias": "org.mockito:mockito-core"
+  }
+}
+"""
+    when:
+    def result = test.build("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test resolve pre-set dependencies aliases from split overrides files"(String plugin) {
+    given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: SPOCK_IMPORT)
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
+    test.gradleBuildFile << """
+dependencies {
+   compile gdmc('subgroup')
+   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.gdmcJsonFile << """
+{
+${PRE_SET_DEPENDENCIES}
+}
+"""
+    test.newFile("gradle.properties") << """
+gdmc.overrideFiles=overrides_root.json|sub/sub_overrides.json
+"""
+    test.newFile("overrides_root.json") << """
+{
+  "biggroup": {
+    "alias": [
+      "com.episode6.hackit.chop:chop-core",
+      "mockito"
+    ]
+  }
+}
+"""
+    test.newFolder("sub").newFile("sub_overrides.json") << """
+{
+  "subgroup": {
+    "alias": "biggroup"
+  },
+  "mockito": {
+    "alias": "org.mockito:mockito-core"
+  }
+}
+"""
+    when:
+    def result = test.build("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test resolve pre-set dependencies namespaced aliases"(String plugin) {
     given:
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
