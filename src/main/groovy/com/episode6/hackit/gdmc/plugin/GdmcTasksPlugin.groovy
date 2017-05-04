@@ -105,6 +105,17 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       }
     }
 
+    project.task("gdmcUpgradeBuildscript", type: GdmcResolveTask) {
+      description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
+      group = GDMC_RESOLVE_TASK_GROUP
+      dependencies = {
+        return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.key)}).collect {it.withoutVersion()}
+      }
+      doLast {
+        dependencyMap.applyFile(outputFile)
+      }
+    }
+
     project.task("gdmcUpgradeAll", type: GdmcResolveTask) {
       description = "Resolves the latest versions of all entries in gdmc and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
