@@ -2,9 +2,11 @@ package com.episode6.hackit.gdmc.plugin
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
+import com.episode6.hackit.gdmc.task.GdmcValidateBuildscriptDepsTask
 import com.episode6.hackit.gdmc.task.GdmcValidateSelfTask
 import com.episode6.hackit.gdmc.util.*
 import org.gradle.api.Action
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -113,10 +115,15 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = VERIFICATION_TASK_GROUP
     }
 
+    project.task("gdmcValidateBuildscriptDeps", type: GdmcValidateBuildscriptDepsTask) {
+      description = "Verifies that any buildscript dependencies that are mapped in gdmc have the correct mapped versions."
+      group = VERIFICATION_TASK_GROUP
+    }
+
     project.afterEvaluate {
 
-      project.tasks.findByPath("check")?.dependsOn project.gdmcValidateSelf
-      project.tasks.findByPath("test")?.dependsOn project.gdmcValidateSelf
+      project.tasks.findByPath("check")?.dependsOn project.gdmcValidateSelf, project.gdmcValidateBuildscriptDeps
+      project.tasks.findByPath("test")?.dependsOn project.gdmcValidateSelf, project.gdmcValidateBuildscriptDeps
 
       // We can't add extra dependencies from inside the VersionMapperAction, so instead,
       // we look for any dependencies that are mapped to aliases, and resolve and add them here
