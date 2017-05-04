@@ -79,8 +79,10 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
  ```
  ./gradlew -Pgdmc.overwrite gdmcImport
  ```
+- `gdmcImportBuildscript`: Like gdmcImport, but imports dependencies defined in your buildscript block. While gdmc can't manage these buildscript dependencies for you, we do validate them in the gdmcValidateBuildscriptDeps task.
 - `gdmcImportTransitive`: Same as `gdmcImport` except it will also import all transitive dependencies to your gdmc.json
 - `gdmcUpgrade`: Find all properly mapped gdmc dependencies in your project, and resolve the latest release versions of each of them. Then dump those new versions into gdmc.json, overwriting whatever was there.
+- `gdmcUpgradeBuildscript`: Like gdmcUpgrade, but upgrades gdmc's references to dependencies defined in your buildscript block.
 - `gdmcUpgradeAll`: Upgrade all entries in your gdmc.json file, regardless of if they're defined in you project.
 - `gdmcImportSelf`: Add/update an entry in gdmc.json for this project, using the `group`, `name`, and `version` defined in gradle.
 - `gdmcValidateSelf`: A validation task that gets added as a dependant task to check and test. If the project's `version` does not include `SNAPSHOT`, ensures that current version referenced in gdmc.json
@@ -88,6 +90,7 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
  ```groovy
  gdmcValidateSelf.required = {false}
  ```
+- `gdmcValidateBuildscriptDeps`: A validation task that gets added as a dependant task to check and test. Looks to see if any of your buildscript dependencies are mapped in gdmc, and fails the build if the versions being used are different from those referenced in gdmc.
 
 ### gdmc aliases
 If you want to define groups of dependencies or even just shorten some dependency names, you can manually add aliases to the `gdmc.json` file.
