@@ -12,7 +12,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.2-SNAPSHOT'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.2'
   }
 }
 ```
