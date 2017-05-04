@@ -159,6 +159,17 @@ apply plugin: 'com.episode6.hackit.gdmc-spring-compat'
 ```
 In this mode gdmc will dump it's dependency map into spring's dependencyManager, and most of the mapping will be handled by the spring plugin (aliases are still mapped by gdmc, as they are not supported by dependencyManager). You can add to or override gdmc's mapping (and add exclude blocks) via the usual dependencyManagement DSL
 
+### gdmc override files
+ Gdmc can apply overrides to its dependency map / main gdmc file. These overrides will only take effect when resolving builds and are ignored during import/resolve/upgrade tasks. This can be helpful if you share a single gdmc file with other projects via submodule, but need to apply some custom groups or versions to your module. To apply, set the `gdmc.overrideFiles` property in your `gradle.properties` file...
+ ```
+ # gradle.properties
+
+ # Apply gdmc override files. Order matters, the last file
+ # listed will overwrite the first if they contain the same mappings
+ gdmc.overrideFiles=file1.json|file2.json|subdir/file3.json
+ ```
+ Gdmc override files look just like gdmc json files and support all the same features except for `locked`.
+
 ## gdmc goals
 - Allow dependencies to be decalred in gradle without versions defined
  - If you've used [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin), this will sound familiar. The dependency management plugin & gdmc do share some functionality, but have different areas of focus (gdmc doesn't override transitive dependencies or handle mapped exclusions at this time). [You can actually use gdmc along-side spring's dependency management plugin](#gdmc-and-spring-dependency-management-plugin) by applying the `com.episode6.hackit.gdmc-spring-compat` plugin instead of the normal gdmc plugin.
