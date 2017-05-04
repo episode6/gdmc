@@ -66,7 +66,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
         // existing dependencies that are mapped as well as versioned ones
         // that may be unmapped. I.e. we can't filter anything out because it
         // might have transitive deps we don't know about
-        return findMappedExternalDependencies()
+        return findSourceMappedExternalDependencies()
       }
       doLast {
         dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
@@ -79,7 +79,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findMappedExternalDependencies().collect { GdmcDependency dep ->
+        return findSourceMappedExternalDependencies().collect { GdmcDependency dep ->
           return dep.withoutVersion()
         }
       }
@@ -161,7 +161,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     })
   }
 
-  Collection<GdmcDependency> findMappedExternalDependencies() {
+  Collection<GdmcDependency> findSourceMappedExternalDependencies() {
     return findExternalDependencies({true}).collectMany {
       return it.version ? [it] : dependencyMap.lookupFromSource(it.key)
     }
