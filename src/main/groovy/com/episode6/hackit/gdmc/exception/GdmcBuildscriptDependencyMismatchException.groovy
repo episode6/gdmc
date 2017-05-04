@@ -9,11 +9,15 @@ import org.gradle.api.GradleException
  */
 class GdmcBuildscriptDependencyMismatchException extends GradleException {
 
-  GdmcBuildscriptDependencyMismatchException(GdmcDependency offendingDependency, String mappedVersion) {
-    super("Buildscript Dependency Version Mismatch - offending dependency: ${offendingDependency}, mapped version: ${mappedVersion}")
+  private static String formatMessage(Map<GdmcDependency, String> errors) {
+    StringBuilder msg = new StringBuilder("Buildscript Dependency Mapping Errors: \n")
+    errors.each { GdmcDependency dep, String reason ->
+      msg.append("Mismatched dependency: ").append(dep).append(", reason: ").append(reason).append("\n")
+    }
+    return msg.toString()
   }
 
-  GdmcBuildscriptDependencyMismatchException(GdmcDependency offendingDependency, List<GdmcDependency> mappedDeps) {
-    super("Buildscript Dependency Mapping Error - dependency appears to be an alias - offending dependency: ${offendingDependency}, alias to: ${mappedDeps}")
+  GdmcBuildscriptDependencyMismatchException(Map<GdmcDependency, String> errors) {
+    super(formatMessage(errors))
   }
 }

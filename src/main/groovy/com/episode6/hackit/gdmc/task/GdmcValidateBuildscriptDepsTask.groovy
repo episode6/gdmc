@@ -46,6 +46,8 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
   }
 
   private void performValidation() {
+    Map<GdmcDependency, String> errors = new HashMap<>();
+
     project.buildscript.configurations
         .collectMany {it.dependencies}
         .findAll {it instanceof ExternalDependency && it.version != "+" && !it.version.contains("SNAPSHOT")}
@@ -54,19 +56,20 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
       List<GdmcDependency> mappedDeps = dependencyMap.lookupWithOverrides(it.key)
       int mapCount = mappedDeps.size();
       if (mapCount == 0) {
-        GChop.d("Buildscript dependency not mapped, skipping: %s", it)
         return
       }
       if (mapCount > 1) {
-        throw new GdmcBuildscriptDependencyMismatchException(it, mappedDeps);
+        errors.put(it, "mapped as alias to ${mappedDeps}")
       }
 
       String mappedVersion = mappedDeps.get(0).version
       if (mappedVersion != it.version) {
-        throw new GdmcBuildscriptDependencyMismatchException(it, mappedVersion)
+        errors.put(it, "mapped to version ${mappedVersion}")
       }
+    }
 
-      GChop.d("Validated buildscript dependency: %s", it)
+    if (!errors.isEmpty()) {
+      throw new GdmcBuildscriptDependencyMismatchException(errors);
     }
   }
 }

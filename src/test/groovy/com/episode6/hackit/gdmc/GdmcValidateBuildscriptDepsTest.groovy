@@ -21,6 +21,7 @@ buildscript {
   }
   dependencies {
     classpath 'com.episode6.hackit.deployable:deployable:${opts.deployableVersion ?: '0.1.2'}'
+    classpath 'com.episode6.hackit.chop:chop-core:0.1.7'
   }
 }
 
@@ -43,17 +44,25 @@ repositories {
 """
   }
 
-  static final String gdmcContents(String deployableVersion) {
+  static final String gdmcContents(String deployableVersion, String moreDeps = "") {
     return """
 {
     "com.episode6.hackit.deployable:deployable": {
         "groupId": "com.episode6.hackit.deployable",
         "artifactId": "deployable",
         "version": "${deployableVersion}"
-    }
+    }${moreDeps ? ", \n" + moreDeps : ""}
 }
 """
   }
+
+  static final String CHOP_DEP = """
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.8"
+   }
+"""
 
   @Rule final IntegrationTest test = new IntegrationTest()
 
@@ -103,7 +112,27 @@ repositories {
 
     then:
     result.task(":gdmcValidateBuildscriptDeps").outcome == TaskOutcome.FAILED
-    result.output.contains("Buildscript Dependency Version Mismatch")
+    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to version 0.1.5")
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test validate multi-fails all display"(String plugin) {
+    given:
+    test.name = "sample-proj"
+    test.gradleBuildFile << buildFile(plugin, [deployableVersion: "0.1.2"])
+    test.gdmcJsonFile << gdmcContents("0.1.5", CHOP_DEP)
+
+    when:
+    def result = test.buildAndFail("gdmcValidateBuildscriptDeps")
+
+    then:
+    result.task(":gdmcValidateBuildscriptDeps").outcome == TaskOutcome.FAILED
+    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to version 0.1.5")
+    result.output.contains("Mismatched dependency: com.episode6.hackit.chop:chop-core:0.1.7, reason: mapped to version 0.1.8")
 
     where:
     plugin                      | _
