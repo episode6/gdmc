@@ -48,10 +48,12 @@ android {
   buildToolsVersion "25.0.2"
 }
 
-dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
-}
+android {
+      lintOptions {
+          abortOnError false
+      }
+  }
+
 """
   }
 
@@ -65,14 +67,74 @@ dependencies {
 """
   }
 
+  private static final String PRE_SET_DEPENDENCIES = """
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.7.2"
+   },
+   "org.mockito:mockito-core": {
+     "groupId": "org.mockito",
+     "artifactId": "mockito-core",
+     "version": "2.7.0"
+   },
+   "org.spockframework:spock-core": {
+     "groupId": "org.spockframework",
+     "artifactId": "spock-core",
+     "version": "1.1-groovy-2.4-rc-2"
+   }
+"""
+
+  private static String ALIAS_DEPS = """
+  "mygroup": {
+    "alias": [
+      "com.episode6.hackit.chop:chop-core",
+      "org.mockito:mockito-core",
+      "org.spockframework:spock-core"
+    ]
+  }
+"""
+
   @Rule final IntegrationTest test = new IntegrationTest()
+
+  def "test android with alias"(String plugin) {
+    given:
+    test.gdmcJsonFile << """
+{
+  ${PRE_SET_DEPENDENCIES},
+  ${ALIAS_DEPS}
+}
+"""
+    test.gradleBuildFile << androidBuildGradle(plugin)
+    test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
+    test.gradleBuildFile << """
+dependencies {
+   compile gdmc('mygroup')
+}
+"""
+    when:
+    def result = test.build("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
 
   def "test resolve missing dependencies android plugin"(String plugin) {
     given:
     test.gdmcJsonFile << "{}"
     test.gradleBuildFile << androidBuildGradle(plugin)
     test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
-
+    test.gradleBuildFile << """
+dependencies {
+   compile 'org.mockito:mockito-core'
+   compile 'com.episode6.hackit.chop:chop-core'
+}
+"""
     when:
     def result = test.build("-Pgdmc.forceResolve=true", "gdmcResolve")
 
