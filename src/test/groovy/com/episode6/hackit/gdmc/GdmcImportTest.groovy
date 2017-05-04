@@ -12,6 +12,21 @@ import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
  */
 class GdmcImportTest extends Specification {
 
+  static String buildFilePrefixWithBuildscript(String plugins, Map opts = [:]) {
+    return """
+buildscript {
+  repositories {
+    maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.episode6.hackit.deployable:deployable:${opts.deployableVersion ?: '0.1.2'}'
+  }
+}
+${buildFilePrefix(plugins, opts)}
+"""
+  }
+
   static final String GDMC_CONTENTS = """
 {
   "com.episode6.hackit.chop:chop-core": {
@@ -28,6 +43,16 @@ class GdmcImportTest extends Specification {
      "groupId": "org.spockframework",
      "artifactId": "spock-core",
      "version": "1.1-groovy-2.4-rc-2"
+   }
+}
+"""
+
+  static final String GDMC_DEPLOYABLE_CONTENTS = """
+{
+  "com.episode6.hackit.deployable:deployable": {
+      "groupId": "com.episode6.hackit.deployable",
+      "artifactId": "deployable",
+      "version": "0.1.2"
    }
 }
 """
@@ -70,6 +95,45 @@ dependencies {
         version == "1.1-groovy-2.4-rc-2"
       }
       size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test import buildscript from nothing"(String plugin) {
+    given:
+    test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   compile 'org.mockito:mockito-core:2.7.0'
+   
+   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-2')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    when:
+    def result = test.build("gdmcImportBuildscript")
+
+    then:
+    result.task(":gdmcImportBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.deployable:deployable")) {
+        groupId == "com.episode6.hackit.deployable"
+        artifactId == "deployable"
+        version == "0.1.2"
+      }
+      if (plugin == GDMC_SPRINGS_COMPAT_PLUGIN) {
+        size() == 2
+        verifySpringPlugin(delegate)
+      } else {
+        size() == 1
+      }
     }
 
     where:
@@ -124,6 +188,47 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test import buildscript doesnt overwrite existing gdmc"(String plugin) {
+    given:
+    test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin, [deployableVersion: "0.1.4"])
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   compile 'org.mockito:mockito-core:2.7.1'
+   
+   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.gdmcJsonFile << GDMC_DEPLOYABLE_CONTENTS
+
+    when:
+    def result = test.build("gdmcImportBuildscript")
+
+    then:
+    result.task(":gdmcImportBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.deployable:deployable")) {
+        groupId == "com.episode6.hackit.deployable"
+        artifactId == "deployable"
+        version == "0.1.2"
+      }
+      if (plugin == GDMC_SPRINGS_COMPAT_PLUGIN) {
+        size() == 2
+        verifySpringPlugin(delegate)
+      } else {
+        size() == 1
+      }
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test import does overwrite existing gdmc when told"(String plugin) {
     given:
     test.gradleBuildFile << buildFilePrefix(plugin)
@@ -162,6 +267,47 @@ dependencies {
         version == "1.1-groovy-2.4-rc-3"
       }
       size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test import buildscript does overwrite existing gdmc when told"(String plugin) {
+    given:
+    test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin, [deployableVersion: "0.1.4"])
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   compile 'org.mockito:mockito-core:2.7.1'
+   
+   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.gdmcJsonFile << GDMC_DEPLOYABLE_CONTENTS
+
+    when:
+    def result = test.build("-Pgdmc.overwrite=true", "gdmcImportBuildscript")
+
+    then:
+    result.task(":gdmcImportBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.deployable:deployable")) {
+        groupId == "com.episode6.hackit.deployable"
+        artifactId == "deployable"
+        version == "0.1.4"
+      }
+      if (plugin == GDMC_SPRINGS_COMPAT_PLUGIN) {
+        size() == 2
+        verifySpringPlugin(delegate)
+      } else {
+        size() == 1
+      }
     }
 
     where:
@@ -574,5 +720,14 @@ dependencies {
     plugin                      | _
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  private static boolean verifySpringPlugin(Object json) {
+    json.get("io.spring.gradle:dependency-management-plugin").with {
+      assert groupId == "io.spring.gradle"
+      assert artifactId == "dependency-management-plugin"
+      assert version == "1.0.0.RELEASE"
+    }
+    return true;
   }
 }

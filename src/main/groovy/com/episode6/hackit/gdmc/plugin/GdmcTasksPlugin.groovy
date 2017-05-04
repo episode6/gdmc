@@ -6,7 +6,6 @@ import com.episode6.hackit.gdmc.task.GdmcValidateBuildscriptDepsTask
 import com.episode6.hackit.gdmc.task.GdmcValidateSelfTask
 import com.episode6.hackit.gdmc.util.*
 import org.gradle.api.Action
-import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
@@ -49,6 +48,21 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
         return findExternalDependencies {
+          it.version && (overwrite || !dependencyMap.lookupFromSource(it.key))
+        }
+      }
+      doLast {
+        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(key)
+        })
+      }
+    }
+
+    project.task("gdmcImportBuildscript", type: GdmcResolveTask) {
+      description = "Imports fully-qualified buildscript dependencies from this project into gdmc."
+      group = GDMC_RESOLVE_TASK_GROUP
+      dependencies = {
+        return findExternalBuildscriptDependencies {
           it.version && (overwrite || !dependencyMap.lookupFromSource(it.key))
         }
       }
@@ -161,6 +175,10 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
 
   Collection<GdmcDependency> findExternalDependencies(Closure filter) {
     return findExternalDependenciesFromConfig(project.configurations).findAll(filter)
+  }
+
+  Collection<GdmcDependency> findExternalBuildscriptDependencies(Closure filter) {
+    return findExternalDependenciesFromConfig(project.buildscript.configurations).findAll(filter)
   }
 
   static Collection<GdmcDependency> findExternalDependenciesFromConfig(ConfigurationContainer configs) {
