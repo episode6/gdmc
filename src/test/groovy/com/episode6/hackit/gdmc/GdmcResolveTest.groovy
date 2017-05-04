@@ -60,6 +60,73 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test resolve missing dependencies ignores overrides"(String plugin) {
+    given:
+    test.gdmcJsonFile << "{}"
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'org.mockito:mockito-core'
+   compile 'com.episode6.hackit.chop:chop-core'
+   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.singleGdmcOverrideFile() << """
+{
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.7.1"
+   },
+   "org.mockito:mockito-core": {
+     "groupId": "org.mockito",
+     "artifactId": "mockito-core",
+     "version": "2.7.0"
+   },
+   "org.spockframework:spock-core": {
+     "groupId": "org.spockframework",
+     "artifactId": "spock-core",
+     "version": "1.1-groovy-2.4-rc-2"
+   }
+}
+"""
+    when:
+    def result = test.build("gdmcResolve")
+
+    then:
+    result.task(":gdmcResolve").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("2.7.0")
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.7.1")
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+      }
+      size() == 3
+      verifyJsonSortOrder((Map)delegate)
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "mutli-project test"(String plugin) {
     given:
     setupMultiProject(test, plugin)
