@@ -30,7 +30,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     this.project = project
 
     project.extensions.create("gdmcLogger", GdmcLogger)
-    project.convention.plugins.gdmcConvention = new GdmcConvention()
+    project.convention.plugins.gdmcConvention = new GdmcConvention(project: project)
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
       description = "Resolves any missing dependencies in project '${project.name}' and adds them to gdmc."
