@@ -32,5 +32,8 @@ class GdmcRootPlugin implements Plugin<Project> {
 
     this.project = project
     dependencyMap = new DependencyMapImpl(ProjectProperties.gdmcFile(project))
+    ProjectProperties.overrideFiles(project).each {
+      dependencyMap.applyOverrides(it)
+    }
   }
 }

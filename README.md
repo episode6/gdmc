@@ -12,7 +12,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.1'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.2'
   }
 }
 ```
@@ -79,8 +79,10 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
  ```
  ./gradlew -Pgdmc.overwrite gdmcImport
  ```
+- `gdmcImportBuildscript`: Like gdmcImport, but imports dependencies defined in your buildscript block. While gdmc can't manage these buildscript dependencies for you, we do validate them in the gdmcValidateBuildscriptDeps task.
 - `gdmcImportTransitive`: Same as `gdmcImport` except it will also import all transitive dependencies to your gdmc.json
 - `gdmcUpgrade`: Find all properly mapped gdmc dependencies in your project, and resolve the latest release versions of each of them. Then dump those new versions into gdmc.json, overwriting whatever was there.
+- `gdmcUpgradeBuildscript`: Like gdmcUpgrade, but upgrades gdmc's references to dependencies defined in your buildscript block.
 - `gdmcUpgradeAll`: Upgrade all entries in your gdmc.json file, regardless of if they're defined in you project.
 - `gdmcImportSelf`: Add/update an entry in gdmc.json for this project, using the `group`, `name`, and `version` defined in gradle.
 - `gdmcValidateSelf`: A validation task that gets added as a dependant task to check and test. If the project's `version` does not include `SNAPSHOT`, ensures that current version referenced in gdmc.json
@@ -88,6 +90,7 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
  ```groovy
  gdmcValidateSelf.required = {false}
  ```
+- `gdmcValidateBuildscriptDeps`: A validation task that gets added as a dependant task to check and test. Looks to see if any of your buildscript dependencies are mapped in gdmc, and fails the build if the versions being used are different from those referenced in gdmc.
 
 ### gdmc aliases
 If you want to define groups of dependencies or even just shorten some dependency names, you can manually add aliases to the `gdmc.json` file.
@@ -158,6 +161,17 @@ apply plugin: 'io.spring.dependency-management'
 apply plugin: 'com.episode6.hackit.gdmc-spring-compat'
 ```
 In this mode gdmc will dump it's dependency map into spring's dependencyManager, and most of the mapping will be handled by the spring plugin (aliases are still mapped by gdmc, as they are not supported by dependencyManager). You can add to or override gdmc's mapping (and add exclude blocks) via the usual dependencyManagement DSL
+
+### gdmc override files
+ Gdmc can apply overrides to its dependency map / main gdmc file. These overrides will only take effect when resolving builds and are ignored during import/resolve/upgrade tasks. This can be helpful if you share a single gdmc file with other projects via submodule, but need to apply some custom groups or versions to your module. To apply, set the `gdmc.overrideFiles` property in your `gradle.properties` file...
+ ```
+ # gradle.properties
+
+ # Apply gdmc override files. Order matters, the last file
+ # listed will overwrite the first if they contain the same mappings
+ gdmc.overrideFiles=file1.json|file2.json|subdir/file3.json
+ ```
+ Gdmc override files look just like gdmc json files and support all the same features except for `locked`.
 
 ## gdmc goals
 - Allow dependencies to be decalred in gradle without versions defined

@@ -36,6 +36,13 @@ rootProject.name = '${name}'
     }
   }
 
+  File singleGdmcOverrideFile(String filename = "gdmcOverrides.json") {
+    newFile("gradle.properties") << """
+gdmc.overrideFiles=${filename}
+"""
+    return newFile(filename)
+  }
+
   static class SubProject implements GradleTestProject {
     File root
 

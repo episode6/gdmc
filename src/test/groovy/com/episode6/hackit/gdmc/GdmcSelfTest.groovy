@@ -62,6 +62,42 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test importSelf single-project ignores overrides"(String plugin) {
+    given:
+    test.name = "sample-proj"
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    File gdmcOverridFile = test.singleGdmcOverrideFile()
+    gdmcOverridFile << "{${singleProjectGdmc(version: "0.2")}}"
+
+    when:
+    def result = test.build("gdmcImportSelf")
+
+    then:
+    result.task(":gdmcImportSelf").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.example.testproject:sample-proj")) {
+        groupId == "com.example.testproject"
+        artifactId == "sample-proj"
+        version == "0.0.1-SNAPSHOT"
+      }
+      size() == 1
+    }
+    with(gdmcOverridFile.asJson()) {
+      with(get("com.example.testproject:sample-proj")) {
+        groupId == "com.example.testproject"
+        artifactId == "sample-proj"
+        version == "0.2"
+      }
+      size() == 1
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test importSelf multi-project"(String plugin) {
     given:
     setupMultiProject(test, plugin)
@@ -98,6 +134,24 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
     test.name = "sample-proj"
     test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
     test.gdmcJsonFile << "{${singleProjectGdmc(version: "0.0.1")}}"
+
+    when:
+    def result = test.build("gdmcValidateSelf")
+
+    then:
+    result.task(":gdmcValidateSelf").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test validateSelf single-project success thanks to overrides"(String plugin) {
+    given:
+    test.name = "sample-proj"
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
+    test.singleGdmcOverrideFile() << "{${singleProjectGdmc(version: "0.0.1")}}"
 
     when:
     def result = test.build("gdmcValidateSelf")

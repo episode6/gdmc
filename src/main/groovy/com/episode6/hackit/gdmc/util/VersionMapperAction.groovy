@@ -38,7 +38,7 @@ class VersionMapperAction implements Action<DependencyResolveDetails>, HasProjec
       return
     }
 
-    List<String> mappedDeps = dependencyMap.lookup(unMapped.key).collect {it.toString()}
+    List<String> mappedDeps = dependencyMap.lookupWithOverrides(unMapped.key).collect {it.toString()}
     if (!mappedDeps) {
       handleUnmappedDependency(details, unMapped)
       return;

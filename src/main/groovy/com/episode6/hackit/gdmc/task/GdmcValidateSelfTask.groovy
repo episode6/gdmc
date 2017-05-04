@@ -29,7 +29,7 @@ class GdmcValidateSelfTask extends DefaultTask implements VerificationTask, HasP
     }
 
     GdmcDependency selfDep = GdmcDependency.from(project)
-    dependencyMap.lookup(selfDep.key).with {
+    dependencyMap.lookupWithOverrides(selfDep.key).with {
       if (size() == 1 && get(0) == selfDep) {
         GChop.d("Succesfully validated ${selfDep} in gdmc.")
       } else {

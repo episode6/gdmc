@@ -84,6 +84,31 @@ class GdmcUpgradeTest extends Specification {
 }
 """
 
+  static final String GDMC_DEPLOYABLE_CONTENTS = """
+{
+  "com.episode6.hackit.deployable:deployable": {
+      "groupId": "com.episode6.hackit.deployable",
+      "artifactId": "deployable",
+      "version": "0.1.2"
+   }
+}
+"""
+
+  static String buildFilePrefixWithBuildscript(String plugins, Map opts = [:]) {
+    return """
+buildscript {
+  repositories {
+    maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.episode6.hackit.deployable:deployable:${opts.deployableVersion ?: '0.1.2'}'
+  }
+}
+${buildFilePrefix(plugins, opts)}
+"""
+  }
+
   @Rule final IntegrationTest test = new IntegrationTest()
 
   def "test single-project upgrade"(String plugin) {
@@ -123,6 +148,66 @@ dependencies {
         version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
       }
       size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test upgradeBuildscript doesnt affect unmapped deps"(String plugin) {
+    given:
+    test.gdmcJsonFile << "{}"
+    test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin)
+    test.gradleBuildFile << """
+dependencies {
+  compile 'com.episode6.hackit.chop:chop-core'
+  compile 'org.mockito:mockito-core'
+  compile 'org.spockframework:spock-core'
+}
+"""
+    when:
+    def result = test.build("gdmcUpgradeBuildscript")
+
+    then:
+    result.task(":gdmcUpgradeBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      size() == 0
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test upgradeBuildscript"(String plugin) {
+    given:
+    test.gdmcJsonFile << GDMC_DEPLOYABLE_CONTENTS
+    test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin)
+    test.gradleBuildFile << """
+dependencies {
+  compile 'com.episode6.hackit.chop:chop-core'
+  compile 'org.mockito:mockito-core'
+  compile 'org.spockframework:spock-core'
+}
+"""
+    when:
+    def result = test.build("gdmcUpgradeBuildscript")
+
+    then:
+    result.task(":gdmcUpgradeBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.deployable:deployable")) {
+        groupId == "com.episode6.hackit.deployable"
+        artifactId == "deployable"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.2")
+      }
+      size() == 1
     }
 
     where:
@@ -251,6 +336,63 @@ dependencies {
         version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
       }
       size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test single-project upgradeAll ignores overrides"(String plugin) {
+    given:
+    test.gdmcJsonFile << PRE_SET_DEPENDENCIES
+    File gdmcOverride = test.singleGdmcOverrideFile()
+    gdmcOverride << """
+{
+  "org.easymock:easymock": {
+      "groupId": "org.easymock",
+      "artifactId": "easymock",
+      "version": "3.3"
+  }
+}
+"""
+    test.gradleBuildFile << buildFilePrefix(plugin)
+
+    when:
+    def result = test.build("gdmcUpgradeAll")
+
+    then:
+    result.task(":gdmcUpgradeAll").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("2.6.0")
+      }
+      with(get("com.episode6.hackit.chop:chop-core")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.7.1")
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+      }
+      size() == 3
+    }
+    with(gdmcOverride.asJson()) {
+      size() == 1
+      with(get("org.easymock:easymock")) {
+        groupId == "org.easymock"
+        artifactId == "easymock"
+        version == "3.3"
+      }
     }
 
     where:
