@@ -158,10 +158,7 @@ dependencies {
 ${PRE_SET_DEPENDENCIES}
 }
 """
-    test.newFile("gradle.properties") << """
-gdmc.overrideFiles=overrides_root.json
-"""
-    test.newFile("overrides_root.json") << """
+    test.singleGdmcOverrideFile() << """
 {
   "biggroup": {
     "alias": [

@@ -183,10 +183,7 @@ dependencies {
   }
 }
 """
-    test.newFile("gradle.properties") << """
-gdmc.overrideFiles=gdmcOverrides.json
-"""
-    test.newFile("gdmcOverrides.json") << GDMC_CONTENTS
+    test.singleGdmcOverrideFile() << GDMC_CONTENTS
 
     when:
     def result = test.build("-Pgdmc.overwrite=true", "gdmcImport")
