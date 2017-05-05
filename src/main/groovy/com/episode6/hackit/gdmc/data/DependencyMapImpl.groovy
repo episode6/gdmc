@@ -24,17 +24,23 @@ class DependencyMapImpl implements DependencyMap {
   }
 
   @Override
-  boolean isSourceAlias(Object key) {
+  boolean isAlias(Object key) {
     String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
-    def value = mappedDependencies.get(keyStr)
-    return value?.alias
+    def value = overrides.get(keyStr)
+    if (value == null) {
+      value = mappedDependencies.get(keyStr)
+    }
+    return value != null && value.alias
   }
 
   @Override
-  boolean isOverrideAlias(Object key) {
+  boolean isMappedWithMavenKey(Object key) {
     String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
     def value = overrides.get(keyStr)
-    return value != null ? value.alias : isSourceAlias(key)
+    if (value == null) {
+      value = mappedDependencies.get(keyStr)
+    }
+    return value == null || value.isMappedToMavenKey()
   }
 
   boolean isLocked(Object key) {
@@ -66,7 +72,7 @@ class DependencyMapImpl implements DependencyMap {
 
     def json = new JsonSlurper().parse(file)
     json.each { String key, value ->
-      GdmcDependency dep = GdmcDependency.from(value)
+      GdmcDependency dep = GdmcDependency.from(value, key)
       overrides.put(key, dep)
     }
   }
@@ -81,16 +87,16 @@ class DependencyMapImpl implements DependencyMap {
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
       json.each { String key, value ->
-        GdmcDependency dep = GdmcDependency.from(value)
-        if (!filter || filter.shouldApply(key, dep)) {
-          mappedDependencies.put(key, dep)
+        GdmcDependency dep = GdmcDependency.from(value, key)
+        if (!filter || filter.shouldApply(dep)) {
+          mappedDependencies.put(dep.mapKey, dep)
         }
       }
     } else if (json instanceof List) {
       json.each { value ->
         GdmcDependency dep = GdmcDependency.from(value)
-        if (!filter || filter.shouldApply(dep.key, dep)) {
-          mappedDependencies.put(dep.key, dep)
+        if (!filter || filter.shouldApply(dep)) {
+          mappedDependencies.put(dep.mapKey, dep)
         }
       }
     }
@@ -101,7 +107,7 @@ class DependencyMapImpl implements DependencyMap {
   }
 
   void put(GdmcDependency dependency) {
-    mappedDependencies.put(dependency.key, dependency)
+    mappedDependencies.put(dependency.mapKey, dependency)
     writeToFile()
   }
 

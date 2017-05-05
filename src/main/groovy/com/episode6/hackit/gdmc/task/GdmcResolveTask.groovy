@@ -65,13 +65,19 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
       }
     }
 
+    // a map of mavenKey -> List<mapKey> for our input, will be used to create output Map
+    Map<String, List<String>> mapKeysMap = new HashMap<>();
+
     // add query dependencies to new config
     dependencies.call().findAll {
       // ignore self and locked dependencies
-      !it.matchesAnyProject(project) && !dependencyMap.isLocked(it.key)
+      !it.matchesAnyProject(project) && !dependencyMap.isLocked(it.mapKey)
     }.each {
-      GChop.d("Adding dependency: %s to config: %s", it, config.name)
-      String notation = it.version ? it.toString() : "${it.toString()}:+"
+      // map this dependency's mapKey to its maven key
+      mapKeysMap.get(it.mavenKey, new LinkedList<String>()).add(it.mapKey)
+
+      GChop.d("Adding dependency: %s to config: %s", it.mapKey, config.name)
+      String notation = it.version ? it.fullMavenKey : "${it.mavenKey}:+"
       project.dependencies.add(config.name, notation)
     }
 
@@ -80,7 +86,20 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
         config.resolvedConfiguration.lenientConfiguration.allModuleDependencies :
         config.resolvedConfiguration.getFirstLevelModuleDependencies(Specs.SATISFIES_ALL)
 
-    writeJsonToOutputFile(resolvedDependencies.collect {GdmcDependency.from(it.module.id).toMap()})
+    // output map that will be written to json
+    Map<String, Map> outputMap = new HashMap<>();
+
+    resolvedDependencies.each {
+      def dep = GdmcDependency.from(it.module.id)
+      def mavenKey = dep.mavenKey
+
+      // for each mapKey that is mapped to this mavenKey, add a new entry
+      // to the outputMap with the resolved dependency
+      mapKeysMap.get(mavenKey, [mavenKey]).each { String mapKey ->
+        outputMap.put(mapKey, dep.toMap())
+      }
+    }
+    writeJsonToOutputFile(outputMap)
   }
 
   private void writeJsonToOutputFile(Object obj) {

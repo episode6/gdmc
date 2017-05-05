@@ -9,6 +9,6 @@ import org.gradle.api.GradleException
 class GdmcSelfValidationException extends GradleException {
 
   GdmcSelfValidationException(GdmcDependency selfDependency, List<GdmcDependency> mappedDependencies) {
-    super("Failed to validate project ${selfDependency} in gdmc. Found ${mappedDependencies} instead")
+    super("Failed to validate project ${selfDependency.fullMavenKey} in gdmc. Found ${mappedDependencies} instead")
   }
 }

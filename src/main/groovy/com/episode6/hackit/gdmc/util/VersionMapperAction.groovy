@@ -38,7 +38,7 @@ class VersionMapperAction implements Action<DependencyResolveDetails>, HasProjec
       return
     }
 
-    List<String> mappedDeps = dependencyMap.lookupWithOverrides(unMapped.key).collect {it.toString()}
+    List<String> mappedDeps = dependencyMap.lookupWithOverrides(unMapped.mapKey).collect {it.fullMavenKey}
     if (!mappedDeps) {
       handleUnmappedDependency(details, unMapped)
       return;
@@ -57,7 +57,7 @@ class VersionMapperAction implements Action<DependencyResolveDetails>, HasProjec
       throw GChop.e(
           new GdmcUnmappedDependencyException(unMapped),
           "Could not find mapped dependency for key: %s",
-          unMapped.key)
+          unMapped.mapKey)
     }
   }
 

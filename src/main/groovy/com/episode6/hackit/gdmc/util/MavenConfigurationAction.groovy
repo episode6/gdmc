@@ -33,7 +33,7 @@ class MavenConfigurationAction implements Action<MavenPom>, HasProjectTrait {
       new DependencyResolveDetailsWrapper(it)
     }.each {
       GChop.d("Configuring maven dependency: %s", it)
-      if (dependencyMap.isOverrideAlias(it.asGdmcDependency().key)) {
+      if (dependencyMap.isAlias(it.asGdmcDependency().mapKey)) {
         GChop.d("dependency appears to be an alias, will be removed")
         aliasDeps.add(it.dependencyDelegate)
       } else {

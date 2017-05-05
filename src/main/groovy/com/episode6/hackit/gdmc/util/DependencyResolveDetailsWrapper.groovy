@@ -46,7 +46,7 @@ class DependencyResolveDetailsWrapper implements DependencyResolveDetails {
 
   @Override
   ModuleVersionSelector getTarget() {
-    return null
+    return moduleVersionSelector
   }
 
   @Override

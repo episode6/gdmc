@@ -1,6 +1,7 @@
 package com.episode6.hackit.gdmc.data
 
 import groovy.transform.EqualsAndHashCode
+import org.gradle.api.GradleException
 import org.gradle.api.Nullable
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
@@ -12,15 +13,13 @@ import org.gradle.api.artifacts.ModuleVersionSelector
  */
 @EqualsAndHashCode
 class GdmcDependency implements Serializable {
-
-  private static final String PLACEHOLDER_GROUP_ID = "com.episode6.hackit.gmdc_placeholder"
-
-  static @Nullable GdmcDependency from(Object obj) {
+  static @Nullable GdmcDependency from(Object obj, String mapKey = null) {
     if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency || obj instanceof Project) {
       return new GdmcDependency(
           groupId: obj.group,
           artifactId: obj.name,
-          version: obj.version)
+          version: obj.version,
+          mapKey: mapKey)
     }
     if (obj instanceof Map) {
       return new GdmcDependency(
@@ -28,22 +27,22 @@ class GdmcDependency implements Serializable {
           artifactId: obj.get("artifactId"),
           version: obj.get("version"),
           alias: obj.get("alias"),
-          locked: obj.get("locked"))
+          locked: obj.get("locked"),
+          mapKey: mapKey)
     }
-    return fromString(obj)
+    return fromString(obj, mapKey)
   }
 
-  static @Nullable GdmcDependency fromString(String identifier) {
+  static @Nullable GdmcDependency fromString(String identifier, String mapKey = null) {
     String[] tokens = identifier.tokenize(":")
     if (tokens.length < 2 || tokens.length > 3) {
-      return new GdmcDependency(
-          groupId: PLACEHOLDER_GROUP_ID,
-          artifactId: identifier)
+      throw new GradleException("Unexpected number of tokens in dependency identifier: ${identifier}")
     }
     return new GdmcDependency(
         groupId: tokens[0],
         artifactId: tokens[1],
-        version: tokens.length > 2 ? tokens[2] : null)
+        version: tokens.length > 2 ? tokens[2] : null,
+        mapKey: mapKey)
   }
 
   Object alias
@@ -51,34 +50,42 @@ class GdmcDependency implements Serializable {
   String artifactId
   String version
   Boolean locked
+  String mapKey
 
-  boolean isPlaceholder() {
-    return groupId == PLACEHOLDER_GROUP_ID
+  boolean isMappedToMavenKey() {
+    if (alias) {
+      return false;
+    }
+    return getMapKey() == getMavenKey()
   }
 
-  String getKey() {
-    if (isPlaceholder()) {
-      return artifactId
+  String getMapKey() {
+    if (mapKey) {
+      return mapKey
+    }
+    return getMavenKey()
+  }
+
+  String getMavenKey() {
+    if (alias) {
+      throw new GradleException("called getMavenKey on alias: ${this}")
     }
     return "${groupId}:${artifactId}"
   }
 
-  @Override
-  String toString() {
+  String getFullMavenKey() {
     if (alias) {
-      return alias.toString()
+      throw new GradleException("called getFullMavenKey on alias: ${this}")
     }
     if (version) {
-      return "${getKey()}:${version}"
+      return "${getMavenKey()}:${version}"
     }
-    return getKey()
+    return getMavenKey()
   }
 
-  String getPlaceholderKey() {
-    if (isPlaceholder()) {
-      return "${groupId}:${artifactId}"
-    }
-    return toString()
+  @Override
+  String toString() {
+    return "GdmcDependency{${alias ? "alias: ${alias}" : getFullMavenKey()}}"
   }
 
   Map toMap() {
@@ -97,14 +104,15 @@ class GdmcDependency implements Serializable {
 
   GdmcDependency withoutVersion() {
     if (alias) {
-      throw new IllegalAccessException("Called GdmcDependency.withoutVersion() on an alias: ${this}")
+      throw new GradleException("Called GdmcDependency.withoutVersion() on an alias: ${this}")
     }
     if (!version) {
       return this
     }
     return new GdmcDependency(
         groupId: groupId,
-        artifactId: artifactId)
+        artifactId: artifactId,
+        mapKey: mapKey)
   }
 
   boolean matchesAnyProject(Project project) {

@@ -53,7 +53,7 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
         .findAll {it instanceof ExternalDependency && it.version != "+" && !it.version.contains("SNAPSHOT")}
         .collect {GdmcDependency.from(it)}
         .each {
-      List<GdmcDependency> mappedDeps = dependencyMap.lookupWithOverrides(it.key)
+      List<GdmcDependency> mappedDeps = dependencyMap.lookupWithOverrides(it.mapKey)
       int mapCount = mappedDeps.size();
       if (mapCount == 0) {
         return
