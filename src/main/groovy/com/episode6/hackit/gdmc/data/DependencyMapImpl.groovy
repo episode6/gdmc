@@ -72,8 +72,7 @@ class DependencyMapImpl implements DependencyMap {
 
     def json = new JsonSlurper().parse(file)
     json.each { String key, value ->
-      GdmcDependency dep = GdmcDependency.from(value)
-      dep.mapKey = key
+      GdmcDependency dep = GdmcDependency.from(value, key)
       overrides.put(key, dep)
     }
   }
@@ -88,8 +87,7 @@ class DependencyMapImpl implements DependencyMap {
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
       json.each { String key, value ->
-        GdmcDependency dep = GdmcDependency.from(value)
-        dep.mapKey = key
+        GdmcDependency dep = GdmcDependency.from(value, key)
         if (!filter || filter.shouldApply(dep)) {
           mappedDependencies.put(dep.mapKey, dep)
         }
@@ -97,7 +95,6 @@ class DependencyMapImpl implements DependencyMap {
     } else if (json instanceof List) {
       json.each { value ->
         GdmcDependency dep = GdmcDependency.from(value)
-        dep.mapKey = dep.mavenKey
         if (!filter || filter.shouldApply(dep)) {
           mappedDependencies.put(dep.mapKey, dep)
         }

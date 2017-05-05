@@ -13,12 +13,13 @@ import org.gradle.api.artifacts.ModuleVersionSelector
  */
 @EqualsAndHashCode
 class GdmcDependency implements Serializable {
-  static @Nullable GdmcDependency from(Object obj) {
+  static @Nullable GdmcDependency from(Object obj, String mapKey = null) {
     if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency || obj instanceof Project) {
       return new GdmcDependency(
           groupId: obj.group,
           artifactId: obj.name,
-          version: obj.version)
+          version: obj.version,
+          mapKey: mapKey)
     }
     if (obj instanceof Map) {
       return new GdmcDependency(
@@ -26,12 +27,13 @@ class GdmcDependency implements Serializable {
           artifactId: obj.get("artifactId"),
           version: obj.get("version"),
           alias: obj.get("alias"),
-          locked: obj.get("locked"))
+          locked: obj.get("locked"),
+          mapKey: mapKey)
     }
-    return fromString(obj)
+    return fromString(obj, mapKey)
   }
 
-  static @Nullable GdmcDependency fromString(String identifier) {
+  static @Nullable GdmcDependency fromString(String identifier, String mapKey = null) {
     String[] tokens = identifier.tokenize(":")
     if (tokens.length < 2 || tokens.length > 3) {
       throw new GradleException("Unexpected number of tokens in dependency identifier: ${identifier}")
@@ -39,7 +41,8 @@ class GdmcDependency implements Serializable {
     return new GdmcDependency(
         groupId: tokens[0],
         artifactId: tokens[1],
-        version: tokens.length > 2 ? tokens[2] : null)
+        version: tokens.length > 2 ? tokens[2] : null,
+        mapKey: mapKey)
   }
 
   Object alias
