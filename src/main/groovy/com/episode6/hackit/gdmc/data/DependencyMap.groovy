@@ -10,6 +10,7 @@ interface DependencyMap {
 
   boolean isSourceAlias(Object key)
   boolean isOverrideAlias(Object key)
+  boolean isMappedWithMavenKey(Object key)
   boolean isLocked(Object key)
   List<GdmcDependency> lookupFromSource(Object key)
   List<GdmcDependency> lookupWithOverrides(Object key)

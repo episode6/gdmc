@@ -37,6 +37,16 @@ class DependencyMapImpl implements DependencyMap {
     return value != null ? value.alias : isSourceAlias(key)
   }
 
+  @Override
+  boolean isMappedWithMavenKey(Object key) {
+    String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
+    def value = overrides.get(keyStr)
+    if (value == null) {
+      value = mappedDependencies.get(keyStr)
+    }
+    return value == null || value.isMappedToMavenKey()
+  }
+
   boolean isLocked(Object key) {
     String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
     def value = mappedDependencies.get(keyStr)

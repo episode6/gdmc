@@ -58,6 +58,13 @@ class GdmcDependency implements Serializable {
     return groupId == PLACEHOLDER_GROUP_ID
   }
 
+  boolean isMappedToMavenKey() {
+    if (alias) {
+      return false;
+    }
+    return getMapKey() == getMavenKey()
+  }
+
   String getMapKey() {
     if (mapKey) {
       return mapKey
