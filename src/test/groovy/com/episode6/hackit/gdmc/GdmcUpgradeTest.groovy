@@ -265,10 +265,7 @@ dependencies {
   def "test multi-project upgrade"(String plugin) {
     given:
     test.gdmcJsonFile << PRE_SET_DEPENDENCIES
-    setupMultiProject(test, plugin, [
-        mockitoVersion: ':2.6.0',
-        chopVersion: ':0.1.7.1',
-        spockVersion: ':1.0-groovy-2.4'])
+    setupMultiProject(test, plugin)
 
     when:
     def result = test.build("gdmcUpgrade")
