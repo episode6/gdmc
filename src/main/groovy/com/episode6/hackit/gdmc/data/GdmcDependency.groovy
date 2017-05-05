@@ -13,9 +13,6 @@ import org.gradle.api.artifacts.ModuleVersionSelector
  */
 @EqualsAndHashCode
 class GdmcDependency implements Serializable {
-
-  private static final String PLACEHOLDER_GROUP_ID = "com.episode6.hackit.gmdc_placeholder"
-
   static @Nullable GdmcDependency from(Object obj) {
     if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency || obj instanceof Project) {
       return new GdmcDependency(
@@ -37,9 +34,7 @@ class GdmcDependency implements Serializable {
   static @Nullable GdmcDependency fromString(String identifier) {
     String[] tokens = identifier.tokenize(":")
     if (tokens.length < 2 || tokens.length > 3) {
-      return new GdmcDependency(
-          groupId: PLACEHOLDER_GROUP_ID,
-          artifactId: identifier)
+      throw new GradleException("Unexpected number of tokens in dependency identifier: ${identifier}")
     }
     return new GdmcDependency(
         groupId: tokens[0],
@@ -53,10 +48,6 @@ class GdmcDependency implements Serializable {
   String version
   Boolean locked
   String mapKey
-
-  boolean isPlaceholder() {
-    return groupId == PLACEHOLDER_GROUP_ID
-  }
 
   boolean isMappedToMavenKey() {
     if (alias) {
@@ -75,9 +66,6 @@ class GdmcDependency implements Serializable {
   String getMavenKey() {
     if (alias) {
       throw new GradleException("called getMavenKey on alias: ${this}")
-    }
-    if (isPlaceholder()) {
-      return artifactId
     }
     return "${groupId}:${artifactId}"
   }
