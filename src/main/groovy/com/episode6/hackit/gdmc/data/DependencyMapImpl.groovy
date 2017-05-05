@@ -24,17 +24,13 @@ class DependencyMapImpl implements DependencyMap {
   }
 
   @Override
-  boolean isSourceAlias(Object key) {
-    String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
-    def value = mappedDependencies.get(keyStr)
-    return value?.alias
-  }
-
-  @Override
-  boolean isOverrideAlias(Object key) {
+  boolean isAlias(Object key) {
     String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
     def value = overrides.get(keyStr)
-    return value != null ? value.alias : isSourceAlias(key)
+    if (value == null) {
+      value = mappedDependencies.get(keyStr)
+    }
+    return value != null && value.alias
   }
 
   @Override

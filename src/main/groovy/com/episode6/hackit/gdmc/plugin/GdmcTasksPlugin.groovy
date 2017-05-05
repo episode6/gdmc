@@ -163,7 +163,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
           }.collect {
             GdmcDependency.from(it)
           }.findAll {
-            !it.version && dependencyMap.isOverrideAlias(it.mapKey)
+            !it.version && dependencyMap.isAlias(it.mapKey)
           }.collectMany {
             return dependencyMap.lookupWithOverrides(it.mapKey)
           }.each {
