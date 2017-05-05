@@ -11,6 +11,6 @@ class GdmcConvention implements HasProjectTrait {
 
   def gdmc(Object key) {
     def mappedDeps = dependencyMap.lookupWithOverrides(key)
-    return mappedDeps.collect {it.key}
+    return mappedDeps.collect {it.mapKey}
   }
 }

@@ -5,7 +5,7 @@ package com.episode6.hackit.gdmc.data
  */
 interface DependencyMap {
   interface DependencyFilter {
-    boolean shouldApply(String key, GdmcDependency dependency)
+    boolean shouldApply(GdmcDependency dependency)
   }
 
   boolean isSourceAlias(Object key)

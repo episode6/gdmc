@@ -36,7 +36,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       description = "Resolves any missing dependencies in project '${project.name}' and adds them to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findExternalDependencies {!it.version && !dependencyMap.lookupFromSource(it.key)}
+        return findExternalDependencies {!it.version && !dependencyMap.lookupFromSource(it.mapKey)}
       }
       doLast {
         dependencyMap.applyFile(outputFile)
@@ -48,12 +48,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
         return findExternalDependencies {
-          it.version && (overwrite || !dependencyMap.lookupFromSource(it.key))
+          it.version && (overwrite || !dependencyMap.lookupFromSource(it.mapKey))
         }
       }
       doLast {
-        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !dependencyMap.lookupFromSource(key)
+        dependencyMap.applyFile(outputFile, { GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(dep.mapKey)
         })
       }
     }
@@ -63,12 +63,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
         return findExternalBuildscriptDependencies {
-          it.version && (overwrite || !dependencyMap.lookupFromSource(it.key))
+          it.version && (overwrite || !dependencyMap.lookupFromSource(it.mapKey))
         }
       }
       doLast {
-        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !dependencyMap.lookupFromSource(key)
+        dependencyMap.applyFile(outputFile, { GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(dep.mapKey)
         })
       }
     }
@@ -86,8 +86,8 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
         return findSourceMappedExternalDependencies()
       }
       doLast {
-        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !dependencyMap.lookupFromSource(key)
+        dependencyMap.applyFile(outputFile, { GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(dep.mapKey)
         })
       }
     }
@@ -109,7 +109,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.key)}).collect {it.withoutVersion()}
+        return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.mapKey)}).collect {it.withoutVersion()}
       }
       doLast {
         dependencyMap.applyFile(outputFile)
@@ -161,12 +161,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
           }.collect {
             GdmcDependency.from(it)
           }.findAll {
-            !it.version && dependencyMap.isOverrideAlias(it.key)
+            !it.version && dependencyMap.isOverrideAlias(it.mapKey)
           }.collectMany {
-            return dependencyMap.lookupWithOverrides(it.key)
+            return dependencyMap.lookupWithOverrides(it.mapKey)
           }.each {
             GChop.d("Adding %s to config %s because it is mapped via an alias", it, files)
-            project.dependencies.add(files.name, it.toString())
+            project.dependencies.add(files.name, it.fullMavenKey)
           }
         }
       })
@@ -204,7 +204,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
 
   Collection<GdmcDependency> findSourceMappedExternalDependencies() {
     return findExternalDependencies({true}).collectMany {
-      return it.version ? [it] : dependencyMap.lookupFromSource(it.key)
+      return it.version ? [it] : dependencyMap.lookupFromSource(it.mapKey)
     }
   }
 

@@ -68,10 +68,10 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
     // add query dependencies to new config
     dependencies.call().findAll {
       // ignore self and locked dependencies
-      !it.matchesAnyProject(project) && !dependencyMap.isLocked(it.key)
+      !it.matchesAnyProject(project) && !dependencyMap.isLocked(it.mapKey)
     }.each {
-      GChop.d("Adding dependency: %s to config: %s", it, config.name)
-      String notation = it.version ? it.toString() : "${it.toString()}:+"
+      GChop.d("Adding dependency: %s to config: %s", it.mapKey, config.name)
+      String notation = it.version ? it.fullMavenKey : "${it.mavenKey}:+"
       project.dependencies.add(config.name, notation)
     }
 
