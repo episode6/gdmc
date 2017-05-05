@@ -95,8 +95,6 @@ dependencies {
 
     then:
     result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
-//    println "useAlias: ${aliasMethodWrap}"
-//    println test.gdmcJsonFile.text
     with(test.gdmcJsonFile.asJson()) {
       with(get("chop:core")) {
         groupId == "com.episode6.hackit.chop"
@@ -105,7 +103,7 @@ dependencies {
         version.asVersion().isGreaterThan("0.1.7.2")
         get("locked") == null
       }
-      with(get("org.spockframework:spock-core")) {
+      with(get("spock:core")) {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
@@ -156,8 +154,6 @@ dependencies {
 
     then:
     result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
-//    println "useAlias: ${aliasMethodWrap}"
-//    println test.gdmcJsonFile.text
     with(test.gdmcJsonFile.asJson()) {
       with(get("chop:core")) {
         groupId == "com.episode6.hackit.chop"
@@ -166,7 +162,7 @@ dependencies {
         version.asVersion().isGreaterThan("0.1.7.2")
         get("locked") == null
       }
-      with(get("org.spockframework:spock-core")) {
+      with(get("spock:core")) {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
@@ -220,8 +216,6 @@ dependencies {
 
     then:
     result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
-//    println "useAlias: ${aliasMethodWrap}"
-//    println test.gdmcJsonFile.text
     with(test.gdmcJsonFile.asJson()) {
       with(get("chop:core")) {
         groupId == "com.episode6.hackit.chop"
@@ -230,7 +224,7 @@ dependencies {
         version.asVersion().isGreaterThan("0.1.7.2")
         get("locked") == null
       }
-      with(get("org.spockframework:spock-core")) {
+      with(get("spock:core")) {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
