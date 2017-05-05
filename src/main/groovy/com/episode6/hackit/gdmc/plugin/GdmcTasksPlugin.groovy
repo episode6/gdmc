@@ -30,13 +30,13 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     this.project = project
 
     project.extensions.create("gdmcLogger", GdmcLogger)
-    project.convention.plugins.gdmcConvention = new GdmcConvention()
+    project.convention.plugins.gdmcConvention = new GdmcConvention(project: project)
 
     project.task("gdmcResolve", type: GdmcResolveTask) {
       description = "Resolves any missing dependencies in project '${project.name}' and adds them to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findExternalDependencies {!it.version && !dependencyMap.lookupFromSource(it.key)}
+        return findExternalDependencies {!it.version && !dependencyMap.lookupFromSource(it.mapKey)}
       }
       doLast {
         dependencyMap.applyFile(outputFile)
@@ -48,12 +48,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
         return findExternalDependencies {
-          it.version && (overwrite || !dependencyMap.lookupFromSource(it.key))
+          it.version && (overwrite || !dependencyMap.lookupFromSource(it.mapKey))
         }
       }
       doLast {
-        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !dependencyMap.lookupFromSource(key)
+        dependencyMap.applyFile(outputFile, { GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(dep.mapKey)
         })
       }
     }
@@ -63,12 +63,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
         return findExternalBuildscriptDependencies {
-          it.version && (overwrite || !dependencyMap.lookupFromSource(it.key))
+          it.version && (overwrite || !dependencyMap.lookupFromSource(it.mapKey))
         }
       }
       doLast {
-        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !dependencyMap.lookupFromSource(key)
+        dependencyMap.applyFile(outputFile, { GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(dep.mapKey)
         })
       }
     }
@@ -83,11 +83,13 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
         // existing dependencies that are mapped as well as versioned ones
         // that may be unmapped. I.e. we can't filter anything out because it
         // might have transitive deps we don't know about
-        return findSourceMappedExternalDependencies()
+        return findExternalDependencies({true}).collectMany {
+          return it.version ? [it] : dependencyMap.lookupFromSource(it.mapKey)
+        }
       }
       doLast {
-        dependencyMap.applyFile(outputFile, { String key, GdmcDependency dep ->
-          return overwrite || !dependencyMap.lookupFromSource(key)
+        dependencyMap.applyFile(outputFile, { GdmcDependency dep ->
+          return overwrite || !dependencyMap.lookupFromSource(dep.mapKey)
         })
       }
     }
@@ -96,9 +98,9 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findSourceMappedExternalDependencies().collect { GdmcDependency dep ->
-          return dep.withoutVersion()
-        }
+        return findExternalDependencies({!it.version}).collectMany {
+          return dependencyMap.lookupFromSource(it.mapKey)
+        }.collect {it.withoutVersion()}
       }
       doLast {
         dependencyMap.applyFile(outputFile)
@@ -109,7 +111,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
       dependencies = {
-        return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.key)}).collect {it.withoutVersion()}
+        return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.mapKey)}).collect {it.withoutVersion()}
       }
       doLast {
         dependencyMap.applyFile(outputFile)
@@ -161,12 +163,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
           }.collect {
             GdmcDependency.from(it)
           }.findAll {
-            !it.version && dependencyMap.isOverrideAlias(it.key)
+            !it.version && dependencyMap.isOverrideAlias(it.mapKey)
           }.collectMany {
-            return dependencyMap.lookupWithOverrides(it.key)
+            return dependencyMap.lookupWithOverrides(it.mapKey)
           }.each {
             GChop.d("Adding %s to config %s because it is mapped via an alias", it, files)
-            project.dependencies.add(files.name, it.toString())
+            project.dependencies.add(files.name, it.fullMavenKey)
           }
         }
       })
@@ -200,12 +202,6 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
         GdmcDependency.from(it)
       }
     })
-  }
-
-  Collection<GdmcDependency> findSourceMappedExternalDependencies() {
-    return findExternalDependencies({true}).collectMany {
-      return it.version ? [it] : dependencyMap.lookupFromSource(it.key)
-    }
   }
 
   boolean getOverwrite() {

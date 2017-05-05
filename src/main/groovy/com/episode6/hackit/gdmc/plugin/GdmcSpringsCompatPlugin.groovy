@@ -31,10 +31,14 @@ class GdmcSpringsCompatPlugin implements Plugin<Project>, HasProjectTrait {
     // we are looking for.
     if (!ProjectProperties.overwrite(project)) {
       dependencyMap.validDependencies.each { GdmcDependency dep ->
+        if (!dep.isMappedToMavenKey()) {
+          // if the map key does not equal the maven key, then adding to to dependency manager does no good
+          return;
+        }
         GChop.d("adding dependency %s to dependencyManager", dep)
         project.dependencyManagement {
           dependencies {
-            dependency dep.toString()
+            dependency dep.fullMavenKey
           }
         }
       }
@@ -45,8 +49,9 @@ class GdmcSpringsCompatPlugin implements Plugin<Project>, HasProjectTrait {
     VersionMapperAction aliasMapper = new VersionMapperAction(project: project) {
       @Override
       boolean shouldSkipMappingVersion(GdmcDependency unMapped) {
-        // if forceResolve param is set, we should apply this to everything w/o a version
-        return forceResolve() ? super.shouldSkipMappingVersion(unMapped) : !dependencyMap.isOverrideAlias(unMapped.key)
+        // if forceResolve param is set, we should apply this to everything w/o a version, otherwise we should only
+        // apply our own mapper action when we were unable to add the dep to dependencyManager
+        return forceResolve() ? super.shouldSkipMappingVersion(unMapped) : dependencyMap.isMappedWithMavenKey(unMapped.mapKey)
       }
     }
     project.configurations.all(new Action<Configuration>() {

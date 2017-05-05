@@ -25,6 +25,6 @@ class MyDependencyMap {
       throw new NullPointerException("Found multiple entries for key: ${key}, values: ${mapped}")
     }
 
-    return mapped[0].toString()
+    return mapped[0].fullMavenKey
   }
 }

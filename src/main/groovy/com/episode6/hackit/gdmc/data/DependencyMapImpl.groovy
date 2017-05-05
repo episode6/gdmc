@@ -37,6 +37,16 @@ class DependencyMapImpl implements DependencyMap {
     return value != null ? value.alias : isSourceAlias(key)
   }
 
+  @Override
+  boolean isMappedWithMavenKey(Object key) {
+    String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
+    def value = overrides.get(keyStr)
+    if (value == null) {
+      value = mappedDependencies.get(keyStr)
+    }
+    return value == null || value.isMappedToMavenKey()
+  }
+
   boolean isLocked(Object key) {
     String keyStr = removeTrailingColon(DependencyKeys.sanitize(key))
     def value = mappedDependencies.get(keyStr)
@@ -67,6 +77,7 @@ class DependencyMapImpl implements DependencyMap {
     def json = new JsonSlurper().parse(file)
     json.each { String key, value ->
       GdmcDependency dep = GdmcDependency.from(value)
+      dep.mapKey = key
       overrides.put(key, dep)
     }
   }
@@ -82,15 +93,17 @@ class DependencyMapImpl implements DependencyMap {
     if (json instanceof Map) {
       json.each { String key, value ->
         GdmcDependency dep = GdmcDependency.from(value)
-        if (!filter || filter.shouldApply(key, dep)) {
-          mappedDependencies.put(key, dep)
+        dep.mapKey = key
+        if (!filter || filter.shouldApply(dep)) {
+          mappedDependencies.put(dep.mapKey, dep)
         }
       }
     } else if (json instanceof List) {
       json.each { value ->
         GdmcDependency dep = GdmcDependency.from(value)
-        if (!filter || filter.shouldApply(dep.key, dep)) {
-          mappedDependencies.put(dep.key, dep)
+        dep.mapKey = dep.mavenKey
+        if (!filter || filter.shouldApply(dep)) {
+          mappedDependencies.put(dep.mapKey, dep)
         }
       }
     }
@@ -101,7 +114,7 @@ class DependencyMapImpl implements DependencyMap {
   }
 
   void put(GdmcDependency dependency) {
-    mappedDependencies.put(dependency.key, dependency)
+    mappedDependencies.put(dependency.mapKey, dependency)
     writeToFile()
   }
 

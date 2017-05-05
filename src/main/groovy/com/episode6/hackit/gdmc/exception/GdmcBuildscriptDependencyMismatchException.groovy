@@ -12,7 +12,7 @@ class GdmcBuildscriptDependencyMismatchException extends GradleException {
   private static String formatMessage(Map<GdmcDependency, String> errors) {
     StringBuilder msg = new StringBuilder("Buildscript Dependency Mapping Errors: \n")
     errors.each { GdmcDependency dep, String reason ->
-      msg.append("Mismatched dependency: ").append(dep).append(", reason: ").append(reason).append("\n")
+      msg.append("Mismatched dependency: ").append(dep.fullMavenKey).append(", reason: ").append(reason).append("\n")
     }
     return msg.toString()
   }
