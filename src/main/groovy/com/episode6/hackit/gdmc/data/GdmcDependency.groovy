@@ -120,7 +120,8 @@ class GdmcDependency implements Serializable {
     }
     return new GdmcDependency(
         groupId: groupId,
-        artifactId: artifactId)
+        artifactId: artifactId,
+        mapKey: mapKey)
   }
 
   boolean matchesAnyProject(Project project) {
