@@ -21,7 +21,7 @@ class GdmcAliasTest extends Specification {
    "spock:core": {
      "groupId": "org.spockframework",
      "artifactId": "spock-core",
-     "version": "1.1-groovy-2.4-rc-2"
+     "version": "1.0-groovy-2.4"
    }
 """
 
@@ -109,7 +109,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 2
     }
@@ -170,7 +170,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       with(get("test:mygroup")) {
         alias.size() == 2
@@ -234,7 +234,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       with(get("test:chop")) {
         alias == "chop:core"

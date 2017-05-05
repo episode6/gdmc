@@ -79,7 +79,7 @@ class GdmcUpgradeTest extends Specification {
    "org.spockframework:spock-core": {
      "groupId": "org.spockframework",
      "artifactId": "spock-core",
-     "version": "1.1-groovy-2.4-rc-2"
+     "version": "1.0-groovy-2.4"
    }
 }
 """
@@ -145,7 +145,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 3
     }
@@ -268,7 +268,7 @@ dependencies {
     setupMultiProject(test, plugin, [
         mockitoVersion: ':2.6.0',
         chopVersion: ':0.1.7.1',
-        spockVersion: ':1.1-groovy-2.4-rc-2'])
+        spockVersion: ':1.0-groovy-2.4'])
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -294,7 +294,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 3
     }
@@ -333,7 +333,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 3
     }
@@ -382,7 +382,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 3
     }
@@ -463,7 +463,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 3
     }
@@ -513,7 +513,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 5
     }

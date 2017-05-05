@@ -88,7 +88,7 @@ dependencies {
    "org.spockframework:spock-core": {
      "groupId": "org.spockframework",
      "artifactId": "spock-core",
-     "version": "1.1-groovy-2.4-rc-2"
+     "version": "1.0-groovy-2.4"
    }
 }
 """
@@ -115,7 +115,7 @@ dependencies {
         groupId == "org.spockframework"
         artifactId == "spock-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("1.1-groovy-2.4-rc-2")
+        version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       size() == 3
       verifyJsonSortOrder((Map)delegate)
@@ -199,7 +199,7 @@ dependencies {
     setupMultiProject(test, plugin, [
         mockitoVersion: ':2.7.0',
         chopVersion: ':0.1.7.2',
-        spockVersion: ':1.1-groovy-2.4-rc-2'])
+        spockVersion: ':1.0-groovy-2.4'])
 
     when:
     def result = test.buildAndFail(taskName, "build")
@@ -232,7 +232,7 @@ dependencies {
     setupMultiProject(test, plugin, [
         mockitoVersion: ':2.7.0',
         chopVersion: ':0.1.7.2',
-        spockVersion: ':1.1-groovy-2.4-rc-2'])
+        spockVersion: ':1.0-groovy-2.4'])
 
     when:
     def result = test.build("clean", taskName)
