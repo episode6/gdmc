@@ -216,6 +216,45 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test upgradeBuildscript multi-project"(String plugin) {
+    given:
+    test.gdmcJsonFile << GDMC_DEPLOYABLE_CONTENTS
+    test.gradleBuildFile << """
+buildscript {
+  repositories {
+    maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.2'
+  }
+}
+"""
+    setupMultiProject(test, plugin)
+
+    when:
+    def result = test.build("gdmcUpgradeBuildscript")
+
+    then:
+    result.task(":javalib:gdmcUpgradeBuildscript").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcUpgradeBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.deployable:deployable")) {
+        groupId == "com.episode6.hackit.deployable"
+        artifactId == "deployable"
+        !version.contains("-SNAPSHOT")
+        version.asVersion().isGreaterThan("0.1.2")
+      }
+      size() == 1
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test locked upgrade"(String plugin) {
     given:
     test.gdmcJsonFile << LOCKED_DEPENDENCIES

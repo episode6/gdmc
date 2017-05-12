@@ -362,6 +362,48 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test import buildscript from multi-project"(String plugin) {
+    given:
+    test.gradleBuildFile << """
+buildscript {
+  repositories {
+    maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.2'
+  }
+}
+"""
+    setupMultiProject(test, plugin)
+
+    when:
+    def result = test.build("gdmcImportBuildscript")
+
+    then:
+    result.task(":javalib:gdmcImportBuildscript").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcImportBuildscript").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      if (plugin == GDMC_SPRINGS_COMPAT_PLUGIN) {
+        size() == 2
+        verifySpringPlugin(delegate)
+      } else {
+        size() == 1
+      }
+      with(get("com.episode6.hackit.deployable:deployable")) {
+        groupId == "com.episode6.hackit.deployable"
+        artifactId == "deployable"
+        version == "0.1.2"
+      }
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
 
   def "test import from nothing mutli-project"(String plugin) {
     given:
