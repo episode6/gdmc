@@ -4,14 +4,12 @@ import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.exception.GdmcBuildscriptDependencyMismatchException
 import com.episode6.hackit.gdmc.util.HasProjectTrait
 import org.gradle.api.DefaultTask
-import org.gradle.api.GradleException
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.VerificationTask
 
 import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
-import static com.episode6.hackit.gdmc.util.GdmcLogger.getGChop
 
 /**
  * Since gdmc can't do anything about buildscript dependencies, the least we can do is validate them...
@@ -48,7 +46,7 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
   private void performValidation() {
     Map<GdmcDependency, String> errors = new HashMap<>();
 
-    project.buildscript.configurations
+    (project.buildscript.configurations + project.rootProject.buildscript.configurations)
         .collectMany {it.dependencies}
         .findAll {it instanceof ExternalDependency && it.version != "+" && !it.version.contains("SNAPSHOT")}
         .collect {GdmcDependency.from(it)}

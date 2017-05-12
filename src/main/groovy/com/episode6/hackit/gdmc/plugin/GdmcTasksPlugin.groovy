@@ -9,7 +9,6 @@ import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
-import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.plugins.MavenPlugin
 
@@ -191,10 +190,10 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
   }
 
   Collection<GdmcDependency> findExternalBuildscriptDependencies(Closure filter) {
-    return findExternalDependenciesFromConfig(project.buildscript.configurations).findAll(filter)
+    return findExternalDependenciesFromConfig(project.buildscript.configurations + project.rootProject.buildscript.configurations).findAll(filter)
   }
 
-  static Collection<GdmcDependency> findExternalDependenciesFromConfig(ConfigurationContainer configs) {
+  static Collection<GdmcDependency> findExternalDependenciesFromConfig(Set<Configuration> configs) {
     return configs.collectMany({ Configuration config ->
       return config.dependencies.findAll {
         it instanceof ExternalDependency

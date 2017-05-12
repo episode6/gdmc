@@ -194,4 +194,36 @@ repositories {
     GDMC_PLUGIN                 | _
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
+
+  def "test validate fails when mapped incorrectly on multi-project test"(String plugin) {
+    given:
+    test.gradleBuildFile << """
+buildscript {
+  repositories {
+    maven {url "https://oss.sonatype.org/content/repositories/snapshots/"}
+    jcenter()
+  }
+  dependencies {
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.2'
+    classpath 'com.episode6.hackit.chop:chop-core:0.1.7'
+  }
+}
+
+"""
+    setupMultiProject(test, plugin)
+    test.gdmcJsonFile << gdmcContents("0.1.5")
+
+    when:
+    def result = test.buildAndFail("gdmcValidateBuildscriptDeps")
+
+    then:
+    result.task(":groovylib:gdmcValidateBuildscriptDeps")?.outcome == TaskOutcome.FAILED ||
+        result.task(":javalib:gdmcValidateBuildscriptDeps")?.outcome == TaskOutcome.FAILED
+    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to version 0.1.5")
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
 }
