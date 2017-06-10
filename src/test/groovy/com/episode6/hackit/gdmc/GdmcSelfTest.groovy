@@ -15,7 +15,7 @@ class GdmcSelfTest extends Specification {
   private static final String singleProjectGdmc(Map opts = [:]) {
     String packageName = opts.packageName ?: 'com.example.testproject'
     String name = opts.name ?: 'sample-proj'
-    String version = opts.version ?: '0.0.1-SNAPSHOT'
+    String version = opts.version ?: '0.0.1'
     return """
   "${packageName}:${name}": {
     "groupId": "${packageName}",
@@ -39,7 +39,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
   def "test importSelf single-project"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
 
     when:
     def result = test.build("gdmcImportSelf")
@@ -51,7 +51,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
       with(get("com.example.testproject:sample-proj")) {
         groupId == "com.example.testproject"
         artifactId == "sample-proj"
-        version == "0.0.1-SNAPSHOT"
+        version == "0.0.1"
       }
       size() == 1
     }
@@ -65,7 +65,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
   def "test importSelf single-project ignores overrides"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
     File gdmcOverridFile = test.singleGdmcOverrideFile()
     gdmcOverridFile << "{${singleProjectGdmc(version: "0.2")}}"
 
@@ -79,7 +79,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
       with(get("com.example.testproject:sample-proj")) {
         groupId == "com.example.testproject"
         artifactId == "sample-proj"
-        version == "0.0.1-SNAPSHOT"
+        version == "0.0.1"
       }
       size() == 1
     }
@@ -100,7 +100,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
 
   def "test importSelf multi-project"(String plugin) {
     given:
-    setupMultiProject(test, plugin)
+    setupMultiProject(test, plugin, [projectVersion: "0.1"])
 
     when:
     def result = test.build("gdmcImportSelf")
@@ -113,14 +113,46 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
       with(get("com.example:javalib")) {
         groupId == "com.example"
         artifactId == "javalib"
-        version == "0.0.1-SNAPSHOT"
+        version == "0.1"
       }
       with(get("com.example:groovylib")) {
         groupId == "com.example"
         artifactId == "groovylib"
-        version == "0.0.1-SNAPSHOT"
+        version == "0.1"
       }
       size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test importSelf multi-project excludes if validate not required"(String plugin) {
+    given:
+    setupMultiProject(test, plugin, [projectVersion: "0.1"])
+    new File(new File(test.root, "groovylib"), "build.gradle") << """
+
+gdmcValidateSelf {
+  required = {false}
+}
+"""
+
+    when:
+    def result = test.build("gdmcImportSelf")
+
+    then:
+    result.task(":javalib:gdmcImportSelf").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcImportSelf").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.example:javalib")) {
+        groupId == "com.example"
+        artifactId == "javalib"
+        version == "0.1"
+      }
+      size() == 1
     }
 
     where:

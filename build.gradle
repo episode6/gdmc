@@ -3,8 +3,8 @@ buildscript {
     // Since this plugin implements itself, we must declare our compile dependencies on the classpath.
     // Define them here so we don't write them twice.
     compileDependencies = [
-        'com.episode6.hackit.chop:chop-core:0.1.8',
-        'com.episode6.hackit.chop:chop-groovy:0.1.8']
+        'com.episode6.hackit.chop:chop-core:0.1.8.1',
+        'com.episode6.hackit.chop:chop-groovy:0.1.8.1']
   }
   repositories {
     jcenter()
@@ -16,7 +16,7 @@ buildscript {
 }
 
 group = "com.episode6.hackit.gdmc"
-version = "0.1.4"
+version = "0.1.5"
 
 repositories {
   jcenter()
