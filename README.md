@@ -8,9 +8,7 @@ See our [project goals](#gdmc-goals) for more.
 Add gdmc to your buildscript dependencies...
 ```groovy
 buildscript {
-  repositories {
-    jcenter()
-  }
+  repositories { maven { url "https://oss.sonatype.org/content/repositories/snapshots/" } }
   dependencies {
     classpath 'com.episode6.hackit.gdmc:gdmc:0.1.5-SNAPSHOT'
   }
