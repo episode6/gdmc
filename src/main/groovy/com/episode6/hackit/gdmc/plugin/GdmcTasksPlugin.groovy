@@ -133,7 +133,9 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
         TaskAssertions.assertLonelyTask(delegate)
       }
       doLast {
-        dependencyMap.put(GdmcDependency.from(project))
+        if (project.gdmcValidateSelf.required.call()) {
+          dependencyMap.put(GdmcDependency.from(project))
+        }
       }
     }
 
