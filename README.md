@@ -82,12 +82,12 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
 - `gdmcUpgrade`: Find all properly mapped gdmc dependencies in your project, and resolve the latest release versions of each of them. Then dump those new versions into gdmc.json, overwriting whatever was there.
 - `gdmcUpgradeBuildscript`: Like gdmcUpgrade, but upgrades gdmc's references to dependencies defined in your buildscript block.
 - `gdmcUpgradeAll`: Upgrade all entries in your gdmc.json file, regardless of if they're defined in you project.
-- `gdmcImportSelf`: Add/update an entry in gdmc.json for this project, using the `group`, `name`, and `version` defined in gradle.
-- `gdmcValidateSelf`: A validation task that gets added as a dependant task to check and test. If the project's `version` does not include `SNAPSHOT`, ensures that current version referenced in gdmc.json
- - You should only need gdmc self validation if sharing a single gdmc file with multiple projects/repos. If you don't need this validation it can be disabled like so...
+- `gdmcValidateSelf`: A validation task that gets added as a dependant task to `check` for projects that are meant to be deployed. It ensures that the current version of your project is referenced in your gdmc.json file (assuming it's not a snapshot).
+ - You should only need gdmc self validation if sharing a single gdmc file with multiple projects/repos. If you don't need this validation it can be disabled with...
  ```groovy
  gdmcValidateSelf.required = {false}
  ```
+- `gdmcImportSelf`: Add/update an entry in gdmc.json for this project using the `group`, `name`, and `version` defined in gradle. Run this task if gdmcValidateSelf is failing.
 - `gdmcValidateBuildscriptDeps`: A validation task that gets added as a dependant task to check and test. Looks to see if any of your buildscript dependencies are mapped in gdmc, and fails the build if the versions being used are different from those referenced in gdmc.
 
 ### gdmc aliases
