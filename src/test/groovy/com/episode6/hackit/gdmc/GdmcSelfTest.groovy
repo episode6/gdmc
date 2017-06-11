@@ -39,7 +39,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
   def "test importSelf single-project"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1", includeMaven: true])
 
     when:
     def result = test.build("gdmcImportSelf")
@@ -62,10 +62,28 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-  def "test importSelf single-project ignores overrides"(String plugin) {
+  def "test importSelf single-project skip without maven"(String plugin) {
     given:
     test.name = "sample-proj"
     test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
+
+    when:
+    def result = test.build("gdmcImportSelf")
+
+    then:
+    result.task(":gdmcImportSelf").outcome == TaskOutcome.SUCCESS
+    !test.gdmcJsonFile.exists()
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test importSelf single-project ignores overrides"(String plugin) {
+    given:
+    test.name = "sample-proj"
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1", includeMaven: true])
     File gdmcOverridFile = test.singleGdmcOverrideFile()
     gdmcOverridFile << "{${singleProjectGdmc(version: "0.2")}}"
 
@@ -100,7 +118,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
 
   def "test importSelf multi-project"(String plugin) {
     given:
-    setupMultiProject(test, plugin, [projectVersion: "0.1"])
+    setupMultiProject(test, plugin, [projectVersion: "0.1", includeMaven: true])
 
     when:
     def result = test.build("gdmcImportSelf")
@@ -131,7 +149,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
 
   def "test importSelf multi-project excludes if validate not required"(String plugin) {
     given:
-    setupMultiProject(test, plugin, [projectVersion: "0.1"])
+    setupMultiProject(test, plugin, [projectVersion: "0.1", includeMaven: true])
     new File(new File(test.root, "groovylib"), "build.gradle") << """
 
 gdmcValidateSelf {
@@ -164,7 +182,7 @@ gdmcValidateSelf {
   def "test validateSelf single-project success"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1", includeMaven: true])
     test.gdmcJsonFile << "{${singleProjectGdmc(version: "0.0.1")}}"
 
     when:
@@ -182,7 +200,7 @@ gdmcValidateSelf {
   def "test validateSelf single-project success thanks to overrides"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1", includeMaven: true])
     test.singleGdmcOverrideFile() << "{${singleProjectGdmc(version: "0.0.1")}}"
 
     when:
@@ -200,7 +218,7 @@ gdmcValidateSelf {
   def "test validateSelf single-project fail"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2", includeMaven: true])
     test.gdmcJsonFile << "{${singleProjectGdmc(version: "0.0.1")}}"
 
     when:
@@ -219,7 +237,7 @@ gdmcValidateSelf {
   def "test validateSelf single-project fail on empty"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2", includeMaven: true])
 
     when:
     def result = test.buildAndFail("gdmcValidateSelf")
@@ -234,10 +252,28 @@ gdmcValidateSelf {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-  def "test validateSelf single-project skip"(String plugin) {
+  def "test validateSelf single-project skip for snapshot"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1-SNAPSHOT", includeMaven: true])
+    test.gdmcJsonFile << "{${singleProjectGdmc(version: "0.0.2")}}"
+
+    when:
+    def result = test.build("gdmcValidateSelf")
+
+    then:
+    result.task(":gdmcValidateSelf").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test validateSelf single-project skip witout maven"(String plugin) {
+    given:
+    test.name = "sample-proj"
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.3"])
     test.gdmcJsonFile << "{${singleProjectGdmc(version: "0.0.2")}}"
 
     when:
@@ -255,7 +291,7 @@ gdmcValidateSelf {
   def "test importSelf then validateSelf"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1", includeMaven: true])
 
     when:
     def result1 = test.build("gdmcImportSelf")
@@ -282,7 +318,7 @@ gdmcValidateSelf {
 
   def "test validateSelf multi-project success"(String plugin) {
     given:
-    setupMultiProject(test, plugin, [projectVersion: '0.0.1'])
+    setupMultiProject(test, plugin, [projectVersion: '0.0.1', includeMaven: true])
     test.gdmcJsonFile << multiProjectGdmc("0.0.1")
 
     when:
@@ -300,7 +336,7 @@ gdmcValidateSelf {
 
   def "test validateSelf multi-project fail"(String plugin) {
     given:
-    setupMultiProject(test, plugin, [projectVersion: '0.0.2'])
+    setupMultiProject(test, plugin, [projectVersion: '0.0.2', includeMaven: true])
     test.gdmcJsonFile << multiProjectGdmc("0.0.1")
 
     when:
@@ -319,7 +355,7 @@ gdmcValidateSelf {
 
   def "test validateSelf multi-project skip"(String plugin) {
     given:
-    setupMultiProject(test, plugin)
+    setupMultiProject(test, plugin, [includeMaven: true])
     test.gdmcJsonFile << multiProjectGdmc("0.0.2")
 
     when:
@@ -338,7 +374,7 @@ gdmcValidateSelf {
   def "test validateSelf fail on check"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2", includeMaven: true])
 
     when:
     def result = test.buildAndFail("check")
@@ -356,7 +392,7 @@ gdmcValidateSelf {
   def "test validateSelf fail on test"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2"])
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.2", includeMaven: true])
 
     when:
     def result = test.buildAndFail("test")
