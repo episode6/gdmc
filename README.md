@@ -140,6 +140,31 @@ If needed, you can lock gdmc dependencies to a specific version by adding `"lock
 }
 ```
 
+### reading versions directly
+It's also possible to read a version directly using the convention method `gdmcVersion(key)`. For example, in a multi-module android app you could add the following sparse version definitions to your gdmc.json file
+```json
+{
+    "android.compilesdk": {
+        "version": "25",
+        "locked": true
+    },
+    "android.buildtools": {
+        "version": "26.0.0",
+        "locked": true
+    }
+}
+```
+(Notice these sparse dependencies must be `locked` otherwise the gdmcUpgrade* tasks will all fail)
+
+Then you can reference the versions in your modules' build.gradle files and gdmc becomes your single source of truth...
+```groovy
+
+android {
+    compileSdkVersion gdmcVersion('android.compilesdk') as Integer
+    buildToolsVersion gdmcVersion('android.buildtools')
+}
+```
+
 ### gdmc and spring dependency management plugin
 Gdmc can be used as along-side [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin). This allows you to combine gdmc mappings with mavenBoms, and enables enforced versions for transitive dependencies (something gdmc does not handle on its own).
 
