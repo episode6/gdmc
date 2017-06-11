@@ -50,7 +50,15 @@ class GdmcUpgradeTest extends Specification {
      "artifactId": "javax.inject",
      "version": "1",
      "locked": true
-   }
+   },
+  "android.compilesdk": {
+    "version": "25",
+    "locked": true
+  },
+  "android.buildtools": {
+    "version": "26.0.0",
+    "locked": true
+  }
 }
 """
 
@@ -292,7 +300,15 @@ dependencies {
         version == "1"
         locked == true
       }
-      size() == 3
+      with(get("android.compilesdk")) {
+        version == "25"
+        locked == true
+      }
+      with(get("android.buildtools")) {
+        version == "26.0.0"
+        locked == true
+      }
+      size() == 5
     }
 
     where:

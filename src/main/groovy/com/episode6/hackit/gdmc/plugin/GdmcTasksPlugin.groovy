@@ -181,7 +181,6 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
         }
         project.tasks.findByPath("install")?.repositories {
           mavenInstaller.pom.whenConfigured(mavenConfigurationAction)
-
         }
       }
     }

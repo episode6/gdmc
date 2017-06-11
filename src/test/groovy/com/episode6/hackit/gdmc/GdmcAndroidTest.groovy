@@ -13,7 +13,7 @@ import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
  */
 class GdmcAndroidTest extends Specification {
 
-  private static String androidBuildGradle(String plugin) {
+  private static String androidBuildGradle(String plugin, Map opts = [:]) {
     return """
 buildscript {
   repositories {
@@ -44,8 +44,8 @@ repositories {
 }
 
 android {
-  compileSdkVersion 19
-  buildToolsVersion "25.0.2"
+  compileSdkVersion ${opts.compileSdkVersion ?: '19'}
+  buildToolsVersion ${opts.buildToolsVersion ?: '"25.0.2"'} 
 }
 
 android {
@@ -93,6 +93,17 @@ android {
       "org.spockframework:spock-core"
     ]
   }
+"""
+
+  private static final String VERSION_ONLY_DEPS = """
+  "android.compilesdk": {
+    "version": "25",
+    "locked": true
+  },
+  "android.buildtools": {
+    "version": "26.0.0",
+    "locked": true
+  },
 """
 
   @Rule final IntegrationTest test = new IntegrationTest()
@@ -154,6 +165,31 @@ dependencies {
       }
       size() == 2
     }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test android build using gdmcVersion for buildTools and compileSdk"(String plugin) {
+    test.gdmcJsonFile << """
+{
+  ${PRE_SET_DEPENDENCIES},
+  ${VERSION_ONLY_DEPS}
+}
+"""
+    test.gradleBuildFile << androidBuildGradle(plugin, [
+        compileSdkVersion: "gdmcVersion('android.compilesdk') as Integer",
+        buildToolsVersion: "gdmcVersion('android.buildtools')"
+    ])
+    test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
+
+    when:
+    def result = test.build("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
 
     where:
     plugin                      | _

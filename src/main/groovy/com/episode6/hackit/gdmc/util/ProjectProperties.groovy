@@ -2,6 +2,9 @@ package com.episode6.hackit.gdmc.util
 
 import groovy.transform.Memoized
 import org.gradle.api.Project
+import org.gradle.api.plugins.MavenPlugin
+import org.gradle.api.publish.ivy.plugins.IvyPublishPlugin
+import org.gradle.api.publish.maven.plugins.MavenPublishPlugin
 
 /**
  * Accessor for project properties
@@ -58,6 +61,14 @@ class ProjectProperties {
     overrideFiles.tokenize("|").collect {
       return new File(project.rootDir, it)
     }
+  }
+
+  static boolean isProjectDeployable(Project project) {
+    def plugins = project.plugins
+    return plugins.findPlugin(MavenPlugin) != null ||
+        plugins.findPlugin(MavenPublishPlugin) != null ||
+        plugins.findPlugin(IvyPublishPlugin) != null ||
+        plugins.findPlugin("com.jfrog.bintray") != null
   }
 
   private static boolean booleanProperty(Project project, String propName) {

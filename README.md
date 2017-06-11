@@ -10,7 +10,7 @@ Add gdmc to your buildscript dependencies...
 buildscript {
   repositories { jcenter() }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.5'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.6'
   }
 }
 ```
@@ -82,12 +82,12 @@ gdmc provides the following tasks to handle resolving, importing and upgrading d
 - `gdmcUpgrade`: Find all properly mapped gdmc dependencies in your project, and resolve the latest release versions of each of them. Then dump those new versions into gdmc.json, overwriting whatever was there.
 - `gdmcUpgradeBuildscript`: Like gdmcUpgrade, but upgrades gdmc's references to dependencies defined in your buildscript block.
 - `gdmcUpgradeAll`: Upgrade all entries in your gdmc.json file, regardless of if they're defined in you project.
-- `gdmcImportSelf`: Add/update an entry in gdmc.json for this project, using the `group`, `name`, and `version` defined in gradle.
-- `gdmcValidateSelf`: A validation task that gets added as a dependant task to check and test. If the project's `version` does not include `SNAPSHOT`, ensures that current version referenced in gdmc.json
- - You should only need gdmc self validation if sharing a single gdmc file with multiple projects/repos. If you don't need this validation it can be disabled like so...
+- `gdmcValidateSelf`: A validation task that gets added as a dependant task to `check` for projects that are meant to be deployed. It ensures that the current version of your project is referenced in your gdmc.json file (assuming it's not a snapshot).
+  - You should only need gdmc self validation if sharing a single gdmc file with multiple projects/repos. If you don't need this validation it can be disabled with...
  ```groovy
  gdmcValidateSelf.required = {false}
  ```
+- `gdmcImportSelf`: Add/update an entry in gdmc.json for this project using the `group`, `name`, and `version` defined in gradle. Run this task if gdmcValidateSelf is failing.
 - `gdmcValidateBuildscriptDeps`: A validation task that gets added as a dependant task to check and test. Looks to see if any of your buildscript dependencies are mapped in gdmc, and fails the build if the versions being used are different from those referenced in gdmc.
 
 ### gdmc aliases
@@ -140,6 +140,31 @@ If needed, you can lock gdmc dependencies to a specific version by adding `"lock
 }
 ```
 
+### reading versions directly
+It's also possible to read a version directly using the convention method `gdmcVersion(key)`. For example, in a multi-module android app you could add the following sparse version definitions to your gdmc.json file
+```json
+{
+    "android.compilesdk": {
+        "version": "25",
+        "locked": true
+    },
+    "android.buildtools": {
+        "version": "26.0.0",
+        "locked": true
+    }
+}
+```
+(Notice these sparse dependencies must be `locked` otherwise the gdmcUpgrade* tasks will all fail)
+
+Then you can reference the versions in your modules' build.gradle files and gdmc becomes your single source of truth...
+```groovy
+
+android {
+    compileSdkVersion gdmcVersion('android.compilesdk') as Integer
+    buildToolsVersion gdmcVersion('android.buildtools')
+}
+```
+
 ### gdmc and spring dependency management plugin
 Gdmc can be used as along-side [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin). This allows you to combine gdmc mappings with mavenBoms, and enables enforced versions for transitive dependencies (something gdmc does not handle on its own).
 
@@ -175,10 +200,10 @@ In this mode gdmc will dump it's dependency map into spring's dependencyManager,
 - Allow dependencies to be decalred in gradle without versions defined
  - If you've used [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin), this will sound familiar. The dependency management plugin & gdmc do share some functionality, but have different areas of focus (gdmc doesn't override transitive dependencies or handle mapped exclusions at this time). [You can actually use gdmc along-side spring's dependency management plugin](#gdmc-and-spring-dependency-management-plugin) by applying the `com.episode6.hackit.gdmc-spring-compat` plugin instead of the normal gdmc plugin.
 - Map dependency keys -> versions in a separate file, and make it possible for that file to be stored in a submodule, so that it may be shared by multiple projects.
- - Technically, the spring dependency management plugin can also accomplish this by defining your dependencyManagement{} block in a separate file, and applying that file to your project. This is a valid alternative if have no use for the requirements below.
- - The spring plugin also has a mechanism for 'releasing' mavenBoms (groups of dependencies) to public maven repos, but this adds an entire new release cycle just for managing versions and feels like too much process. In the case of our small, new and volitile libraries, the instant updates and branching capabilities of a submodule are more appealing.
+  - Technically, the spring dependency management plugin can also accomplish this by defining your dependencyManagement{} block in a separate file, and applying that file to your project. This is a valid alternative if have no use for the requirements below.
+  - The spring plugin also has a mechanism for 'releasing' mavenBoms (groups of dependencies) to public maven repos, but this adds an entire new release cycle just for managing versions and feels like too much process. In the case of our small, new and volitile libraries, the instant updates and branching capabilities of a submodule are more appealing.
 - Automatically resolve missing dependencies via [a gradle task](#gdmc-tasks) so that you don't have to explicitly look up current versions (without a good reason).
- - Since we want to update the map programmatically, we decided to back it with a (pretty-printed) json file instead of a groovy file.
+  - Since we want to update the map programmatically, we decided to back it with a (pretty-printed) json file instead of a groovy file.
 - Provide [gradle tasks](#gdmc-tasks) to upgrade dependencies that are mapped via gdmc, to make it easier to stay on the latest stable releases or your dependencies
 - Provide a [mechanism to define aliases](#gdmc-aliases) for dependencies with long or obnoxious groupIds, and for groups of dependencies that often get applied together.
 
