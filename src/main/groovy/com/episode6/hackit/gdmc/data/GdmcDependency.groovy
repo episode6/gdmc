@@ -92,10 +92,16 @@ class GdmcDependency implements Serializable {
     if (alias) {
       return new LinkedHashMap(alias: alias)
     }
-    LinkedHashMap map = new LinkedHashMap(
-        groupId: groupId,
-        artifactId: artifactId,
-        version: version)
+    LinkedHashMap map = new LinkedHashMap();
+    if (groupId) {
+      map.put("groupId", groupId)
+    }
+    if (artifactId) {
+      map.put("artifactId", artifactId)
+    }
+    if (version) {
+      map.put("version", version)
+    }
     if (locked) {
       map.put("locked", locked)
     }
