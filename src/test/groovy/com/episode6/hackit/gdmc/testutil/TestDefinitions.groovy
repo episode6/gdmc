@@ -33,9 +33,12 @@ import org.mockito.Mockito;
   static final String buildFilePrefix(String plugins, Map opts = [:]) {
     """
 plugins {
+  ${opts.includeMaven ? "id 'maven'" : ""}
   id 'groovy'
 ${plugins}
 }
+
+${opts.includeMaven ? "uploadArchives {repositories.mavenDeployer {}}" : ""}
 
 gdmcLogger {
  enable()
@@ -54,11 +57,11 @@ repositories {
 """
   }
 
-  static void setupMultiProject(IntegrationTest test, String plugin, Map versions = [:]) {
+  static void setupMultiProject(IntegrationTest test, String plugin, Map opts = [:]) {
     test.gradleBuildFile << """
 allprojects {
   group = "com.example"
-  version = "${versions.projectVersion ?: '0.0.1-SNAPSHOT'}"
+  version = "${opts.projectVersion ?: '0.0.1-SNAPSHOT'}"
   
   repositories {
     jcenter()
@@ -72,16 +75,19 @@ allprojects {
       gradleBuildFile << """
 plugins {
   id 'java'
+  ${opts.includeMaven ? "id 'maven'" : ""}
 ${plugin}
 }
+
+${opts.includeMaven ? "uploadArchives {repositories.mavenDeployer {}}" : ""}
 
 gdmcLogger {
  enable()
 }
 
 dependencies {
-   compile 'org.mockito:mockito-core${versions.mockitoVersion ?: ''}'
-   compile 'com.episode6.hackit.chop:chop-core${versions.chopVersion ?: ''}'
+   compile 'org.mockito:mockito-core${opts.mockitoVersion ?: ''}'
+   compile 'com.episode6.hackit.chop:chop-core${opts.chopVersion ?: ''}'
 }
 """
       createJavaFile(
@@ -96,8 +102,11 @@ dependencies {
       gradleBuildFile << """
 plugins {
   id 'groovy'
+  ${opts.includeMaven ? "id 'maven'" : ""}
 ${plugin}
 }
+
+${opts.includeMaven ? "uploadArchives {repositories.mavenDeployer {}}" : ""}
 
 gdmcLogger {
  enable()
@@ -105,8 +114,8 @@ gdmcLogger {
 
 dependencies {
    compile project(':javalib')
-   compile 'com.episode6.hackit.chop:chop-core${versions.chopVersion ?: ''}'
-   testCompile('org.spockframework:spock-core${versions.spockVersion ?: ''}') {
+   compile 'com.episode6.hackit.chop:chop-core${opts.chopVersion ?: ''}'
+   testCompile('org.spockframework:spock-core${opts.spockVersion ?: ''}') {
     exclude module: 'groovy-all'
   }
 }
