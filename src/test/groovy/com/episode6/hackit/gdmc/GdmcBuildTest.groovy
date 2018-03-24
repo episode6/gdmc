@@ -299,7 +299,7 @@ dependencies {
     then:
     result.output.contains(plugin == GDMC_PLUGIN ?
         "Unmapped dependency found: com.episode6.hackit.chop:chop-core" :
-        "Could not resolve all dependencies for configuration")
+        "Could not resolve all files for configuration")
 
     where:
     plugin                      | _
@@ -315,7 +315,7 @@ dependencies {
     def result = test.buildAndFail("build")
 
     then:
-    result.output.contains("Could not resolve all dependencies")
+    result.output.contains("Could not resolve all files")
 
     where:
     plugin                      | _
