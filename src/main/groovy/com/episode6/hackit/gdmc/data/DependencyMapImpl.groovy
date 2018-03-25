@@ -71,8 +71,8 @@ class DependencyMapImpl implements DependencyMap {
     GChop.d("Applying overrides file to dependency map: %s", file.absolutePath)
 
     def json = new JsonSlurper().parse(file)
-    json.each { String key, value ->
-      GdmcDependency dep = GdmcDependency.from(value, key)
+    json.each { String key, Map value ->
+      GdmcDependency dep = GdmcDependency.fromMap(this, value, key)
       overrides.put(key, dep)
     }
   }
@@ -86,15 +86,15 @@ class DependencyMapImpl implements DependencyMap {
 
     def json = new JsonSlurper().parse(file)
     if (json instanceof Map) {
-      json.each { String key, value ->
-        GdmcDependency dep = GdmcDependency.from(value, key)
+      json.each { String key, Map value ->
+        GdmcDependency dep = GdmcDependency.fromMap(this, value, key)
         if (!filter || filter.shouldApply(dep)) {
           mappedDependencies.put(dep.mapKey, dep)
         }
       }
     } else if (json instanceof List) {
-      json.each { value ->
-        GdmcDependency dep = GdmcDependency.from(value)
+      json.each { Map value ->
+        GdmcDependency dep = GdmcDependency.fromMap(this, value)
         if (!filter || filter.shouldApply(dep)) {
           mappedDependencies.put(dep.mapKey, dep)
         }

@@ -13,24 +13,25 @@ import org.gradle.api.artifacts.ModuleVersionSelector
  */
 @EqualsAndHashCode
 class GdmcDependency implements Serializable {
-  static @Nullable GdmcDependency from(Object obj, String mapKey = null) {
+  static @Nullable GdmcDependency fromMap(DependencyMap dependencyMap, Map obj, String mapKey = null) {
+    return new GdmcDependency(
+        groupId: obj.get("groupId"),
+        artifactId: obj.get("artifactId"),
+        version: obj.get("version"),
+        alias: obj.get("alias"),
+        locked: obj.get("locked"),
+        mapKey: mapKey)
+  }
+
+  static @Nullable GdmcDependency from(Object obj) {
     if (obj instanceof ModuleVersionIdentifier || obj instanceof ModuleVersionSelector || obj instanceof Dependency || obj instanceof Project) {
       return new GdmcDependency(
           groupId: obj.group,
           artifactId: obj.name,
           version: obj.version,
-          mapKey: mapKey)
+          mapKey: null)
     }
-    if (obj instanceof Map) {
-      return new GdmcDependency(
-          groupId: obj.get("groupId"),
-          artifactId: obj.get("artifactId"),
-          version: obj.get("version"),
-          alias: obj.get("alias"),
-          locked: obj.get("locked"),
-          mapKey: mapKey)
-    }
-    return fromString(obj, mapKey)
+    return fromString(obj.toString())
   }
 
   static @Nullable GdmcDependency fromString(String identifier, String mapKey = null) {
