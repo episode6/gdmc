@@ -275,6 +275,72 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test import does overwrite existing gdmc when told but ignores inherited versions"(String plugin) {
+    given:
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'org.mockito:mockito-core:2.7.11'
+   compile 'org.mockito:mockito-inline:2.7.11'
+   
+   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
+    exclude module: 'groovy-all'
+  }
+}
+"""
+    test.gdmcJsonFile << """
+{
+   "org.mockito:mockito-core": {
+     "groupId": "org.mockito",
+     "artifactId": "mockito-core",
+     "version": "2.7.10"
+   },
+   "org.mockito:mockito-inline": {
+     "groupId": "org.mockito",
+     "artifactId": "mockito-inline",
+     "inheritVersion": "org.mockito:mockito-core"
+   },
+   "org.spockframework:spock-core": {
+     "groupId": "org.spockframework",
+     "artifactId": "spock-core",
+     "version": "1.1-groovy-2.4-rc-2"
+   }
+}
+"""
+
+    when:
+    def result = test.build("-Pgdmc.overwrite=true", "gdmcImport")
+
+    then:
+    result.task(":gdmcImport").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("org.mockito:mockito-core")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-core"
+        version == "2.7.11"
+      }
+      with(get("org.mockito:mockito-inline")) {
+        groupId == "org.mockito"
+        artifactId == "mockito-inline"
+        inheritVersion == "org.mockito:mockito-core"
+        get("version") == null
+        get("locked") == null
+      }
+      with(get("org.spockframework:spock-core")) {
+        groupId == "org.spockframework"
+        artifactId == "spock-core"
+        version == "1.1-groovy-2.4-rc-3"
+      }
+      size() == 3
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test import buildscript does overwrite existing gdmc when told"(String plugin) {
     given:
     test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin, [deployableVersion: "0.1.4"])
