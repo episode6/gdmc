@@ -22,7 +22,7 @@ import com.episode6.hackit.chop.Chop;
 
 """
   static final String CHOP_RULE_IMPORT = """
-com.episode6.hackit.chop.ChopRule
+import com.episode6.hackit.chop.ChopRule;
 """
   static final String SPOCK_IMPORT = """
 import spock.lang.Specification;

@@ -38,7 +38,7 @@ class GdmcBuildTest extends Specification {
    "com.episode6.hackit.chop:chop-junit": {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-junit",
-      "inheritedVersion": "com.episode6.hackit.chop:chop-core"
+      "inheritVersion": "com.episode6.hackit.chop:chop-core"
    }
 """
 
