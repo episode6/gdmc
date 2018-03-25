@@ -16,11 +16,14 @@ class GdmcSelfTest extends Specification {
     String packageName = opts.packageName ?: 'com.example.testproject'
     String name = opts.name ?: 'sample-proj'
     String version = opts.version ?: '0.0.1'
+    String versionString = opts.inheritVersion != null ?
+        "\"inheritVersion\": \"${opts.inheritVersion}\"" :
+        "\"version\": \"${version}\""
     return """
   "${packageName}:${name}": {
     "groupId": "${packageName}",
     "artifactId": "${name}",
-    "version": "${version}"
+    ${versionString}
   }
 """
   }
@@ -137,6 +140,44 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
         groupId == "com.example"
         artifactId == "groovylib"
         version == "0.1"
+      }
+      size() == 2
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test importSelf multi-project ignore inheritance"(String plugin) {
+    given:
+    setupMultiProject(test, plugin, [projectVersion: "0.2", includeMaven: true])
+    test.gdmcJsonFile << """
+{
+${singleProjectGdmc(packageName: "com.example", name: "javalib", version: "0.1")},
+${singleProjectGdmc(packageName: "com.example", name: "groovylib", inheritVersion: "com.example:javalib")}
+}
+"""
+
+    when:
+    def result = test.build("gdmcImportSelf")
+
+    then:
+    result.task(":javalib:gdmcImportSelf").outcome == TaskOutcome.SUCCESS
+    result.task(":groovylib:gdmcImportSelf").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.example:javalib")) {
+        groupId == "com.example"
+        artifactId == "javalib"
+        version == "0.2"
+      }
+      with(get("com.example:groovylib")) {
+        groupId == "com.example"
+        artifactId == "groovylib"
+        inheritVersion == "com.example:javalib"
+        version == null
       }
       size() == 2
     }

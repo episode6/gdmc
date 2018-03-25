@@ -107,7 +107,9 @@ class DependencyMapImpl implements DependencyMap {
   }
 
   void put(GdmcDependency dependency) {
-    mappedDependencies.put(dependency.mapKey, dependency)
+    if (!isLocked(dependency.mapKey)) {
+      mappedDependencies.put(dependency.mapKey, dependency)
+    }
     writeToFile()
   }
 
