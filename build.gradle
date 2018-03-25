@@ -8,9 +8,12 @@ buildscript {
   }
   repositories {
     jcenter()
+    maven {
+      url 'https://oss.sonatype.org/content/repositories/snapshots/'
+    }
   }
   dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.6'
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.7-SNAPSHOT'
     classpath compileDependencies
   }
 }
@@ -21,6 +24,9 @@ version = "0.1.7-SNAPSHOT"
 repositories {
   jcenter()
   google()
+  maven {
+    url 'https://oss.sonatype.org/content/repositories/snapshots/'
+  }
 }
 
 apply plugin: 'groovy'
@@ -60,7 +66,7 @@ dependencies {
   testImplementation 'com.episode6.hackit.groovykit:gk-files'
   testImplementation 'com.episode6.hackit.groovykit:gk-versions'
 
-  alsoUnderTest 'com.episode6.hackit.deployable:deployable'
+  alsoUnderTest 'com.episode6.hackit.deployable:deployable:0.1.7-SNAPSHOT'
   alsoUnderTest 'com.android.tools.build:gradle'
 }
 
@@ -69,8 +75,9 @@ pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
 }
 
-// Ensure maven consumers are aware of our alsoUnderTest dependencies
-conf2ScopeMappings.addMapping(0, configurations.alsoUnderTest, "test")
+mavenDependencies {
+  map configurations.alsoUnderTest, "test"
+}
 
 test {
   testLogging {
