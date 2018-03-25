@@ -140,14 +140,6 @@ class GdmcDependency implements Serializable {
     transient DependencyMap dependencyMap
 
     @Override
-    Object getProperty(String s) {
-      if (s.equals("version")) {
-        return getVersion()
-      }
-      return super.getProperty(s)
-    }
-
-    @Override
     String getVersion() {
       if (inheritedVersionFrom) {
         try {
