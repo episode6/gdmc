@@ -152,6 +152,14 @@ class GdmcDependency implements Serializable {
       return super.getVersion()
     }
 
+    @Override
+    Boolean getLocked() {
+      if (inheritedVersionFrom) {
+        return true
+      }
+      return super.getLocked()
+    }
+
     private static GdmcDependency validateInheritedVersionLookup(List<GdmcDependency> lookupResults) {
       if (lookupResults.isEmpty()) {
         throw new GradleException("Lookup results empty, invalid reference")

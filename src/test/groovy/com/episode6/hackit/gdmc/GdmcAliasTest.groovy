@@ -16,7 +16,12 @@ class GdmcAliasTest extends Specification {
   "chop:core": {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-core",
-      "version": "0.1.7.2"
+      "version": "0.1.9"
+   },
+   "chop:junit": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-junit",
+      "inheritVersion": "chop:core"
    },
    "spock:core": {
      "groupId": "org.spockframework",
@@ -29,6 +34,7 @@ class GdmcAliasTest extends Specification {
   "test:mygroup": {
     "alias": [
       "chop:core",
+      "chop:junit",
       "spock:core"
     ]
   }
@@ -37,6 +43,9 @@ class GdmcAliasTest extends Specification {
   private static final String INDIVIDUAL_ALIAS_DEPENDENCIES = """
   "test:chop": {
     "alias": "chop:core"
+  },
+  "test:chop-junit": {
+    "alias": "chop:junit"
   },
   "test:spock": {
     "alias": "spock:core"
@@ -64,9 +73,10 @@ dependencies {
   def "test build mismatched direct aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "chop:core", "spock:core")
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "chop:core", "spock:core", "chop:junit")
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
 
     when:
     def result = test.build("build")
@@ -86,9 +96,10 @@ dependencies {
   def "test upgrade mismatched direct aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "chop:core", "spock:core")
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "chop:core", "spock:core", "chop:junit")
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -100,7 +111,14 @@ dependencies {
         groupId == "com.episode6.hackit.chop"
         artifactId == "chop-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("0.1.7.2")
+        version.asVersion().isGreaterThanEquals("0.1.9")
+        get("locked") == null
+      }
+      with(get("chop:junit")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-junit"
+        inheritVersion == "chop:core"
+        get("version") == null
         get("locked") == null
       }
       with(get("spock:core")) {
@@ -109,7 +127,7 @@ dependencies {
         !version.contains("-SNAPSHOT")
         version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
-      size() == 2
+      size() == 3
     }
 
     where:
@@ -126,6 +144,7 @@ dependencies {
     test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:mygroup")
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
 
     when:
     def result = test.build("build")
@@ -148,6 +167,7 @@ dependencies {
     test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:mygroup")
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -159,7 +179,14 @@ dependencies {
         groupId == "com.episode6.hackit.chop"
         artifactId == "chop-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("0.1.7.2")
+        version.asVersion().isGreaterThanEquals("0.1.9")
+        get("locked") == null
+      }
+      with(get("chop:junit")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-junit"
+        inheritVersion == "chop:core"
+        get("version") == null
         get("locked") == null
       }
       with(get("spock:core")) {
@@ -169,9 +196,9 @@ dependencies {
         version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
       with(get("test:mygroup")) {
-        alias.size() == 2
+        alias.size() == 3
       }
-      size() == 3
+      size() == 4
     }
 
     where:
@@ -185,9 +212,10 @@ dependencies {
   def "test build mismatched singular aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}, ${INDIVIDUAL_ALIAS_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:chop", "test:spock")
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:chop", "test:spock", "test:chop-junit")
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
 
     when:
     def result = test.build("build")
@@ -207,9 +235,10 @@ dependencies {
   def "test upgrade mismatched signular aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}, ${INDIVIDUAL_ALIAS_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:chop", "test:spock")
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:chop", "test:spock", "test:chop-junit")
     test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -221,7 +250,14 @@ dependencies {
         groupId == "com.episode6.hackit.chop"
         artifactId == "chop-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThan("0.1.7.2")
+        version.asVersion().isGreaterThanEquals("0.1.9")
+        get("locked") == null
+      }
+      with(get("chop:junit")) {
+        groupId == "com.episode6.hackit.chop"
+        artifactId == "chop-junit"
+        inheritVersion == "chop:core"
+        get("version") == null
         get("locked") == null
       }
       with(get("spock:core")) {
@@ -233,10 +269,13 @@ dependencies {
       with(get("test:chop")) {
         alias == "chop:core"
       }
+      with(get("test:chop-junit")) {
+        alias == "chop:junit"
+      }
       with(get("test:spock")) {
         alias == "spock:core"
       }
-      size() == 4
+      size() == 6
     }
 
     where:
