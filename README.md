@@ -165,6 +165,28 @@ android {
 }
 ```
 
+### version inheritance
+If you work with multi-module dependencies, they can share a single version via version inheritance.
+```json
+{
+    "com.episode6.hackit.chop:chop-core": {
+        "groupId": "com.episode6.hackit.chop",
+        "artifactId": "chop-core",
+        "version": "0.1.9"
+    },
+    "com.episode6.hackit.chop:chop-android": {
+        "groupId": "com.episode6.hackit.chop",
+        "artifactId": "chop-android",
+        "inheritVersion": "com.episode6.hackit.chop:chop-core"
+    },
+    "com.episode6.hackit.chop:chop-junit": {
+        "groupId": "com.episode6.hackit.chop",
+        "artifactId": "chop-junit",
+        "inheritVersion": "com.episode6.hackit.chop:chop-core"
+    },
+}
+```
+
 ### gdmc and spring dependency management plugin
 Gdmc can be used as along-side [Spring's dependency management plugin](https://github.com/spring-gradle-plugins/dependency-management-plugin). This allows you to combine gdmc mappings with mavenBoms, and enables enforced versions for transitive dependencies (something gdmc does not handle on its own).
 
