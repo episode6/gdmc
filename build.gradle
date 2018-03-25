@@ -48,17 +48,17 @@ configurations {
 }
 
 dependencies {
-  compile localGroovy()
-  compile gradleApi()
+  implementation localGroovy()
+  implementation gradleApi()
 
-  compile compileDependencies
+  implementation compileDependencies
 
-  testCompile("org.spockframework:spock-core")  {
+  testImplementation("org.spockframework:spock-core")  {
     exclude module: 'groovy-all'
   }
-  testCompile gradleTestKit()
-  testCompile 'com.episode6.hackit.groovykit:gk-files'
-  testCompile 'com.episode6.hackit.groovykit:gk-versions'
+  testImplementation gradleTestKit()
+  testImplementation 'com.episode6.hackit.groovykit:gk-files'
+  testImplementation 'com.episode6.hackit.groovykit:gk-versions'
 
   alsoUnderTest 'com.episode6.hackit.deployable:deployable'
   alsoUnderTest 'com.android.tools.build:gradle'
