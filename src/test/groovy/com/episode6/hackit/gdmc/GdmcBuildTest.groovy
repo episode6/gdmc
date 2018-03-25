@@ -20,12 +20,25 @@ class GdmcBuildTest extends Specification {
    "org.mockito:mockito-core": {
      "groupId": "org.mockito",
      "artifactId": "mockito-core",
-     "version": "2.7.0"
+     "version": "2.7.10"
    },
    "org.spockframework:spock-core": {
      "groupId": "org.spockframework",
      "artifactId": "spock-core",
      "version": "1.1-groovy-2.4-rc-2"
+   },
+"""
+
+  private static String CHOP_DEPENDENCIES_INHERITED_VERSIONS = """
+  "com.episode6.hackit.chop:chop-core": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-core",
+      "version": "0.1.9"
+   },
+   "com.episode6.hackit.chop:chop-junit": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-junit",
+      "inheritedVersion": "com.episode6.hackit.chop:chop-core"
    }
 """
 
@@ -125,6 +138,34 @@ dependencies {
     "alias": "org.mockito:mockito-core"
   },
 ${PRE_SET_DEPENDENCIES}
+}
+"""
+    when:
+    def result = test.build("build")
+
+    then:
+    result.task(":build").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test resolve pre-set dependencies with inherited versions"(String plugin) {
+    given:
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", dir: "test", imports: CHOP_RULE_IMPORT)
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+   compile 'com.episode6.hackit.chop:chop-core'
+   testCompile 'com.episode6.hackit.chop:chop-junit'
+}
+"""
+    test.gdmcJsonFile << """
+{
+${CHOP_DEPENDENCIES_INHERITED_VERSIONS}
 }
 """
     when:

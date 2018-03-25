@@ -14,13 +14,15 @@ import org.gradle.api.artifacts.ModuleVersionSelector
 @EqualsAndHashCode
 class GdmcDependency implements Serializable {
   static @Nullable GdmcDependency fromMap(DependencyMap dependencyMap, Map obj, String mapKey = null) {
-    return new GdmcDependency(
+    return new DepFromDependencyMap(
         groupId: obj.get("groupId"),
         artifactId: obj.get("artifactId"),
         version: obj.get("version"),
+        inheritedVersionFrom: obj.get("inheritVersion"),
         alias: obj.get("alias"),
         locked: obj.get("locked"),
-        mapKey: mapKey)
+        mapKey: mapKey,
+        dependencyMap: dependencyMap)
   }
 
   static @Nullable GdmcDependency from(Object obj) {
@@ -50,6 +52,7 @@ class GdmcDependency implements Serializable {
   String groupId
   String artifactId
   String version
+  String inheritedVersionFrom
   Boolean locked
   String mapKey
 
@@ -78,8 +81,8 @@ class GdmcDependency implements Serializable {
     if (alias) {
       throw new GradleException("called getFullMavenKey on alias: ${this}")
     }
-    if (version) {
-      return "${getMavenKey()}:${version}"
+    if (getVersion()) {
+      return "${getMavenKey()}:${getVersion()}"
     }
     return getMavenKey()
   }
@@ -100,9 +103,13 @@ class GdmcDependency implements Serializable {
     if (artifactId) {
       map.put("artifactId", artifactId)
     }
-    if (version) {
-      map.put("version", version)
+
+    if (inheritedVersionFrom) {
+      map.put("inheritVersion", inheritedVersionFrom)
+    } else if (getVersion()) {
+      map.put("version", getVersion())
     }
+
     if (locked) {
       map.put("locked", locked)
     }
@@ -113,7 +120,7 @@ class GdmcDependency implements Serializable {
     if (alias) {
       throw new GradleException("Called GdmcDependency.withoutVersion() on an alias: ${this}")
     }
-    if (!version) {
+    if (!getVersion()) {
       return this
     }
     return new GdmcDependency(
@@ -126,5 +133,41 @@ class GdmcDependency implements Serializable {
     project.rootProject.allprojects.find {
       groupId == it.group && artifactId == it.name
     } != null
+  }
+
+  private static class DepFromDependencyMap extends GdmcDependency implements Serializable {
+
+    transient DependencyMap dependencyMap
+
+    @Override
+    Object getProperty(String s) {
+      if (s.equals("version")) {
+        return getVersion()
+      }
+      return super.getProperty(s)
+    }
+
+    @Override
+    String getVersion() {
+      if (inheritedVersionFrom) {
+        try {
+          return validateInheritedVersionLookup(
+              dependencyMap.lookupWithOverrides(inheritedVersionFrom)).getVersion()
+        } catch (GradleException e) {
+          throw new GradleException("Lookup failed for inherited version on key ${getMapKey()}", e)
+        }
+      }
+      return super.getVersion()
+    }
+
+    private static GdmcDependency validateInheritedVersionLookup(List<GdmcDependency> lookupResults) {
+      if (lookupResults.isEmpty()) {
+        throw new GradleException("Lookup results empty, invalid reference")
+      }
+      if (lookupResults.size() > 1) {
+        throw new GradleException("Too many lookup results")
+      }
+      return lookupResults.first()
+    }
   }
 }
