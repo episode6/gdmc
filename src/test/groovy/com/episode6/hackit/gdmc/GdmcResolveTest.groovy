@@ -20,9 +20,9 @@ class GdmcResolveTest extends Specification {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation 'org.mockito:mockito-core'
+   implementation 'com.episode6.hackit.chop:chop-core'
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -66,9 +66,9 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation 'org.mockito:mockito-core'
+   implementation 'com.episode6.hackit.chop:chop-core'
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }

@@ -52,8 +52,8 @@ class GdmcBuildTest extends Specification {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation 'com.episode6.hackit.chop:chop-core'
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -82,8 +82,8 @@ ${PRE_SET_DEPENDENCIES}
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation 'com.episode6.hackit.chop:chop-core'
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -117,8 +117,8 @@ gdmc.file=gdmcFolder/new_gdmc_file.json
     test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
     test.gradleBuildFile << """
 dependencies {
-   compile gdmc('subgroup')
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation gdmc('subgroup')
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -159,8 +159,8 @@ ${PRE_SET_DEPENDENCIES}
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core'
-   testCompile 'com.episode6.hackit.chop:chop-junit'
+   implementation 'com.episode6.hackit.chop:chop-core'
+   testImplementation 'com.episode6.hackit.chop:chop-junit'
 }
 """
     test.gdmcJsonFile << """
@@ -188,8 +188,8 @@ ${CHOP_DEPENDENCIES_INHERITED_VERSIONS}
     test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
     test.gradleBuildFile << """
 dependencies {
-   compile gdmc('subgroup')
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation gdmc('subgroup')
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -235,8 +235,8 @@ ${PRE_SET_DEPENDENCIES}
     test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
     test.gradleBuildFile << """
 dependencies {
-   compile gdmc('subgroup')
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation gdmc('subgroup')
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -289,8 +289,8 @@ gdmc.overrideFiles=overrides_root.json|sub/sub_overrides.json
     test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKITO_IMPORT, className: "SampleClass2")
     test.gradleBuildFile << """
 dependencies {
-   compile 'testing:subgroup'
-   testCompile(group: 'org.spockframework', name: 'spock-core')  {
+   implementation 'testing:subgroup'
+   testImplementation(group: 'org.spockframework', name: 'spock-core')  {
     exclude module: 'groovy-all'
   }
 }
@@ -331,7 +331,7 @@ ${PRE_SET_DEPENDENCIES}
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core'
+   implementation 'com.episode6.hackit.chop:chop-core'
 }
 """
     when:
@@ -407,7 +407,7 @@ dependencyManagement {
 }
 
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core'
+   implementation 'com.episode6.hackit.chop:chop-core'
 }
 """
     when:

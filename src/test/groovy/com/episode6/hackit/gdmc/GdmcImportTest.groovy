@@ -349,7 +349,7 @@ dependencies {
    compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
    compile 'org.mockito:mockito-core:2.7.1'
    
-   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
+   testImplementation(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
     exclude module: 'groovy-all'
   }
 }
@@ -390,7 +390,7 @@ dependencies {
    compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
    compile 'org.mockito:mockito-core:2.7.1'
    
-   testCompile(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
+   testImplementation(group: 'org.spockframework', name: 'spock-core', version: '1.1-groovy-2.4-rc-3')  {
     exclude module: 'groovy-all'
   }
 }
@@ -517,7 +517,7 @@ buildscript {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   implementation 'com.episode6.hackit.chop:chop-core:0.1.7.2'
 }
 """
     when:
@@ -551,7 +551,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   implementation 'com.episode6.hackit.chop:chop-core:0.1.7.2'
 }
 """
     test.gdmcJsonFile << """
@@ -594,7 +594,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   implementation 'com.episode6.hackit.chop:chop-core:0.1.7.2'
 }
 """
     test.gdmcJsonFile << """
@@ -637,7 +637,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile gdmc('testalias')
+   implementation gdmc('testalias')
 }
 """
     test.gdmcJsonFile << """
@@ -704,7 +704,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'junit:junit'
+   implementation 'junit:junit'
 }
 """
     test.gdmcJsonFile << """
@@ -750,7 +750,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'junit:junit'
+   implementation 'junit:junit'
 }
 """
     when:
@@ -771,7 +771,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'junit:junit'
+   implementation 'junit:junit'
 }
 """
     when:
@@ -792,7 +792,7 @@ dependencies {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-   compile 'com.episode6.hackit.chop:chop-core:0.1.7.2'
+   implementation 'com.episode6.hackit.chop:chop-core:0.1.7.2'
 }
 """
     test.gdmcJsonFile << """

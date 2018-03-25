@@ -125,9 +125,9 @@ ${buildFilePrefix(plugins, opts)}
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-  compile 'com.episode6.hackit.chop:chop-core'
-  compile 'org.mockito:mockito-core'
-  compile 'org.spockframework:spock-core'
+  implementation 'com.episode6.hackit.chop:chop-core'
+  implementation 'org.mockito:mockito-core'
+  implementation 'org.spockframework:spock-core'
 }
 """
     when:
@@ -170,9 +170,9 @@ dependencies {
     test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin)
     test.gradleBuildFile << """
 dependencies {
-  compile 'com.episode6.hackit.chop:chop-core'
-  compile 'org.mockito:mockito-core'
-  compile 'org.spockframework:spock-core'
+  implementation 'com.episode6.hackit.chop:chop-core'
+  implementation 'org.mockito:mockito-core'
+  implementation 'org.spockframework:spock-core'
 }
 """
     when:
@@ -197,9 +197,9 @@ dependencies {
     test.gradleBuildFile << buildFilePrefixWithBuildscript(plugin)
     test.gradleBuildFile << """
 dependencies {
-  compile 'com.episode6.hackit.chop:chop-core'
-  compile 'org.mockito:mockito-core'
-  compile 'org.spockframework:spock-core'
+  implementation 'com.episode6.hackit.chop:chop-core'
+  implementation 'org.mockito:mockito-core'
+  implementation 'org.spockframework:spock-core'
 }
 """
     when:
@@ -269,9 +269,9 @@ buildscript {
     test.gradleBuildFile << buildFilePrefix(plugin)
     test.gradleBuildFile << """
 dependencies {
-  compile 'com.episode6.hackit.chop:chop-core'
-  compile 'org.mockito:mockito-core'
-  compile 'javax.inject:javax.inject'
+  implementation 'com.episode6.hackit.chop:chop-core'
+  implementation 'org.mockito:mockito-core'
+  implementation 'javax.inject:javax.inject'
 }
 """
     when:
@@ -486,7 +486,7 @@ ${plugin}
 }
 
 dependencies {
-   compile project(':javalib')
+   implementation project(':javalib')
 }
 """
     }

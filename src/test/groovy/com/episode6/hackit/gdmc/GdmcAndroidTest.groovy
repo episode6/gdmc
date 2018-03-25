@@ -126,7 +126,7 @@ android {
     test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
     test.gradleBuildFile << """
 dependencies {
-   compile gdmc('mygroup')
+   implementation gdmc('mygroup')
 }
 """
     when:
@@ -148,8 +148,8 @@ dependencies {
     test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
     test.gradleBuildFile << """
 dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
+   implementation 'org.mockito:mockito-core'
+   implementation 'com.episode6.hackit.chop:chop-core'
 }
 """
     when:

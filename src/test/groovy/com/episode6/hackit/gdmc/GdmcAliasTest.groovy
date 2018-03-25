@@ -60,7 +60,7 @@ dependencies {
 
 """
     for (String d : deps) {
-      prefix += "\tcompile "
+      prefix += "\timplementation "
       prefix += aliasMethodWrap ? "gdmc('${d}')" : "'${d}'"
       prefix += "\n"
     }
