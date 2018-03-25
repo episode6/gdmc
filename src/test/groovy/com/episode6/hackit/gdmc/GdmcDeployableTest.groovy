@@ -18,6 +18,7 @@ class GdmcDeployableTest extends Specification {
     String deps = opts.deps ?: """
    compile 'org.mockito:mockito-core'
    compile 'com.episode6.hackit.chop:chop-core'
+   compile 'com.episode6.hackit.chop:chop-junit'
 """
     return """
 buildscript {
@@ -84,7 +85,12 @@ ${deps}
   "com.episode6.hackit.chop:chop-core": {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-core",
-      "version": "0.1.7.1"
+      "version": "0.1.9"
+   },
+   "com.episode6.hackit.chop:chop-junit": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-junit",
+      "inheritVersion": "com.episode6.hackit.chop:chop-core"
    },
    "org.mockito:mockito-core": {
      "groupId": "org.mockito",
@@ -144,6 +150,7 @@ ${deps}
   "myAlias": {
     "alias": [
       "com.episode6.hackit.chop:chop-core",
+      "com.episode6.hackit.chop:chop-junit",
       "org.mockito:mockito-core"]
   },
 ${GDMC_CONTENTS}
@@ -175,6 +182,7 @@ ${GDMC_CONTENTS}
   "namespaced:alias": {
     "alias": [
       "com.episode6.hackit.chop:chop-core",
+      "com.episode6.hackit.chop:chop-junit",
       "org.mockito:mockito-core"]
   },
 ${GDMC_CONTENTS}
@@ -198,7 +206,12 @@ ${GDMC_CONTENTS}
     assert mavenOutputVerifier.verifyPomDependency(
         groupId: "com.episode6.hackit.chop",
         artifactId:  "chop-core",
-        version:  "0.1.7.1",
+        version:  "0.1.9",
+        times: 1)
+    assert mavenOutputVerifier.verifyPomDependency(
+        groupId: "com.episode6.hackit.chop",
+        artifactId:  "chop-junit",
+        version:  "0.1.9",
         times: 1)
     assert mavenOutputVerifier.verifyPomDependency(
         groupId: "org.mockito",

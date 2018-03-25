@@ -71,7 +71,12 @@ android {
   "com.episode6.hackit.chop:chop-core": {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-core",
-      "version": "0.1.7.2"
+      "version": "0.1.9"
+   },
+   "com.episode6.hackit.chop:chop-junit": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-junit",
+      "inheritVersion": "com.episode6.hackit.chop:chop-core"
    },
    "org.mockito:mockito-core": {
      "groupId": "org.mockito",
@@ -89,6 +94,7 @@ android {
   "mygroup": {
     "alias": [
       "com.episode6.hackit.chop:chop-core",
+      "com.episode6.hackit.chop:chop-junit",
       "org.mockito:mockito-core",
       "org.spockframework:spock-core"
     ]
