@@ -10,7 +10,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.5'
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.6'
     classpath compileDependencies
   }
 }
@@ -20,6 +20,7 @@ version = "0.1.7-SNAPSHOT"
 
 repositories {
   jcenter()
+  google()
 }
 
 apply plugin: 'groovy'

@@ -6,7 +6,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
-import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.GDMC_PLUGIN
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.GDMC_SPRINGS_COMPAT_PLUGIN
 
 /**
  * Tests compatibility with android plugin
@@ -18,10 +19,9 @@ class GdmcAndroidTest extends Specification {
 buildscript {
   repositories {
     jcenter()
+    google()
   }
 
-  // We need to declare this in order to retrieve the android plugin's dependencies
-  // I don't really understand why this is.
   dependencies {
     classpath '${MyDependencyMap.lookupDep("com.android.tools.build:gradle")}'
   }
