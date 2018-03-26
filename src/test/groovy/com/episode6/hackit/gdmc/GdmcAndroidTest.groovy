@@ -6,7 +6,8 @@ import org.gradle.testkit.runner.TaskOutcome
 import org.junit.Rule
 import spock.lang.Specification
 
-import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.GDMC_PLUGIN
+import static com.episode6.hackit.gdmc.testutil.TestDefinitions.GDMC_SPRINGS_COMPAT_PLUGIN
 
 /**
  * Tests compatibility with android plugin
@@ -18,10 +19,9 @@ class GdmcAndroidTest extends Specification {
 buildscript {
   repositories {
     jcenter()
+    google()
   }
 
-  // We need to declare this in order to retrieve the android plugin's dependencies
-  // I don't really understand why this is.
   dependencies {
     classpath '${MyDependencyMap.lookupDep("com.android.tools.build:gradle")}'
   }
@@ -71,7 +71,12 @@ android {
   "com.episode6.hackit.chop:chop-core": {
       "groupId": "com.episode6.hackit.chop",
       "artifactId": "chop-core",
-      "version": "0.1.7.2"
+      "version": "0.1.9"
+   },
+   "com.episode6.hackit.chop:chop-junit": {
+      "groupId": "com.episode6.hackit.chop",
+      "artifactId": "chop-junit",
+      "inheritVersion": "com.episode6.hackit.chop:chop-core"
    },
    "org.mockito:mockito-core": {
      "groupId": "org.mockito",
@@ -89,6 +94,7 @@ android {
   "mygroup": {
     "alias": [
       "com.episode6.hackit.chop:chop-core",
+      "com.episode6.hackit.chop:chop-junit",
       "org.mockito:mockito-core",
       "org.spockframework:spock-core"
     ]
@@ -120,7 +126,7 @@ android {
     test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
     test.gradleBuildFile << """
 dependencies {
-   compile gdmc('mygroup')
+   implementation gdmc('mygroup')
 }
 """
     when:
@@ -142,8 +148,8 @@ dependencies {
     test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
     test.gradleBuildFile << """
 dependencies {
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
+   implementation 'org.mockito:mockito-core'
+   implementation 'com.episode6.hackit.chop:chop-core'
 }
 """
     when:

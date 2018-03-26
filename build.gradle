@@ -3,23 +3,25 @@ buildscript {
     // Since this plugin implements itself, we must declare our compile dependencies on the classpath.
     // Define them here so we don't write them twice.
     compileDependencies = [
-        'com.episode6.hackit.chop:chop-core:0.1.8.1',
-        'com.episode6.hackit.chop:chop-groovy:0.1.8.1']
+        'com.episode6.hackit.chop:chop-core:0.1.9',
+        'com.episode6.hackit.chop:chop-groovy:0.1.9']
   }
   repositories {
     jcenter()
+    mavenCentral()
   }
   dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.5'
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.7'
     classpath compileDependencies
   }
 }
 
 group = "com.episode6.hackit.gdmc"
-version = "0.1.6"
+version = "0.1.7"
 
 repositories {
   jcenter()
+  google()
 }
 
 apply plugin: 'groovy'
@@ -35,7 +37,7 @@ GroovyScriptEngine scriptEngine = new GroovyScriptEngine([
 apply plugin: scriptEngine.loadScriptByName('com/episode6/hackit/gdmc/plugin/GdmcPlugin.groovy')
 
 task wrapper(type: Wrapper) {
-  gradleVersion = "3.3"
+  gradleVersion = "4.1"
   distributionType = "all"
 }
 
@@ -47,17 +49,17 @@ configurations {
 }
 
 dependencies {
-  compile localGroovy()
-  compile gradleApi()
+  implementation localGroovy()
+  implementation gradleApi()
 
-  compile compileDependencies
+  implementation compileDependencies
 
-  testCompile("org.spockframework:spock-core")  {
+  testImplementation("org.spockframework:spock-core")  {
     exclude module: 'groovy-all'
   }
-  testCompile gradleTestKit()
-  testCompile 'com.episode6.hackit.groovykit:gk-files'
-  testCompile 'com.episode6.hackit.groovykit:gk-versions'
+  testImplementation gradleTestKit()
+  testImplementation 'com.episode6.hackit.groovykit:gk-files'
+  testImplementation 'com.episode6.hackit.groovykit:gk-versions'
 
   alsoUnderTest 'com.episode6.hackit.deployable:deployable'
   alsoUnderTest 'com.android.tools.build:gradle'
@@ -68,8 +70,9 @@ pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
 }
 
-// Ensure maven consumers are aware of our alsoUnderTest dependencies
-conf2ScopeMappings.addMapping(0, configurations.alsoUnderTest, "test")
+mavenDependencies {
+  map configurations.alsoUnderTest, "test"
+}
 
 test {
   testLogging {

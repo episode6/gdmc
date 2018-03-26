@@ -10,7 +10,7 @@ Add gdmc to your buildscript dependencies...
 buildscript {
   repositories { jcenter() }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.6'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.7'
   }
 }
 ```
@@ -162,6 +162,28 @@ Then you can reference the versions in your modules' build.gradle files and gdmc
 android {
     compileSdkVersion gdmcVersion('android.compilesdk') as Integer
     buildToolsVersion gdmcVersion('android.buildtools')
+}
+```
+
+### version inheritance
+If you work with multi-module dependencies, they can share a single version via version inheritance.
+```json
+{
+    "com.episode6.hackit.chop:chop-core": {
+        "groupId": "com.episode6.hackit.chop",
+        "artifactId": "chop-core",
+        "version": "0.1.9"
+    },
+    "com.episode6.hackit.chop:chop-android": {
+        "groupId": "com.episode6.hackit.chop",
+        "artifactId": "chop-android",
+        "inheritVersion": "com.episode6.hackit.chop:chop-core"
+    },
+    "com.episode6.hackit.chop:chop-junit": {
+        "groupId": "com.episode6.hackit.chop",
+        "artifactId": "chop-junit",
+        "inheritVersion": "com.episode6.hackit.chop:chop-core"
+    },
 }
 ```
 

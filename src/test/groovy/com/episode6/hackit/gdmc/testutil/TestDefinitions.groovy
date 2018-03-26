@@ -21,6 +21,9 @@ id 'io.spring.dependency-management' version '1.0.0.RELEASE'
 import com.episode6.hackit.chop.Chop;
 
 """
+  static final String CHOP_RULE_IMPORT = """
+import com.episode6.hackit.chop.ChopRule;
+"""
   static final String SPOCK_IMPORT = """
 import spock.lang.Specification;
 
@@ -74,7 +77,7 @@ allprojects {
     test.subProject("javalib").with {
       gradleBuildFile << """
 plugins {
-  id 'java'
+  id 'java-library'
   ${opts.includeMaven ? "id 'maven'" : ""}
 ${plugin}
 }
@@ -86,8 +89,8 @@ gdmcLogger {
 }
 
 dependencies {
-   compile 'org.mockito:mockito-core${opts.mockitoVersion ?: ''}'
-   compile 'com.episode6.hackit.chop:chop-core${opts.chopVersion ?: ''}'
+   implementation 'org.mockito:mockito-core${opts.mockitoVersion ?: ''}'
+   implementation 'com.episode6.hackit.chop:chop-core${opts.chopVersion ?: ''}'
 }
 """
       createJavaFile(
@@ -113,9 +116,9 @@ gdmcLogger {
 }
 
 dependencies {
-   compile project(':javalib')
-   compile 'com.episode6.hackit.chop:chop-core${opts.chopVersion ?: ''}'
-   testCompile('org.spockframework:spock-core${opts.spockVersion ?: ''}') {
+   implementation project(':javalib')
+   implementation 'com.episode6.hackit.chop:chop-core${opts.chopVersion ?: ''}'
+   testImplementation('org.spockframework:spock-core${opts.spockVersion ?: ''}') {
     exclude module: 'groovy-all'
   }
 }
