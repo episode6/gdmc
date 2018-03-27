@@ -8,7 +8,6 @@ buildscript {
   }
   repositories {
     jcenter()
-    mavenCentral()
   }
   dependencies {
     classpath 'com.episode6.hackit.deployable:deployable:0.1.7'
