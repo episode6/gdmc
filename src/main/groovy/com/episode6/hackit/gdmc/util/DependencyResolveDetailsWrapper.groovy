@@ -4,6 +4,8 @@ import com.episode6.hackit.gdmc.data.GdmcDependency
 import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ModuleVersionSelector
+import org.gradle.api.artifacts.VersionConstraint
+import org.gradle.api.internal.artifacts.dependencies.DefaultMutableVersionConstraint
 
 /**
  * Wrapper class so we can re-use the logic in VersionMapperAction for maven mappings as well
@@ -81,6 +83,11 @@ class DependencyResolveDetailsWrapper implements DependencyResolveDetails {
     @Override
     String toString() {
       return "${group}:${name}:${version}"
+    }
+
+    @Override
+    VersionConstraint getVersionConstraint() {
+      return new DefaultMutableVersionConstraint(getVersion())
     }
   }
 }
