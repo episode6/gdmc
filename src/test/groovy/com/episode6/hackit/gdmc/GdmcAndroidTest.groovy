@@ -41,11 +41,11 @@ version = '0.0.1-SNAPSHOT'
 
 repositories {
   jcenter()
+  google()
 }
 
 android {
   compileSdkVersion ${opts.compileSdkVersion ?: '19'}
-  buildToolsVersion ${opts.buildToolsVersion ?: '"25.0.2"'} 
 }
 
 android {
@@ -104,10 +104,6 @@ android {
   private static final String VERSION_ONLY_DEPS = """
   "android.compilesdk": {
     "version": "25",
-    "locked": true
-  },
-  "android.buildtools": {
-    "version": "26.0.0",
     "locked": true
   },
 """
@@ -178,7 +174,7 @@ dependencies {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
-  def "test android build using gdmcVersion for buildTools and compileSdk"(String plugin) {
+  def "test android build using gdmcVersion for compileSdk"(String plugin) {
     test.gdmcJsonFile << """
 {
   ${PRE_SET_DEPENDENCIES},
@@ -187,7 +183,6 @@ dependencies {
 """
     test.gradleBuildFile << androidBuildGradle(plugin, [
         compileSdkVersion: "gdmcVersion('android.compilesdk') as Integer",
-        buildToolsVersion: "gdmcVersion('android.buildtools')"
     ])
     test.newFolder("src", "main").newFile("AndroidManifest.xml") << simpleManifest()
 

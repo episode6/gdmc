@@ -13,16 +13,16 @@ import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
 class GdmcAliasTest extends Specification {
 
   private static final String MISMATCHED_DEPENDENCIES = """
-  "chop:core": {
-      "groupId": "com.episode6.hackit.chop",
-      "artifactId": "chop-core",
-      "version": "0.1.9"
-   },
-   "chop:junit": {
-      "groupId": "com.episode6.hackit.chop",
-      "artifactId": "chop-junit",
-      "inheritVersion": "chop:core"
-   },
+    "mockspresso:mockito": {
+        "groupId": "com.episode6.hackit.mockspresso",
+        "artifactId": "mockspresso-mockito",
+        "inheritVersion": "mockspresso:core"
+    },
+    "mockspresso:core": {
+        "groupId": "com.episode6.hackit.mockspresso",
+        "artifactId": "mockspresso-core",
+        "version": "0.0.11"
+    },
    "spock:core": {
      "groupId": "org.spockframework",
      "artifactId": "spock-core",
@@ -33,19 +33,19 @@ class GdmcAliasTest extends Specification {
   private static final String GROUP_ALIAS_DEPENDENCIES = """
   "test:mygroup": {
     "alias": [
-      "chop:core",
-      "chop:junit",
+      "mockspresso:mockito",
+      "mockspresso:core",
       "spock:core"
     ]
   }
 """
 
   private static final String INDIVIDUAL_ALIAS_DEPENDENCIES = """
-  "test:chop": {
-    "alias": "chop:core"
+  "test:mockspresso-mockito": {
+    "alias": "mockspresso:mockito"
   },
-  "test:chop-junit": {
-    "alias": "chop:junit"
+  "test:mockspresso": {
+    "alias": "mockspresso:core"
   },
   "test:spock": {
     "alias": "spock:core"
@@ -73,10 +73,10 @@ dependencies {
   def "test build mismatched direct aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "chop:core", "spock:core", "chop:junit")
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "mockspresso:mockito", "spock:core", "mockspresso:core")
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKSPRESSO_MOCKITO_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: MOCKSPRESSO_CORE_IMPORT)
 
     when:
     def result = test.build("build")
@@ -96,10 +96,10 @@ dependencies {
   def "test upgrade mismatched direct aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "chop:core", "spock:core", "chop:junit")
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "mockspresso:mockito", "spock:core", "mockspresso:core")
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKSPRESSO_MOCKITO_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: MOCKSPRESSO_CORE_IMPORT)
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -107,17 +107,17 @@ dependencies {
     then:
     result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
     with(test.gdmcJsonFile.asJson()) {
-      with(get("chop:core")) {
-        groupId == "com.episode6.hackit.chop"
-        artifactId == "chop-core"
+      with(get("mockspresso:core")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThanEquals("0.1.9")
+        version.asVersion().isGreaterThan("0.0.11")
         get("locked") == null
       }
-      with(get("chop:junit")) {
-        groupId == "com.episode6.hackit.chop"
-        artifactId == "chop-junit"
-        inheritVersion == "chop:core"
+      with(get("mockspresso:mockito")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-mockito"
+        inheritVersion == "mockspresso:core"
         get("version") == null
         get("locked") == null
       }
@@ -142,9 +142,9 @@ dependencies {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}, ${GROUP_ALIAS_DEPENDENCIES}}"
     test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:mygroup")
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKSPRESSO_MOCKITO_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: MOCKSPRESSO_CORE_IMPORT)
 
     when:
     def result = test.build("build")
@@ -165,9 +165,9 @@ dependencies {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}, ${GROUP_ALIAS_DEPENDENCIES}}"
     test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:mygroup")
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKSPRESSO_MOCKITO_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: MOCKSPRESSO_CORE_IMPORT)
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -175,17 +175,17 @@ dependencies {
     then:
     result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
     with(test.gdmcJsonFile.asJson()) {
-      with(get("chop:core")) {
-        groupId == "com.episode6.hackit.chop"
-        artifactId == "chop-core"
+      with(get("mockspresso:core")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThanEquals("0.1.9")
+        version.asVersion().isGreaterThan("0.0.11")
         get("locked") == null
       }
-      with(get("chop:junit")) {
-        groupId == "com.episode6.hackit.chop"
-        artifactId == "chop-junit"
-        inheritVersion == "chop:core"
+      with(get("mockspresso:mockito")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-mockito"
+        inheritVersion == "mockspresso:core"
         get("version") == null
         get("locked") == null
       }
@@ -212,10 +212,10 @@ dependencies {
   def "test build mismatched singular aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}, ${INDIVIDUAL_ALIAS_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:chop", "test:spock", "test:chop-junit")
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:mockspresso", "test:spock", "test:mockspresso-mockito")
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKSPRESSO_MOCKITO_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: MOCKSPRESSO_CORE_IMPORT)
 
     when:
     def result = test.build("build")
@@ -235,10 +235,10 @@ dependencies {
   def "test upgrade mismatched signular aliases"(String plugin, boolean aliasMethodWrap) {
     given:
     test.gdmcJsonFile << "{${MISMATCHED_DEPENDENCIES}, ${INDIVIDUAL_ALIAS_DEPENDENCIES}}"
-    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:chop", "test:spock", "test:chop-junit")
-    test.createJavaFile(packageName: "com.episode6.testproject", imports: CHOP_IMPORT)
+    test.gradleBuildFile << buildFile(plugin, aliasMethodWrap, "test:mockspresso", "test:spock", "test:mockspresso-mockito")
+    test.createJavaFile(packageName: "com.episode6.testproject", imports: MOCKSPRESSO_MOCKITO_IMPORT)
     test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest", imports: SPOCK_IMPORT)
-    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: CHOP_RULE_IMPORT)
+    test.createJavaFile(packageName: "com.episode6.testproject", className: "SampleClassTest2", imports: MOCKSPRESSO_CORE_IMPORT)
 
     when:
     def result = test.build("gdmcUpgrade")
@@ -246,17 +246,17 @@ dependencies {
     then:
     result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
     with(test.gdmcJsonFile.asJson()) {
-      with(get("chop:core")) {
-        groupId == "com.episode6.hackit.chop"
-        artifactId == "chop-core"
+      with(get("mockspresso:core")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-core"
         !version.contains("-SNAPSHOT")
-        version.asVersion().isGreaterThanEquals("0.1.9")
+        version.asVersion().isGreaterThan("0.0.11")
         get("locked") == null
       }
-      with(get("chop:junit")) {
-        groupId == "com.episode6.hackit.chop"
-        artifactId == "chop-junit"
-        inheritVersion == "chop:core"
+      with(get("mockspresso:mockito")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-mockito"
+        inheritVersion == "mockspresso:core"
         get("version") == null
         get("locked") == null
       }
@@ -266,11 +266,11 @@ dependencies {
         !version.contains("-SNAPSHOT")
         version.asVersion().isGreaterThan("1.0-groovy-2.4")
       }
-      with(get("test:chop")) {
-        alias == "chop:core"
+      with(get("test:mockspresso-mockito")) {
+        alias == "mockspresso:mockito"
       }
-      with(get("test:chop-junit")) {
-        alias == "chop:junit"
+      with(get("test:mockspresso")) {
+        alias == "mockspresso:core"
       }
       with(get("test:spock")) {
         alias == "spock:core"

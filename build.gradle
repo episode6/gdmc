@@ -8,16 +8,15 @@ buildscript {
   }
   repositories {
     jcenter()
-    mavenCentral()
   }
   dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.7'
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.10'
     classpath compileDependencies
   }
 }
 
 group = "com.episode6.hackit.gdmc"
-version = "0.1.7"
+version = "0.1.8"
 
 repositories {
   jcenter()
@@ -37,7 +36,7 @@ GroovyScriptEngine scriptEngine = new GroovyScriptEngine([
 apply plugin: scriptEngine.loadScriptByName('com/episode6/hackit/gdmc/plugin/GdmcPlugin.groovy')
 
 task wrapper(type: Wrapper) {
-  gradleVersion = "4.1"
+  gradleVersion = "4.4"
   distributionType = "all"
 }
 

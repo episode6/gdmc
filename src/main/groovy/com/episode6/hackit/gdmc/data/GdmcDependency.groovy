@@ -8,6 +8,8 @@ import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
 import org.gradle.api.artifacts.ModuleVersionSelector
 
+import static com.episode6.hackit.gdmc.util.Assertions.assertOnlyOne
+
 /**
  * Dependency utility object. can represent either a resolved or unresolved dependency
  */
@@ -143,7 +145,7 @@ class GdmcDependency implements Serializable {
     String getVersion() {
       if (inheritedVersionFrom) {
         try {
-          return validateInheritedVersionLookup(
+          return assertOnlyOne(
               dependencyMap.lookupWithOverrides(inheritedVersionFrom)).getVersion()
         } catch (GradleException e) {
           throw new GradleException("Lookup failed for inherited version on key ${getMapKey()}", e)
@@ -158,16 +160,6 @@ class GdmcDependency implements Serializable {
         return true
       }
       return super.getLocked()
-    }
-
-    private static GdmcDependency validateInheritedVersionLookup(List<GdmcDependency> lookupResults) {
-      if (lookupResults.isEmpty()) {
-        throw new GradleException("Lookup results empty, invalid reference")
-      }
-      if (lookupResults.size() > 1) {
-        throw new GradleException("Too many lookup results")
-      }
-      return lookupResults.first()
     }
   }
 }

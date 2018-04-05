@@ -12,6 +12,7 @@ import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.plugins.MavenPlugin
 
+import static com.episode6.hackit.gdmc.util.Assertions.assertOnlyOne
 import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
 
 /**
@@ -60,6 +61,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     project.task("gdmcImportBuildscript", type: GdmcResolveTask) {
       description = "Imports fully-qualified buildscript dependencies from this project into gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
+      useBuildScriptConfig = true
       dependencies = {
         return findExternalBuildscriptDependencies {
           it.version && (overwrite || !dependencyMap.lookupFromSource(it.mapKey))
@@ -99,6 +101,12 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       dependencies = {
         return findExternalDependencies({!it.version}).collectMany {
           return dependencyMap.lookupFromSource(it.mapKey)
+        }.collect {
+          if (it.inheritedVersionFrom) {
+            return assertOnlyOne(dependencyMap.lookupFromSource(it.inheritedVersionFrom))
+          } else {
+            return it
+          }
         }.collect {it.withoutVersion()}
       }
       doLast {
@@ -109,8 +117,17 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     project.task("gdmcUpgradeBuildscript", type: GdmcResolveTask) {
       description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
+      useBuildScriptConfig = true
       dependencies = {
-        return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.mapKey)}).collect {it.withoutVersion()}
+        return findExternalBuildscriptDependencies({
+          dependencyMap.lookupFromSource(it.mapKey)
+        }).collect {
+          if (it.inheritedVersionFrom) {
+            return assertOnlyOne(dependencyMap.lookupFromSource(it.inheritedVersionFrom))
+          } else {
+            return it
+          }
+        }.collect {it.withoutVersion()}
       }
       doLast {
         dependencyMap.applyFile(outputFile)

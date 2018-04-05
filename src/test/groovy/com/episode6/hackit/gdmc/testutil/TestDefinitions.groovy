@@ -33,6 +33,14 @@ import org.mockito.Mockito;
 
 """
 
+  static final String MOCKSPRESSO_MOCKITO_IMPORT = """
+import com.episode6.hackit.mockspresso.mockito.MockitoPlugin;
+"""
+
+  static final String MOCKSPRESSO_CORE_IMPORT = """
+import com.episode6.hackit.mockspresso.BuildMockspresso;
+"""
+
   static final String buildFilePrefix(String plugins, Map opts = [:]) {
     """
 plugins {
