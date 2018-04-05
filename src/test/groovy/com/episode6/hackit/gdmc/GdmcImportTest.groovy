@@ -831,9 +831,9 @@ dependencies {
   }
 
   private static boolean verifySpringPlugin(Object json) {
-    json.get("io.spring.gradle:dependency-management-plugin").with {
-      assert groupId == "io.spring.gradle"
-      assert artifactId == "dependency-management-plugin"
+    json.get("io.spring.dependency-management:io.spring.dependency-management.gradle.plugin").with {
+      assert groupId == "io.spring.dependency-management"
+      assert artifactId == "io.spring.dependency-management.gradle.plugin"
       assert version == "1.0.0.RELEASE"
     }
     return true;

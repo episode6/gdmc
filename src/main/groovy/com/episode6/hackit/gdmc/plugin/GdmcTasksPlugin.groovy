@@ -60,6 +60,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     project.task("gdmcImportBuildscript", type: GdmcResolveTask) {
       description = "Imports fully-qualified buildscript dependencies from this project into gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
+      useBuildScriptConfig = true
       dependencies = {
         return findExternalBuildscriptDependencies {
           it.version && (overwrite || !dependencyMap.lookupFromSource(it.mapKey))
@@ -109,6 +110,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     project.task("gdmcUpgradeBuildscript", type: GdmcResolveTask) {
       description = "Resolves the latest versions of current project dependencies and apply those new versions to gdmc."
       group = GDMC_RESOLVE_TASK_GROUP
+      useBuildScriptConfig = true
       dependencies = {
         return findExternalBuildscriptDependencies({dependencyMap.lookupFromSource(it.mapKey)}).collect {it.withoutVersion()}
       }

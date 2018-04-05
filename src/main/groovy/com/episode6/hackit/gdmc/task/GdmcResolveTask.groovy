@@ -32,6 +32,9 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
   @Input
   boolean resolveTransitive = false
 
+  @Input
+  boolean useBuildScriptConfig = false
+
   @OutputFile @Memoized
   File getOutputFile() {
     return project.file("${project.buildDir}/${name}.json")
@@ -47,8 +50,11 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
         allowSnapshots,
         resolveTransitive)
 
+    def configContainer = useBuildScriptConfig ? project.buildscript.configurations : project.configurations
+    def dependencyContainer = useBuildScriptConfig ? project.buildscript.dependencies : project.dependencies
+
     // create a temporary config to resolve the requested dependencies
-    def config = project.configurations.create("${name}${CONFIG_NAME_SUFFIX}") {
+    def config = configContainer.create("${name}${CONFIG_NAME_SUFFIX}") {
       transitive = resolveTransitive
     }
 
@@ -78,7 +84,7 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
 
       GChop.d("Adding dependency: %s to config: %s", it.mapKey, config.name)
       String notation = it.version ? it.fullMavenKey : "${it.mavenKey}:+"
-      project.dependencies.add(config.name, notation)
+      dependencyContainer.add(config.name, notation)
     }
 
     // collect resolved dependencies into a set
