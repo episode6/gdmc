@@ -92,6 +92,21 @@ class GdmcUpgradeTest extends Specification {
 }
 """
 
+  private static final String INHERITED_DEPS = """
+{
+    "com.episode6.hackit.mockspresso:mockspresso-api": {
+        "groupId": "com.episode6.hackit.mockspresso",
+        "artifactId": "mockspresso-api",
+        "inheritVersion": "com.episode6.hackit.mockspresso:mockspresso-core"
+    },
+    "com.episode6.hackit.mockspresso:mockspresso-core": {
+        "groupId": "com.episode6.hackit.mockspresso",
+        "artifactId": "mockspresso-core",
+        "version": "0.0.11"
+    }
+}
+"""
+
   static final String GDMC_DEPLOYABLE_CONTENTS = """
 {
   "com.episode6.hackit.deployable:deployable": {
@@ -309,6 +324,42 @@ dependencies {
         locked == true
       }
       size() == 5
+    }
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
+  def "test inherited upgrade"(String plugin) {
+    given:
+    test.gdmcJsonFile << INHERITED_DEPS
+    test.gradleBuildFile << buildFilePrefix(plugin)
+    test.gradleBuildFile << """
+dependencies {
+  implementation 'com.episode6.hackit.mockspresso:mockspresso-api'
+}
+"""
+    when:
+    def result = test.build("gdmcUpgrade")
+
+    then:
+    result.task(":gdmcUpgrade").outcome == TaskOutcome.SUCCESS
+    test.gdmcJsonFile.exists()
+    with(test.gdmcJsonFile.asJson()) {
+      with(get("com.episode6.hackit.mockspresso:mockspresso-api")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-api"
+        version == null
+        inheritVersion == "com.episode6.hackit.mockspresso:mockspresso-core"
+      }
+      with(get("com.episode6.hackit.mockspresso:mockspresso-core")) {
+        groupId == "com.episode6.hackit.mockspresso"
+        artifactId == "mockspresso-core"
+        version.asVersion().isGreaterThan("0.0.11")
+      }
+      size() == 2
     }
 
     where:
