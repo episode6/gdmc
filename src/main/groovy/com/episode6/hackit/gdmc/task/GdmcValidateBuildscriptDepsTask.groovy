@@ -60,9 +60,8 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
         errors.put(it, "mapped as alias to ${mappedDeps}")
       }
 
-      String mappedVersion = mappedDeps.get(0).version
-      if (mappedVersion != it.version) {
-        errors.put(it, "mapped to version ${mappedVersion}")
+      if (!mappedDeps.get(0).matches(it)) {
+        errors.put(it, "mapped to ${mappedDeps.get(0).getFullMavenKey()}")
       }
     }
 

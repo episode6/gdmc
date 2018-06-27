@@ -58,6 +58,11 @@ class GdmcDependency implements Serializable {
   Boolean locked
   String mapKey
 
+  boolean matches(GdmcDependency otherDep) {
+    return getFullMavenKey().equals(otherDep.getFullMavenKey())
+  }
+
+
   boolean isMappedToMavenKey() {
     if (alias) {
       return false;

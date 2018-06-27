@@ -112,7 +112,7 @@ repositories {
 
     then:
     result.task(":gdmcValidateBuildscriptDeps").outcome == TaskOutcome.FAILED
-    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to version 0.1.5")
+    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to com.episode6.hackit.deployable:deployable:0.1.5")
 
     where:
     plugin                      | _
@@ -131,8 +131,8 @@ repositories {
 
     then:
     result.task(":gdmcValidateBuildscriptDeps").outcome == TaskOutcome.FAILED
-    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to version 0.1.5")
-    result.output.contains("Mismatched dependency: com.episode6.hackit.chop:chop-core:0.1.7, reason: mapped to version 0.1.8")
+    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to com.episode6.hackit.deployable:deployable:0.1.5")
+    result.output.contains("Mismatched dependency: com.episode6.hackit.chop:chop-core:0.1.7, reason: mapped to com.episode6.hackit.chop:chop-core:0.1.8")
 
     where:
     plugin                      | _
@@ -219,7 +219,7 @@ buildscript {
     then:
     result.task(":groovylib:gdmcValidateBuildscriptDeps")?.outcome == TaskOutcome.FAILED ||
         result.task(":javalib:gdmcValidateBuildscriptDeps")?.outcome == TaskOutcome.FAILED
-    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to version 0.1.5")
+    result.output.contains("Mismatched dependency: com.episode6.hackit.deployable:deployable:0.1.2, reason: mapped to com.episode6.hackit.deployable:deployable:0.1.5")
 
     where:
     plugin                      | _

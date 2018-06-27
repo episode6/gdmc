@@ -238,6 +238,29 @@ gdmcValidateSelf {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  def "test validateSelf single-project success with inheritVersion"(String plugin) {
+    given:
+    test.name = "sample-proj"
+    test.gradleBuildFile << buildFilePrefix(plugin, [version: "0.0.1", includeMaven: true])
+    test.gdmcJsonFile << """
+{
+${singleProjectGdmc(packageName: "com.example.testproject", name: "otherlib", version: "0.0.1")},
+${singleProjectGdmc(packageName: "com.example.testproject", name: "sample-proj", inheritVersion: "com.example.testproject:otherlib")}
+}
+"""
+
+    when:
+    def result = test.build("gdmcValidateSelf")
+
+    then:
+    result.task(":gdmcValidateSelf").outcome == TaskOutcome.SUCCESS
+
+    where:
+    plugin                      | _
+    GDMC_PLUGIN                 | _
+    GDMC_SPRINGS_COMPAT_PLUGIN  | _
+  }
+
   def "test validateSelf single-project success thanks to overrides"(String plugin) {
     given:
     test.name = "sample-proj"
