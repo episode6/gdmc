@@ -1,10 +1,7 @@
 package com.episode6.hackit.gdmc.util
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
-import org.gradle.api.artifacts.DependencyResolveDetails
-import org.gradle.api.artifacts.ModuleVersionIdentifier
-import org.gradle.api.artifacts.ModuleVersionSelector
-import org.gradle.api.artifacts.VersionConstraint
+import org.gradle.api.artifacts.*
 import org.gradle.api.internal.artifacts.dependencies.DefaultMutableVersionConstraint
 
 /**
@@ -52,6 +49,11 @@ class DependencyResolveDetailsWrapper implements DependencyResolveDetails {
   }
 
   @Override
+  DependencyResolveDetails because(String reason) {
+    return this
+  }
+
+  @Override
   String toString() {
     return moduleVersionSelector.toString()
   }
@@ -88,6 +90,24 @@ class DependencyResolveDetailsWrapper implements DependencyResolveDetails {
     @Override
     VersionConstraint getVersionConstraint() {
       return new DefaultMutableVersionConstraint(getVersion())
+    }
+
+    @Override
+    ModuleIdentifier getModule() {
+      return new ModuleIdentifierWrapper()
+    }
+  }
+
+  class ModuleIdentifierWrapper implements ModuleIdentifier {
+
+    @Override
+    String getGroup() {
+      return dependencyDelegate.groupId
+    }
+
+    @Override
+    String getName() {
+      return dependencyDelegate.artifactId
     }
   }
 }
