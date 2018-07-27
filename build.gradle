@@ -8,9 +8,12 @@ buildscript {
   }
   repositories {
     jcenter()
+    maven {
+      url "https://oss.sonatype.org/content/repositories/snapshots/"
+    }
   }
   dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.12'
+    classpath 'com.episode6.hackit.deployable:deployable:0.1.13-SNAPSHOT'
     classpath compileDependencies
   }
 }
@@ -67,10 +70,6 @@ dependencies {
 // Add our alsoUnderTest dependencies to GradleRunner's plugin classpath
 pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
-}
-
-mavenDependencies {
-  map configurations.alsoUnderTest, "test"
 }
 
 test {

@@ -59,8 +59,8 @@ deployable {
   nexus {
     username "nexusUsername"
     password "nexusPassword"
-    snapshotRepoUrl "file://localhost${opts.repoFile?.absolutePath}"
-    releaseRepoUrl "file://localhost${opts.repoFile?.absolutePath}"
+    snapshotRepoUrl "file://${opts.repoFile?.absolutePath}"
+    releaseRepoUrl "file://${opts.repoFile?.absolutePath}"
   }
 }
 
