@@ -11,7 +11,7 @@ node {
     gradleRunner = fileLoader.fromGit(
         'gradle/GradleRunner',
         'git@github.com:episode6/jenkins-pipelines.git',
-        'feature/force-deploy', //''v0.0.7',
+        'v0.0.8',
         null,
         '')
   }
