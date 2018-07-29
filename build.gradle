@@ -8,9 +8,7 @@ buildscript {
   }
   repositories {
     jcenter()
-    maven {
-      url "https://oss.sonatype.org/content/repositories/snapshots/"
-    }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
   }
   dependencies {
     classpath 'com.episode6.hackit.deployable:deployable:0.2.0-SNAPSHOT'
@@ -24,6 +22,7 @@ version = "0.1.10-SNAPSHOT"
 repositories {
   jcenter()
   google()
+  maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
 }
 
 apply plugin: 'groovy'
@@ -63,7 +62,7 @@ dependencies {
   testImplementation 'com.episode6.hackit.groovykit:gk-files'
   testImplementation 'com.episode6.hackit.groovykit:gk-versions'
 
-  alsoUnderTest 'com.episode6.hackit.deployable:deployable'
+  alsoUnderTest 'com.episode6.hackit.deployable:deployable:0.2.0-SNAPSHOT'
   alsoUnderTest 'com.android.tools.build:gradle'
 }
 
