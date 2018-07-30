@@ -10,7 +10,6 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ExternalDependency
-import org.gradle.api.plugins.MavenPlugin
 
 import static com.episode6.hackit.gdmc.util.Assertions.assertOnlyOne
 import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
@@ -190,16 +189,6 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
           }
         }
       })
-
-      if (project.plugins.findPlugin(MavenPlugin)) {
-        MavenConfigurationAction mavenConfigurationAction = new MavenConfigurationAction(project: project)
-        project.tasks.findByPath("uploadArchives")?.repositories {
-          mavenDeployer.pom.whenConfigured(mavenConfigurationAction)
-        }
-        project.tasks.findByPath("install")?.repositories {
-          mavenInstaller.pom.whenConfigured(mavenConfigurationAction)
-        }
-      }
     }
   }
 

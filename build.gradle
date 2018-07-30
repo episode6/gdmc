@@ -10,7 +10,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.episode6.hackit.deployable:deployable:0.1.12'
+    classpath 'com.episode6.hackit.deployable:deployable:0.2.0'
     classpath compileDependencies
   }
 }
@@ -35,8 +35,8 @@ GroovyScriptEngine scriptEngine = new GroovyScriptEngine([
     this.class.classLoader)
 apply plugin: scriptEngine.loadScriptByName('com/episode6/hackit/gdmc/plugin/GdmcPlugin.groovy')
 
-task wrapper(type: Wrapper) {
-  gradleVersion = "4.4"
+wrapper {
+  gradleVersion = "4.9"
   distributionType = "all"
 }
 
@@ -67,10 +67,6 @@ dependencies {
 // Add our alsoUnderTest dependencies to GradleRunner's plugin classpath
 pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
-}
-
-mavenDependencies {
-  map configurations.alsoUnderTest, "test"
 }
 
 test {
