@@ -16,9 +16,9 @@ class GdmcDeployableTest extends Specification {
 
   private static String deployableBuildGradle(String plugin, Map opts = [:]) {
     String deps = opts.deps ?: """
-   compile 'org.mockito:mockito-core'
-   compile 'com.episode6.hackit.chop:chop-core'
-   compile 'com.episode6.hackit.chop:chop-junit'
+   api 'org.mockito:mockito-core'
+   api 'com.episode6.hackit.chop:chop-core'
+   api 'com.episode6.hackit.chop:chop-junit'
 """
     return """
 buildscript {
@@ -29,7 +29,7 @@ buildscript {
 }
 
 plugins {
-id 'java'
+id 'java-library'
 id 'com.episode6.hackit.deployable.jar'
 ${plugin}
 }
@@ -59,8 +59,8 @@ deployable {
   nexus {
     username "nexusUsername"
     password "nexusPassword"
-    snapshotRepoUrl "file://localhost${opts.repoFile?.absolutePath}"
-    releaseRepoUrl "file://localhost${opts.repoFile?.absolutePath}"
+    snapshotRepoUrl "file://${opts.repoFile?.absolutePath}"
+    releaseRepoUrl "file://${opts.repoFile?.absolutePath}"
   }
 }
 
@@ -128,7 +128,7 @@ ${deps}
     def result = test.build("deploy")
 
     then:
-    result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
+    result.task(":deploy").outcome == TaskOutcome.SUCCESS
     commonVerify(mavenOutputVerifier)
 
     where:
@@ -144,7 +144,7 @@ ${deps}
     MavenOutputVerifier mavenOutputVerifier = commonSetup(repoFile: snapshotRepo)
     test.gradleBuildFile << deployableBuildGradle(plugin, [
         repoFile: snapshotRepo,
-        deps: "compile gdmc('myAlias')"])
+        deps: "api gdmc('myAlias')"])
     test.gdmcJsonFile << """
 {
   "myAlias": {
@@ -160,7 +160,7 @@ ${GDMC_CONTENTS}
     def result = test.build("deploy")
 
     then:
-    result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
+    result.task(":deploy").outcome == TaskOutcome.SUCCESS
     commonVerify(mavenOutputVerifier)
 
     where:
@@ -176,7 +176,7 @@ ${GDMC_CONTENTS}
     MavenOutputVerifier mavenOutputVerifier = commonSetup(repoFile: snapshotRepo)
     test.gradleBuildFile << deployableBuildGradle(plugin, [
         repoFile: snapshotRepo,
-        deps: "compile 'namespaced:alias'"])
+        deps: "api 'namespaced:alias'"])
     test.gdmcJsonFile << """
 {
   "namespaced:alias": {
@@ -192,7 +192,7 @@ ${GDMC_CONTENTS}
     def result = test.build("deploy")
 
     then:
-    result.task(":uploadArchives").outcome == TaskOutcome.SUCCESS
+    result.task(":deploy").outcome == TaskOutcome.SUCCESS
     commonVerify(mavenOutputVerifier)
 
     where:
