@@ -25,6 +25,10 @@ class GdmcValidateDepsTask extends DefaultTask implements VerificationTask, HasP
 
   @Input boolean ignoreFailures = false
 
+  @Input boolean ignoreSnapshots = false
+
+  @Input boolean ignoreDynamicVersions = false
+
   @Input Closure<Collection<Dependency>> dependencies
 
   @TaskAction
@@ -49,7 +53,9 @@ class GdmcValidateDepsTask extends DefaultTask implements VerificationTask, HasP
   private void performValidation() {
     Map<GdmcDependency, String> errors = new HashMap<>();
 
-        dependencies.call().findAll {it instanceof ExternalDependency && it.version != "+" && !it.version.contains("SNAPSHOT")}
+        dependencies.call().findAll {it instanceof ExternalDependency }
+        .findAll { !ignoreDynamicVersions || (!it.version.endsWith("+") && !it.version.endsWith("*")) }
+        .findAll { !ignoreSnapshots || !it.version.contains("SNAPSHOT") }
         .collect {GdmcDependency.from(it)}
         .each {
       List<GdmcDependency> mappedDeps = dependencyMap.lookupWithOverrides(it.mapKey)

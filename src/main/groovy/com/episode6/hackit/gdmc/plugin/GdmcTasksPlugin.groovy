@@ -166,6 +166,8 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       dependencies = {
         (project.buildscript.configurations + project.rootProject.buildscript.configurations).collectMany {it.dependencies}
       }
+      ignoreSnapshots = true
+      ignoreDynamicVersions = true
     }
 
     project.afterEvaluate {
