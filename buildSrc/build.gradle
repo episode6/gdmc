@@ -1,0 +1,8 @@
+repositories {
+    jcenter()
+}
+
+apply plugin: 'groovy'
+
+// apply project dependencies from shared file
+apply from: '../project-dependencies.gradle'
