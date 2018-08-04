@@ -1,22 +1,19 @@
 buildscript {
-  ext {
-    // Since this plugin implements itself, we must declare our compile dependencies on the classpath.
-    // Define them here so we don't write them twice.
-    compileDependencies = [
-        'com.episode6.hackit.chop:chop-core:0.1.9',
-        'com.episode6.hackit.chop:chop-groovy:0.1.9']
-  }
   repositories {
     jcenter()
   }
   dependencies {
     classpath 'com.episode6.hackit.deployable:deployable:0.2.1'
-    classpath compileDependencies
   }
 }
 
 group = "com.episode6.hackit.gdmc"
 version = "0.1.11-SNAPSHOT"
+
+wrapper {
+  gradleVersion = "4.9"
+  distributionType = "all"
+}
 
 repositories {
   jcenter()
@@ -25,18 +22,10 @@ repositories {
 
 apply plugin: 'groovy'
 apply plugin: 'com.episode6.hackit.deployable.gradle-plugin'
+apply plugin: com.episode6.hackit.gdmc.plugin.GdmcPlugin
 
-GroovyScriptEngine scriptEngine = new GroovyScriptEngine([
-    file('src/main/groovy').absolutePath,
-    file('src/main/resources').absolutePath
-].toArray(new String[2]),
-    this.class.classLoader)
-apply plugin: scriptEngine.loadScriptByName('com/episode6/hackit/gdmc/plugin/GdmcPlugin.groovy')
-
-wrapper {
-  gradleVersion = "4.9"
-  distributionType = "all"
-}
+// The plugin source code lives in 'buildSrc' so that we may apply it to ourselves to resolve test dependencies
+sourceSets.main.groovy.srcDirs += 'buildSrc/src/main/groovy'
 
 configurations {
   // A place for dependencies that must be placed in the pluginClasspath for testing
@@ -45,11 +34,12 @@ configurations {
   alsoUnderTest
 }
 
+// apply project dependencies from shared file
+apply from: 'project-dependencies.gradle'
+
 dependencies {
   implementation localGroovy()
   implementation gradleApi()
-
-  implementation compileDependencies
 
   testImplementation("org.spockframework:spock-core")  {
     exclude module: 'groovy-all'
@@ -67,8 +57,16 @@ pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
 }
 
+// validate project dependencies that we can't use gdmc to resolve
+task validateImplDeps(type: com.episode6.hackit.gdmc.task.GdmcValidateDepsTask) {
+  dependencies = {
+    configurations.implementation.dependencies
+  }
+}
+
 test {
   testLogging {
     showStandardStreams = true
   }
+  dependsOn validateImplDeps
 }
