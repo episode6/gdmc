@@ -57,8 +57,15 @@ pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
 }
 
+task validateImplDeps(type: com.episode6.hackit.gdmc.task.GdmcValidateDepsTask) {
+  dependencies = {
+    configurations.implementation.dependencies
+  }
+}
+
 test {
   testLogging {
     showStandardStreams = true
   }
+  dependsOn validateImplDeps
 }
