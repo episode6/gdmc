@@ -1,7 +1,7 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
-import com.episode6.hackit.gdmc.exception.GdmcBuildscriptDependencyMismatchException
+import com.episode6.hackit.gdmc.exception.GdmcDependencyMismatchException
 import com.episode6.hackit.gdmc.util.HasProjectTrait
 import org.gradle.api.DefaultTask
 import org.gradle.api.artifacts.ExternalDependency
@@ -34,7 +34,7 @@ class GdmcValidateDepsTask extends DefaultTask implements VerificationTask, HasP
 
     try {
       performValidation()
-    } catch (GdmcBuildscriptDependencyMismatchException e) {
+    } catch (GdmcDependencyMismatchException e) {
       if (ignoreFailures) {
         GChop.e(e, "Buildscript Validation Failed")
       } else {
@@ -66,7 +66,7 @@ class GdmcValidateDepsTask extends DefaultTask implements VerificationTask, HasP
     }
 
     if (!errors.isEmpty()) {
-      throw new GdmcBuildscriptDependencyMismatchException(errors);
+      throw new GdmcDependencyMismatchException(errors);
     }
   }
 }
