@@ -1,10 +1,9 @@
 # ChangeLog
 
 ### v0.1.11-SNAPSHOT - unreleased
-
+ - Rename `GdmcValidateBuildscriptDepsTask` -> `GdmcValidateDepsTask` and take a collection of `Dependencies` as input.
 
 ### v0.1.10-SNAPSHOT - July 29th, 2018
->>>>>>> release/v0.1.10
  - Upgrade gradle 4.4 -> 4.9
  - Upgrade deployable 0.1.12 -> 0.2.0
  - remove support for old `maven` plugin

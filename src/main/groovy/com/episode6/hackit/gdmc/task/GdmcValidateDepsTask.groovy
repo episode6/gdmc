@@ -1,9 +1,10 @@
 package com.episode6.hackit.gdmc.task
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
-import com.episode6.hackit.gdmc.exception.GdmcBuildscriptDependencyMismatchException
+import com.episode6.hackit.gdmc.exception.GdmcDependencyMismatchException
 import com.episode6.hackit.gdmc.util.HasProjectTrait
 import org.gradle.api.DefaultTask
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ExternalDependency
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
@@ -18,11 +19,17 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
  * we validate that the versions match. While this isn't as nice as automatically mapping the versions
  * for you, it should help ensure your buildscript dependencies stay up to date when sharing a gdmc file.
  */
-class GdmcValidateBuildscriptDepsTask extends DefaultTask implements VerificationTask, HasProjectTrait {
+class GdmcValidateDepsTask extends DefaultTask implements VerificationTask, HasProjectTrait {
 
   @Input Closure<Boolean> required = {true}
 
   @Input boolean ignoreFailures = false
+
+  @Input boolean ignoreSnapshots = false
+
+  @Input boolean ignoreDynamicVersions = false
+
+  @Input Closure<Collection<Dependency>> dependencies
 
   @TaskAction
   def validate() {
@@ -34,7 +41,7 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
 
     try {
       performValidation()
-    } catch (GdmcBuildscriptDependencyMismatchException e) {
+    } catch (GdmcDependencyMismatchException e) {
       if (ignoreFailures) {
         GChop.e(e, "Buildscript Validation Failed")
       } else {
@@ -46,9 +53,9 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
   private void performValidation() {
     Map<GdmcDependency, String> errors = new HashMap<>();
 
-    (project.buildscript.configurations + project.rootProject.buildscript.configurations)
-        .collectMany {it.dependencies}
-        .findAll {it instanceof ExternalDependency && it.version != "+" && !it.version.contains("SNAPSHOT")}
+        dependencies.call().findAll {it instanceof ExternalDependency }
+        .findAll { !ignoreDynamicVersions || (!it.version.endsWith("+") && !it.version.endsWith("*")) }
+        .findAll { !ignoreSnapshots || !it.version.contains("SNAPSHOT") }
         .collect {GdmcDependency.from(it)}
         .each {
       List<GdmcDependency> mappedDeps = dependencyMap.lookupWithOverrides(it.mapKey)
@@ -66,7 +73,7 @@ class GdmcValidateBuildscriptDepsTask extends DefaultTask implements Verificatio
     }
 
     if (!errors.isEmpty()) {
-      throw new GdmcBuildscriptDependencyMismatchException(errors);
+      throw new GdmcDependencyMismatchException(errors);
     }
   }
 }
