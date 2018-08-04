@@ -163,6 +163,9 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
     project.task("gdmcValidateBuildscriptDeps", type: GdmcValidateDepsTask) {
       description = "Verifies that any buildscript dependencies that are mapped in gdmc have the correct mapped versions."
       group = VERIFICATION_TASK_GROUP
+      dependencies = {
+        (project.buildscript.configurations + project.rootProject.buildscript.configurations).collectMany {it.dependencies}
+      }
     }
 
     project.afterEvaluate {
