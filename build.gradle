@@ -57,6 +57,7 @@ pluginUnderTestMetadata {
   pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
 }
 
+// validate project dependencies that we can't use gdmc to resolve
 task validateImplDeps(type: com.episode6.hackit.gdmc.task.GdmcValidateDepsTask) {
   dependencies = {
     configurations.implementation.dependencies
