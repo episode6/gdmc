@@ -18,7 +18,7 @@ import static com.episode6.hackit.gdmc.util.GdmcLogger.GChop
  * we validate that the versions match. While this isn't as nice as automatically mapping the versions
  * for you, it should help ensure your buildscript dependencies stay up to date when sharing a gdmc file.
  */
-class GdmcValidateBuildscriptDepsTask extends DefaultTask implements VerificationTask, HasProjectTrait {
+class GdmcValidateDepsTask extends DefaultTask implements VerificationTask, HasProjectTrait {
 
   @Input Closure<Boolean> required = {true}
 

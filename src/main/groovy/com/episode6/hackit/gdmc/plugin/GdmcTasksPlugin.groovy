@@ -2,7 +2,7 @@ package com.episode6.hackit.gdmc.plugin
 
 import com.episode6.hackit.gdmc.data.GdmcDependency
 import com.episode6.hackit.gdmc.task.GdmcResolveTask
-import com.episode6.hackit.gdmc.task.GdmcValidateBuildscriptDepsTask
+import com.episode6.hackit.gdmc.task.GdmcValidateDepsTask
 import com.episode6.hackit.gdmc.task.GdmcValidateSelfTask
 import com.episode6.hackit.gdmc.util.*
 import org.gradle.api.Action
@@ -160,7 +160,7 @@ class GdmcTasksPlugin implements Plugin<Project>, HasProjectTrait {
       group = VERIFICATION_TASK_GROUP
     }
 
-    project.task("gdmcValidateBuildscriptDeps", type: GdmcValidateBuildscriptDepsTask) {
+    project.task("gdmcValidateBuildscriptDeps", type: GdmcValidateDepsTask) {
       description = "Verifies that any buildscript dependencies that are mapped in gdmc have the correct mapped versions."
       group = VERIFICATION_TASK_GROUP
     }
