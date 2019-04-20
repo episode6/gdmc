@@ -1,4 +1,4 @@
-def chopVersion = '0.1.9'
+def chopVersion = '0.1.10'
 dependencies {
   implementation "com.episode6.hackit.chop:chop-core:$chopVersion"
   implementation "com.episode6.hackit.chop:chop-groovy:$chopVersion"
