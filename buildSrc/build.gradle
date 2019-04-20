@@ -1,0 +1,6 @@
+repositories {
+    jcenter()
+}
+
+// apply project dependencies from shared file
+apply from: '../project-dependencies.gradle'

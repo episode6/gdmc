@@ -8,9 +8,9 @@ See our [project goals](#gdmc-goals) for more.
 Add gdmc to your buildscript dependencies...
 ```groovy
 buildscript {
-  jcenter()
+  repositories { jcenter() }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.10'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.11'
   }
 }
 ```
