@@ -11,7 +11,7 @@ group = "com.episode6.hackit.gdmc"
 version = "0.1.11-SNAPSHOT"
 
 wrapper {
-  gradleVersion = "4.9"
+  gradleVersion = "5.1.1"
   distributionType = "all"
 }
 
@@ -52,9 +52,20 @@ dependencies {
   alsoUnderTest 'com.android.tools.build:gradle'
 }
 
-// Add our alsoUnderTest dependencies to GradleRunner's plugin classpath
-pluginUnderTestMetadata {
-  pluginClasspath = pluginClasspath.plus(configurations.alsoUnderTest)
+sourceSets {
+  // an alternate reality version of the main sourceSet with the 
+  // alsoUnderTest config included on the runtimeClasspath. 
+  // This hack allows us to test our plugin along side other plugins
+  // that aren't actually part of the build (but we want to ensure)
+  // compatibility with.
+  codeUnderTest {
+    compileClasspath += sourceSets.main.output 
+    runtimeClasspath += sourceSets.main.runtimeClasspath + configurations.alsoUnderTest
+  }
+}
+
+gradlePlugin {
+    pluginSourceSet sourceSets.codeUnderTest
 }
 
 // validate project dependencies that we can't use gdmc to resolve
