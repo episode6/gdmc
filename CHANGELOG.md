@@ -1,6 +1,6 @@
 # ChangeLog
 
-### v0.1.11-SNAPSHOT - unreleased
+### v0.1.11 - April 20th, 2019
  - Rename `GdmcValidateBuildscriptDepsTask` -> `GdmcValidateDepsTask` and take a collection of `Dependencies` as input.
  - Upgrade gradle 4.9 -> 5.1.1
  - Use slf4j under the hood for gdmc logging
