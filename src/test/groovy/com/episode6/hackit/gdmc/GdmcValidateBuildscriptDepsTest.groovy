@@ -162,8 +162,8 @@ repositories {
   def "test validate passes using snapshot"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFile(plugin, [deployableVersion: "0.1.4-SNAPSHOT"])
-    test.gdmcJsonFile << gdmcContents("0.1.5")
+    test.gradleBuildFile << buildFile(plugin, [deployableVersion: "0.2.4-SNAPSHOT"])
+    test.gdmcJsonFile << gdmcContents("0.2.5")
 
     when:
     def result = test.build("gdmcValidateBuildscriptDeps")

@@ -19,6 +19,7 @@ trait GradleTestProject {
     name = root.name
     gradleBuildFile = root.newFile("build.gradle")
     settingsGradleFile = root.newFile("settings.gradle")
+    root.newFile("local.properties") << new File("./local.properties").text
   }
 
   BuildResult build(String... argument) {
