@@ -57,7 +57,7 @@ ${buildFilePrefix(plugins, opts)}
 }
 """
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test import from nothing"(String plugin) {
     given:

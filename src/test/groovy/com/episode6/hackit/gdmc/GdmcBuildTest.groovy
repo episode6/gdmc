@@ -42,7 +42,7 @@ class GdmcBuildTest extends Specification {
    }
 """
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
 
   def "test resolve pre-set dependencies simple"(String plugin) {

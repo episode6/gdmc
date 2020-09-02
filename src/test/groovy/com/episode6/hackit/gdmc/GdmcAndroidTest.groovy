@@ -108,7 +108,7 @@ android {
   },
 """
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test android with alias"(String plugin) {
     given:

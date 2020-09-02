@@ -64,7 +64,7 @@ repositories {
    }
 """
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test validate passes when unmapped"(String plugin) {
     given:
