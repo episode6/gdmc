@@ -27,6 +27,7 @@ jobs:
       - run: git submodule update --init
       - run: yes | sdkmanager --licenses || exit 0
       - run: yes | sdkmanager --update || exit 0
+      - run: cp local.properties.ci local.properties
       - run: ./gradlew assemble
       - run: ./gradlew check
       - run:
