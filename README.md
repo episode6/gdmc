@@ -10,7 +10,7 @@ Add gdmc to your buildscript dependencies...
 buildscript {
   repositories { jcenter() }
   dependencies {
-    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.11'
+    classpath 'com.episode6.hackit.gdmc:gdmc:0.1.12'
   }
 }
 ```

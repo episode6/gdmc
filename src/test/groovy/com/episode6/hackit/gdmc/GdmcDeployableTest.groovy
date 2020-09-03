@@ -99,7 +99,7 @@ ${deps}
    }
 """
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   private MavenOutputVerifier commonSetup(Map opts = [:]) {
     GradleTestProject testProject = opts.testProject ?: test

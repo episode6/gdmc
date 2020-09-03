@@ -132,7 +132,7 @@ ${buildFilePrefix(plugins, opts)}
 """
   }
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test single-project upgrade"(String plugin) {
     given:

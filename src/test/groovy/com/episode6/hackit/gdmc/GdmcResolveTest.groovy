@@ -12,7 +12,7 @@ import static com.episode6.hackit.gdmc.testutil.TestDefinitions.*
  */
 class GdmcResolveTest extends Specification {
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test resolve missing dependencies"(String plugin) {
     given:

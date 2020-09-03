@@ -37,7 +37,7 @@ ${singleProjectGdmc(packageName: "com.example", name: "groovylib", version: vers
 """
   }
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test importSelf single-project"(String plugin) {
     given:

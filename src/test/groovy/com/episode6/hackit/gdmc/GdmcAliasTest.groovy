@@ -68,7 +68,7 @@ dependencies {
     return prefix
   }
 
-  @Rule final IntegrationTest test = new IntegrationTest()
+  @Rule IntegrationTest test = new IntegrationTest()
 
   def "test build mismatched direct aliases"(String plugin, boolean aliasMethodWrap) {
     given:
