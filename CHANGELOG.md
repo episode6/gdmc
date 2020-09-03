@@ -3,6 +3,10 @@
 ### v0.1.13-SNAPSHOT - unreleased
 
 
+### v0.1.12-SNAPSHOT - September 2nd, 2020
+- Upgrade gradle 5.1.1 -> 5.3
+- Fix tests in circle ci
+
 ### v0.1.11 - April 20th, 2019
  - Rename `GdmcValidateBuildscriptDepsTask` -> `GdmcValidateDepsTask` and take a collection of `Dependencies` as input.
  - Upgrade gradle 4.9 -> 5.1.1
