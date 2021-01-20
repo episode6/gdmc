@@ -62,9 +62,9 @@ class GdmcResolveTask extends DefaultTask implements HasProjectTrait {
     if (!allowSnapshots) {
       config.resolutionStrategy { resolutionStrategy ->
         resolutionStrategy.componentSelection { rules ->
-          rules.all { ComponentSelection selection, ComponentMetadata metadata ->
-            if (metadata.status == 'integration') {
-              selection.reject("Component status ${metadata.status} rejected")
+          rules.all { ComponentSelection selection ->
+            if (selection.metadata.status == 'integration') {
+              selection.reject("Component status ${selection.metadata.status} rejected")
             }
           }
         }
