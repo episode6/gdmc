@@ -19,6 +19,7 @@ wrapper {
 repositories {
   jcenter()
   google()
+  mavenLocal()
 }
 
 apply plugin: 'groovy'
@@ -49,7 +50,7 @@ dependencies {
   testImplementation 'com.episode6.hackit.groovykit:gk-files'
   testImplementation 'com.episode6.hackit.groovykit:gk-versions'
 
-  alsoUnderTest 'com.episode6.hackit.deployable:deployable'
+  alsoUnderTest 'com.episode6.hackit.deployable:deployable:0.2.5-SNAPSHOT'
   alsoUnderTest 'com.android.tools.build:gradle'
 }
 

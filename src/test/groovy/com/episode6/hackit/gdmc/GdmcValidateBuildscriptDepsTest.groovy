@@ -159,11 +159,12 @@ repositories {
     GDMC_SPRINGS_COMPAT_PLUGIN  | _
   }
 
+  // FLAKY TEST: snapshots expire so this eventually starts failing when the defined snapshot is no longer available
   def "test validate passes using snapshot"(String plugin) {
     given:
     test.name = "sample-proj"
-    test.gradleBuildFile << buildFile(plugin, [deployableVersion: "0.2.4-SNAPSHOT"])
-    test.gdmcJsonFile << gdmcContents("0.2.5")
+    test.gradleBuildFile << buildFile(plugin, [deployableVersion: "0.2.5-SNAPSHOT"])
+    test.gdmcJsonFile << gdmcContents("0.2.6")
 
     when:
     def result = test.build("gdmcValidateBuildscriptDeps")
