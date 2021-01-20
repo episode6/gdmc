@@ -2,7 +2,7 @@ package com.episode6.hackit.gdmc.data
 
 import groovy.transform.EqualsAndHashCode
 import org.gradle.api.GradleException
-import org.gradle.api.Nullable
+import javax.annotation.Nullable
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.ModuleVersionIdentifier
